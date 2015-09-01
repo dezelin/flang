@@ -15,4 +15,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wpedantic -Wall -Wextra")
 #    set(CMAKE_VERBOSE_MAKEFILE 0)
 #endif()
 
-add_subdirectory(flang-backend-llvm)
+add_subdirectory(flang-llvm)
+add_subdirectory(flang-runtime-llvm)
+add_subdirectory(ocaml-llvm)

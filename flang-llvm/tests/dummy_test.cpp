@@ -27,12 +27,15 @@
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
 
+
 #include <boost/test/unit_test.hpp>
+
 
 BOOST_AUTO_TEST_SUITE(DummyTest)
 
-    BOOST_AUTO_TEST_CASE(PassTest) {
-        BOOST_CHECK_EQUAL(4, 4);
-    }
+BOOST_AUTO_TEST_CASE(PassTest)
+{
+    BOOST_CHECK_EQUAL(4, 4);
+}
 
 BOOST_AUTO_TEST_SUITE_END()
