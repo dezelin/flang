@@ -13,6 +13,17 @@ add_definitions(${LLVM_DEFINITIONS})
 # that we wish to use
 llvm_map_components_to_libnames(llvm_libs support core irreader)
 
+find_package(Boost 1.55 REQUIRED)
+if (NOT Boost_FOUND)
+    message(FATAL_ERROR "Couldn't find Boost Spirit Parser framework")
+endif ()
+
+include_directories(${Boost_INCLUDE_DIRS})
+link_directories(${Boost_LIBRARY_DIRS})
+
+include_directories(include)
+
+set(HEADER_FILES include/ocamllexer.h)
 set(SOURCE_FILES src/dummy.cpp)
 add_library(ocaml-llvm SHARED ${SOURCE_FILES})
 
