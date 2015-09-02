@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.3)
 project(ocaml-llvm)
 
-find_package(LLVM 3.6.0 REQUIRED CONFIG)
+find_package(LLVM REQUIRED)
 if (NOT LLVM_FOUND)
     message(FATAL_ERROR "Couldn't find LLVM librarires")
 endif ()
