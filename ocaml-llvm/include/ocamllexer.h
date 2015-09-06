@@ -26,8 +26,9 @@
 #ifndef FLANG_OCAMLLEXER_H
 #define FLANG_OCAMLLEXER_H
 
-// #define BOOST_SPIRIT_LEXERTL_DEBUG
+//#define BOOST_SPIRIT_LEXERTL_DEBUG
 
+#include <boost/phoenix/statement/if.hpp>
 #include <boost/spirit/include/lex_lexertl.hpp>
 
 #include <string>
@@ -37,6 +38,7 @@ namespace ocaml
 namespace lexer
 {
 
+using namespace boost::phoenix;
 using namespace boost::spirit;
 
 enum class Tokens
@@ -186,6 +188,11 @@ class OCamlLexer
 {
     const std::string kBlank = "([ ]|[\\t]|[\\r]|[\\n]|[\\f])+";
 
+    const std::string kAny = ".";
+
+    const std::string kCommentBegin = "[\\(][\\*]";
+    const std::string kCommentEnd = "[\\*][\\)]";
+
     const std::string kLowercaseLetter = "[a-z]";
 
     const std::string kUppercaseLetter = "[A-Z]";
@@ -213,30 +220,33 @@ class OCamlLexer
             "([0-9]|[_])*)?";
 
     const std::string kEscapeSequence =
-        "([\\]|[']|[n]|[t]|[b]|[r]|[ ])"
-            "|\\[0-9][0-9][0-9]"
-            "|\\[x]([0-9]|[A-F]∣[a-f])([0-9]|[A-F][a-f])";
+            "[\\\\]([\\\\]|[\\\"]|[']|[n]|[t]|[b]|[r]|[ ])"
+            "|[\\\\][0-9][0-9][0-9]"
+            "|[\\\\][x]([0-9]|[A-F]∣[a-f])([0-9]|[A-F][a-f])";
 
-    const std::string kCharLiteral = "['].[']|[']" + kEscapeSequence + "[']";
+    const std::string kCharLiteral = "['].[']|['](" + kEscapeSequence + ")[']";
 
-    const std::string kStringCharacter = ".|" + kEscapeSequence +
-        "|([\\n]|[\\r\\n])([ ]|[\\t])*";
+    const std::string kStringCharacter = "[^\\\"]|(" +
+        kEscapeSequence +
+        ")|[\\\\]([\\n]|[\\r\\n])([ ]|[\\t])*";
 
-    const std::string kStringLiteral = "[\"](" + kStringCharacter + ")*[\"]";
+    const std::string kStringLiteral = "[\\\"](" +
+        kStringCharacter + ")"
+        "*[\\\"]";
 
     const std::string kLabel = "~" + kLowercaseIdent;
 
     const std::string kOptLabel = "\\?" + kLowercaseIdent;
 
     const std::string kOperatorChar = "[!]∣[$]∣[%]∣[&]∣[*]∣[+]∣[-]∣["
-        ".]∣[/]∣[:]∣[<]∣[=]∣[>]∣[?]∣[@]∣[\\^]∣[|]∣[~]";
+        ".]∣[\\/]∣[:]∣[<]∣[=]∣[>]∣[?]∣[@]∣[\\^]∣[|]∣[~]";
 
     const std::string kPrefixSymbol = "[!](" + kOperatorChar + ")*|[?~](" +
         kOperatorChar +
         ")+";
 
     const std::string kInfixSymbol =
-        "([=]|[<]|[>]|[@]|[\\^]|[|]|[&]|[+]|[-]|[*]|[/]|[$]|[%])(" +
+        "([=]|[<]|[>]|[@]|[\\^]|[|]|[&]|[+]|[-]|[*]|[\\/]|[$]|[%])(" +
             kOperatorChar + ")*";
 
     const std::string kLinenumDirective = "#[0-9]+|#[0-9]+" + kStringLiteral;
@@ -256,9 +266,7 @@ class OCamlLexer
             BOOST_SCOPED_ENUM(boost::spirit::lex::pass_flags) &, std::size_t &,
             Context &) const
         {
-            //auto p = std::string(b, e).c_str();
-            std::cout << std::string(b, e) << "\n";
-            //os << std::string(b, e); std::flush(os);
+            //std::cout << std::string(b, e) << "\n";
         }
 
         std::basic_ostream<Char, Traits> &os;
@@ -270,6 +278,30 @@ class OCamlLexer
     {
         return echo_input_functor<Char, Traits>(os);
     }
+
+    // Custom semantic action function object used to switch the
+    // state of the lexer
+    struct set_lexer_state
+    {
+        set_lexer_state(char const *state_, int level_)
+            : level(level_)
+            , state(state_) { }
+
+        // This is called by the semantic action handling code during the lexing
+        template<typename Iterator, typename Context>
+        void operator()(Iterator const &, Iterator const &,
+            BOOST_SCOPED_ENUM(boost::spirit::lex::pass_flags) &, std::size_t &,
+            Context &ctx) const
+        {
+            // Change state back to "INITIAL" only if comment nesting level is 0
+            if (level != 0 || state != "INITIAL") {
+                ctx.set_state_name(state.c_str());
+            }
+        }
+
+        int level;
+        std::string state;
+    };
 
     //
     // Internal token definition type to accept Tokens enum class
@@ -300,12 +332,18 @@ class OCamlLexer
 public:
     OCamlLexer()
         : OCamlLexer::base_type()
+        , level(0)
 
         //
         // Lexical
         //
 
         , blank(kBlank, Tokens::Blank)
+        , comment_begin(kCommentBegin)
+        , comment_begin2(kCommentBegin) // for COMMENT state
+        , comment_end(kCommentEnd)
+        , comment_blank(kBlank)
+        , comment_any(kAny)
         , lowercase_letter(kLowercaseLetter)
         , uppercase_letter(kUppercaseLetter)
         , letter(kLetter)
@@ -442,6 +480,7 @@ public:
         , greatgreat(">>", Tokens::GreatGreat)
         , questquest("\\?\\?", Tokens::QuestQuest)
     {
+        // Reserved keywords
         this->self
             = kand[echo_input(std::cout)]
             | kas[echo_input(std::cout)]
@@ -501,6 +540,7 @@ public:
             | kwhile[echo_input(std::cout)]
             | kwith[echo_input(std::cout)];
 
+        // Reserved sequences
         this->self
             += bangequal[echo_input(std::cout)]
             | hash[echo_input(std::cout)]
@@ -558,6 +598,7 @@ public:
             | lowercase_ident[echo_input(std::cout)]
             | integer_literal[echo_input(std::cout)]
             | float_literal[echo_input(std::cout)]
+            | char_literal[echo_input(std::cout)]
             | string_literal[echo_input(std::cout)]
             | label[echo_input(std::cout)]
             | optlabel[echo_input(std::cout)]
@@ -565,11 +606,25 @@ public:
             | infix_symbol[echo_input(std::cout)]
             | linenum_directive[echo_input(std::cout)];
 
+        // Ignore whitespace
         this->self += blank[lex::_pass = lex::pass_flags::pass_ignore];
+
+        // Comments
+        this->self += comment_begin[set_lexer_state("COMMENT", level = 0)];
+        this->self("COMMENT")
+            = comment_begin2[set_lexer_state("COMMENT", ++level)]
+            | comment_any
+            | comment_blank
+            | comment_end[set_lexer_state("INITIAL", --level)];
     }
 
 private:
+    int level;
+
     lexer_token_def<lex::omit> blank;
+
+    lexer_token_def<> comment_begin, comment_begin2, comment_end,
+        comment_blank, comment_any;
 
     lexer_token_def<std::string> lowercase_letter, uppercase_letter, letter,
         ident, capitalized_ident, lowercase_ident, integer_literal,

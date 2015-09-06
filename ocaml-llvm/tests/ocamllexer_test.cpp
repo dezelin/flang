@@ -29,54 +29,79 @@
 
 #include "ocamllexer.h"
 
+#include <boost/filesystem.hpp>
+
 #define BOOST_SPIRIT_LEXERTL_DEBUG
 
 #include <boost/test/unit_test.hpp>
 
+#include <iomanip>
+#include <fstream>
+
+using namespace boost::filesystem;
 using namespace boost::spirit;
+
+std::string read_from_file(std::string const &filePath)
+{
+    std::string ctx, line;
+    std::ifstream file(filePath);
+    if (file.is_open()) {
+        while (getline(file, line)) {
+            ctx += line + "\n";
+        }
+
+        file.close();
+    }
+    else {
+        std::cout << "Can't open file " << filePath << std::endl;
+    }
+
+    return ctx;
+}
 
 BOOST_AUTO_TEST_SUITE(OCamlLexerTest)
 
 BOOST_AUTO_TEST_CASE(LexerTest)
 {
+    path dataDir(OCAML_TEST_CASE_DATA_DIR);
+    BOOST_CHECK(exists(dataDir));
+    BOOST_CHECK(is_directory(dataDir));
+
+    std::vector<path> files;
+    copy(recursive_directory_iterator(dataDir), recursive_directory_iterator(),
+        std::back_inserter(files));
+
+    sort(files.begin(), files.end());
+    auto new_end = std::remove_if(files.begin(), files.end(), [](path file) {
+        return file.extension().string() != ".ml" && file.extension().string()
+            != ".mli";
+    });
+
+    files.erase(new_end, files.end());
+
     typedef std::string::iterator base_iterator_type;
 
     // lexer type
     typedef lex::lexertl::actor_lexer<lex::lexertl::token<base_iterator_type>>
         lexer_type;
 
-    // OCaml lexer
-    ocaml::lexer::OCamlLexer<lexer_type> ocamlLexer;
-    std::string contentToLex = "type text = docstring list\n"
-        "\n"
-        "let empty_text = []\n"
-        "\n"
-        "let text_loc = {txt = \"ocaml.text\"; loc = Location.none}\n"
-        "\n"
-        "let text_attr ds =\n"
-        "  let open Asttypes in\n"
-        "  let open Parsetree in\n"
-        "  let exp =\n"
-        "    { pexp_desc = Pexp_constant (Const_string(ds.ds_body, None));\n"
-        "      pexp_loc = ds.ds_loc;\n"
-        "      pexp_attributes = []; }\n"
-        "  in\n"
-        "  let item =\n"
-        "    { pstr_desc = Pstr_eval (exp, []); pstr_loc = exp.pexp_loc }\n"
-        "  in\n"
-        "    (text_loc, PStr [item])\n"
-        "\n"
-        "let add_text_attrs dsl attrs =\n"
-        "  (List.map text_attr dsl) @ attrs ~sssss ?sssss";
-    base_iterator_type first = contentToLex.begin();
-    bool r = lex::tokenize(first, contentToLex.end(), ocamlLexer);
-    if (!r) {
-        std::string rest(first, contentToLex.end());
-        std::cerr << "Lexical analysis failed\n" << "stopped at: \""
-            << rest << "\"\n";
-    }
+    std::cout << "Lexing files from Ocaml distribution:\n";
+    std::for_each(files.begin(), files.end(), [&](path file) {
+        std::cout << ">> File: " << file << "\n";
+        // OCaml lexer
+        ocaml::lexer::OCamlLexer<lexer_type> ocamlLexer;
+        std::string contentToLex = read_from_file(file.string());
+        base_iterator_type first = contentToLex.begin();
+        bool r = lex::tokenize(first, contentToLex.end(), ocamlLexer);
+        if (!r) {
+            std::string rest(first, contentToLex.end());
+            std::cerr << file.string() << ":\n";
+            std::cerr << "Lexical analysis failed\n" << "stopped at: \""
+                << rest << "\"\n";
+        }
 
-    BOOST_CHECK(r);
+        BOOST_CHECK(r);
+    });
 }
 
 BOOST_AUTO_TEST_SUITE_END()
