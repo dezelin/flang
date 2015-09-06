@@ -42,6 +42,7 @@ using namespace boost::phoenix;
 using namespace boost::spirit;
 
 enum class Tokens
+    : std::size_t
 {
     //
     // Lexical
@@ -220,7 +221,7 @@ class OCamlLexer
             "([0-9]|[_])*)?";
 
     const std::string kEscapeSequence =
-            "[\\\\]([\\\\]|[\\\"]|[']|[n]|[t]|[b]|[r]|[ ])"
+        "[\\\\]([\\\\]|[\\\"]|[']|[n]|[t]|[b]|[r]|[ ])"
             "|[\\\\][0-9][0-9][0-9]"
             "|[\\\\][x]([0-9]|[A-F]∣[a-f])([0-9]|[A-F][a-f])";
 
@@ -262,7 +263,7 @@ class OCamlLexer
 
         // This is called by the semantic action handling code during the lexing
         template<typename Iterator, typename Context>
-        void operator()(Iterator const &b, Iterator const &e,
+        void operator()(Iterator const &/*b*/, Iterator const &/*e*/,
             BOOST_SCOPED_ENUM(boost::spirit::lex::pass_flags) &, std::size_t &,
             Context &) const
         {

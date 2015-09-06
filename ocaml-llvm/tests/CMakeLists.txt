@@ -22,3 +22,7 @@ add_test(NAME test_dummy COMMAND ocaml-llvm-dummy_test)
 add_executable(ocaml-llvm-ocamllexer_test ocamllexer_test.cpp)
 target_link_libraries(ocaml-llvm-ocamllexer_test ${Boost_LIBRARIES})
 add_test(NAME test_ocamllexer COMMAND ocaml-llvm-ocamllexer_test)
+
+add_executable(ocaml-llvm-ocamlgrammar_test ocamlgrammar_test.cpp)
+target_link_libraries(ocaml-llvm-ocamlgrammar_test ${Boost_LIBRARIES})
+add_test(NAME test_ocamlgrammar COMMAND ocaml-llvm-ocamlgrammar_test)

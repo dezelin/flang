@@ -23,11 +23,12 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#define BOOST_TEST_MODULE OCamlLexerTest
+#define BOOST_TEST_MODULE OCamlGrammarTest
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
 
 #include "ocamllexer.h"
+#include "ocamlgrammar.h"
 
 #include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
@@ -56,9 +57,9 @@ std::string read_from_file(std::string const &filePath)
     return ctx;
 }
 
-BOOST_AUTO_TEST_SUITE(OCamlLexerTest)
+BOOST_AUTO_TEST_SUITE(OCamlGrammarTest)
 
-BOOST_AUTO_TEST_CASE(LexerTest)
+BOOST_AUTO_TEST_CASE(GrammarTest)
 {
     path dataDir(OCAML_TEST_CASE_DATA_DIR);
     BOOST_CHECK(exists(dataDir));
@@ -82,14 +83,32 @@ BOOST_AUTO_TEST_CASE(LexerTest)
     typedef lex::lexertl::actor_lexer<lex::lexertl::token<base_iterator_type>>
         lexer_type;
 
+    typedef lexer_type::iterator_type iterator_type;
+
+    ocaml::lexer::OCamlLexer<lexer_type> ocamlLexer;
+    ocaml::parser::OCamlGrammar<iterator_type> ocamlGrammar(ocamlLexer);
+    std::string contentToLex = "";
+    base_iterator_type first = contentToLex.begin();
+    bool r = lex::tokenize_and_parse(first, contentToLex.end(),
+        ocamlLexer, ocamlGrammar);
+    if (!r) {
+        std::string rest(first, contentToLex.end());
+        std::cerr << "Parsing failed\n" << "stopped at: \""
+            << rest << "\"\n";
+    }
+
+    BOOST_CHECK(r);
+/*
     std::cout << "Lexing files from Ocaml distribution:\n";
     std::for_each(files.begin(), files.end(), [&](path file) {
         std::cout << ">> File: " << file << "\n";
         // OCaml lexer
         ocaml::lexer::OCamlLexer<lexer_type> ocamlLexer;
+        ocaml::parser::OCamlGrammar<iterator_type> ocamlGrammar(ocamlLexer);
         std::string contentToLex = read_from_file(file.string());
         base_iterator_type first = contentToLex.begin();
-        bool r = lex::tokenize(first, contentToLex.end(), ocamlLexer);
+        bool r = lex::tokenize_and_parse(first, contentToLex.end(),
+            ocamlLexer, ocamlGrammar);
         if (!r) {
             std::string rest(first, contentToLex.end());
             std::cerr << file.string() << ":\n";
@@ -99,6 +118,7 @@ BOOST_AUTO_TEST_CASE(LexerTest)
 
         BOOST_CHECK(r);
     });
+*/
 }
 
 BOOST_AUTO_TEST_SUITE_END()
