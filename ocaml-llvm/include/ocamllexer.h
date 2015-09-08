@@ -26,6 +26,8 @@
 #ifndef FLANG_OCAMLLEXER_H
 #define FLANG_OCAMLLEXER_H
 
+#include "ocamlids.h"
+
 //#define BOOST_SPIRIT_LEXERTL_DEBUG
 
 #include <boost/phoenix/statement/if.hpp>
@@ -40,143 +42,6 @@ namespace lexer
 
 using namespace boost::phoenix;
 using namespace boost::spirit;
-
-enum class Tokens
-    : std::size_t
-{
-    //
-    // Lexical
-    //
-
-    Blank = lex::min_token_id + 1,
-    Ident,
-    CapitalizedIdent,
-    LowercaseIdent,
-    Integer,
-    Float,
-    String,
-    Label,
-    OptLabel,
-    PrefixOp,
-    InfixOp,
-
-    //
-    // Reserved keywords
-    //
-
-    And,
-    As,
-    Assert,
-    Asr,
-    Begin,
-    Class,
-    Constraint,
-    Do,
-    Done,
-    Downto,
-    Else,
-    End,
-    Exception,
-    External,
-    False,
-    For,
-    Fun,
-    Function,
-    Functor,
-    If,
-    In,
-    Include,
-    Inherit,
-    Initializer,
-    Land,
-    Lazy,
-    Let,
-    LinenumDir,
-    Lor,
-    Lsl,
-    Lsr,
-    Lxor,
-    Match,
-    Method,
-    Mod,
-    Module,
-    Mutable,
-    New,
-    Object,
-    Of,
-    Open,
-    Or,
-    Parser,
-    Private,
-    Rec,
-    Sig,
-    Struct,
-    Then,
-    To,
-    True,
-    Try,
-    Type,
-    Val,
-    Value,
-    Virtual,
-    When,
-    While,
-    With,
-
-    //
-    // Reserved sequences
-    //
-
-    BangEqual,
-    Hash,
-    Ampersand,
-    AmpAmp,
-    Apostrophe,
-    LBrace,
-    RBrace,
-    Asterisk,
-    Plus,
-    Comma,
-    Minus,
-    MinusDot,
-    MinusGreater,
-    Dot,
-    DotDot,
-    Colon,
-    ColonColon,
-    ColonEqual,
-    ColonGreater,
-    Semicolon,
-    SemiSemi,
-    Lesser,
-    LesserMinus,
-    Equal,
-    Greater,
-    GreaterRBracket,
-    GreaterRCurly,
-    Question,
-    LBracket,
-    LBracketLesser,
-    LBracketGreater,
-    LBracketBar,
-    RBracket,
-    Underscore,
-    GraveAccent,
-    LCurly,
-    LCurlyLesser,
-    Bar,
-    BarRBracket,
-    BarBar,
-    RCurly,
-    Tilde,
-    Dollar,
-    DollarDollar,
-    DollarColon,
-    LesserColon,
-    LessLess,
-    GreatGreat,
-    QuestQuest
-};
 
 //
 // OCaml lexer class

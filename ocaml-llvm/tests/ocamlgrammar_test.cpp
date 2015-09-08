@@ -27,6 +27,7 @@
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
 
+#include "ocamlast.h"
 #include "ocamllexer.h"
 #include "ocamlgrammar.h"
 
@@ -98,6 +99,7 @@ BOOST_AUTO_TEST_CASE(GrammarTest)
     }
 
     BOOST_CHECK(r);
+
 /*
     std::cout << "Lexing files from Ocaml distribution:\n";
     std::for_each(files.begin(), files.end(), [&](path file) {

@@ -25,7 +25,13 @@ link_directories(${Boost_LIBRARY_DIRS})
 
 include_directories(include)
 
-set(HEADER_FILES include/ocamllexer.h include/ocamlgrammar.h)
+set(HEADER_FILES
+        include/ocamlast.h
+        include/ocamlgrammar.h
+        include/ocamlids.h
+        include/ocamllexer.h
+)
+
 set(SOURCE_FILES src/dummy.cpp)
 add_library(ocaml-llvm SHARED ${SOURCE_FILES})
 
