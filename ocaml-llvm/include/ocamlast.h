@@ -150,6 +150,60 @@ struct string_literal
 // Names
 //
 
+
+//
+//  BNF-like notation:
+//  ========================================================================
+//
+//  value-name	::=	lowercase-ident
+//           ∣	 ( operator-name )
+//
+//  operator-name	::=	prefix-symbol ∣  infix-op
+//
+//  infix-op	::=	infix-symbol
+//          ∣  *  ∣  +  ∣  -  ∣  -.  ∣  =  ∣  !=  ∣  <  ∣  >  ∣  or  ∣  ||
+//          ∣  &  ∣  &&  ∣  :=  ∣  mod  ∣  land  ∣  lor  ∣  lxor  ∣  lsl
+//          ∣  lsr  ∣  asr
+//
+//  constr-name	::=	capitalized-ident
+//
+//  tag-name	::=	capitalized-ident
+//
+//  typeconstr-name	::=	lowercase-ident
+//
+//  field-name	::=	lowercase-ident
+//
+//  module-name	::=	capitalized-ident
+//
+//  modtype-name	::=	ident
+//
+//  class-name	::=	lowercase-ident
+//
+//  inst-var-name	::=	lowercase-ident
+//
+//  method-name	::=	lowercase-ident
+//
+//  value-path	::=	[ module-path . ]  value-name
+//
+//  constr	::=	[ module-path . ]  constr-name
+//
+//  typeconstr	::=	[ extended-module-path . ]  typeconstr-name
+//
+//  field	::=	[ module-path . ]  field-name
+//
+//  modtype-path	::=	[ extended-module-path . ]  modtype-name
+//
+//  class-path	::=	[ module-path . ]  class-name
+//
+//  classtype-path	::=	[ extended-module-path . ]  class-name
+//
+//  module-path	::=	module-name  { . module-name }
+//
+//  extended-module-path	::=	extended-module-name  { . extended-module-name }
+//
+//  extended-module-name	::=	module-name  { ( extended-module-path ) }
+//
+
 struct method_name
     : lowercase_ident
 {
@@ -364,6 +418,46 @@ struct value_path
 
 //
 // Type expressions
+//
+
+
+//
+//  BNF-like notation:
+//  ========================================================================
+//
+//  typexpr	::=	' ident
+//      	∣	 _
+//       	∣	 ( typexpr )
+//      	∣	 [[?]label-name:]  typexpr ->  typexpr
+//      	∣	 typexpr  { * typexpr }+
+//       	∣	 typeconstr
+//      	∣	 typexpr  typeconstr
+//      	∣	 ( typexpr  { , typexpr } )  typeconstr
+//      	∣	 typexpr as '  ident
+//      	∣	 polymorphic-variant-type
+//      	∣	 < [..] >
+//      	∣	 < method-type  { ; method-type }  [; ∣  ; ..] >
+//      	∣	 # class-path
+//      	∣	 typexpr #  class-path
+//      	∣	 ( typexpr  { , typexpr } ) #  class-path
+//
+//  poly-typexpr	::=	typexpr
+//      	∣	 { ' ident }+ .  typexpr
+//
+//  method-type	::=	method-name :  poly-typexpr
+//
+//  polymorphic-variant-type	::=	[ tag-spec-first  { | tag-spec } ]
+//      	∣	 [> [ tag-spec ]  { | tag-spec } ]
+//      	∣	 [< [|] tag-spec-full  { | tag-spec-full }  [ > { `tag-name }+ ] ]
+//
+//  tag-spec-first	::=	`tag-name  [ of typexpr ]
+//      	∣	 [ typexpr ] |  tag-spec
+//
+//  tag-spec	::=	`tag-name  [ of typexpr ]
+// 	        ∣	 typexpr
+//
+//  tag-spec-full	::=	`tag-name  [ of [&] typexpr  { & typexpr } ]
+//      	∣	 typexpr
 //
 
 struct anon_type_variable;
@@ -688,6 +782,25 @@ struct explicit_poly_typexpr
 // Constants
 //
 
+
+//
+//  BNF-like notation:
+//  ========================================================================
+//
+//  constant	::=	integer-literal
+// 	        ∣	 float-literal
+// 	        ∣	 char-literal
+// 	        ∣	 string-literal
+// 	        ∣	 constr
+// 	        ∣	 false
+// 	        ∣	 true
+// 	        ∣	 ()
+// 	        ∣	 begin end
+// 	        ∣	 []
+// 	        ∣	 [||]
+// 	        ∣	 `tag-name
+//
+
 struct const_false
     : tagged
 {
@@ -798,6 +911,28 @@ struct constant
 
 //
 // Patterns
+//
+
+
+//
+//  BNF-like notation:
+//  ========================================================================
+//
+//  pattern	::=	value-name
+// 	        ∣	 _
+// 	        ∣	 constant
+// 	        ∣	 pattern as  value-name
+// 	        ∣	 ( pattern )
+// 	        ∣	 ( pattern :  typexpr )
+// 	        ∣	 pattern |  pattern
+// 	        ∣	 constr  pattern
+// 	        ∣	 `tag-name  pattern
+// 	        ∣	 #typeconstr
+// 	        ∣	 pattern  { , pattern }+
+// 	        ∣	 { field =  pattern  { ; field =  pattern }  [ ; ] }
+// 	        ∣	 [ pattern  { ; pattern }  [ ; ] ]
+// 	        ∣	 pattern ::  pattern
+// 	        ∣	 [| pattern  { ; pattern }  [ ; ] |]
 //
 
 struct any_value_pattern;
@@ -988,6 +1123,75 @@ struct array_pattern
 
 //
 // Expressions
+//
+
+//
+//  BNF-like notation:
+//  ========================================================================
+//
+//    expr	::=	value-path
+//          ∣	 constant
+//          ∣	 ( expr )
+//          ∣	 begin expr end
+//          ∣	 ( expr :  typexpr )
+//          ∣	 expr  {, expr}+
+//          ∣	 constr  expr
+//          ∣	 `tag-name  expr
+//          ∣	 expr ::  expr
+//          ∣	 [ expr  { ; expr }  [;] ]
+//          ∣	 [| expr  { ; expr }  [;] |]
+//          ∣	 { field =  expr  { ; field =  expr }  [;] }
+//          ∣	 { expr with  field =  expr  { ; field =  expr }  [;] }
+//          ∣	 expr  { argument }+
+//          ∣	 prefix-symbol  expr
+//          ∣	 - expr
+//          ∣	 -. expr
+//          ∣	 expr  infix-op  expr
+//          ∣	 expr .  field
+//          ∣	 expr .  field <-  expr
+//          ∣	 expr .(  expr )
+//          ∣	 expr .(  expr ) <-  expr
+//          ∣	 expr .[  expr ]
+//          ∣	 expr .[  expr ] <-  expr
+//          ∣	 if expr then  expr  [ else expr ]
+//          ∣	 while expr do  expr done
+//          ∣	 for value-name =  expr  ( to ∣  downto ) expr do  expr done
+//          ∣	 expr ;  expr
+//          ∣	 match expr with  pattern-matching
+//          ∣	 function pattern-matching
+//          ∣	 fun multiple-matching
+//          ∣	 try expr with  pattern-matching
+//          ∣	 let [rec] let-binding  { and let-binding } in  expr
+//          ∣	 new class-path
+//          ∣	 object class-body end
+//          ∣	 expr #  method-name
+//          ∣	 inst-var-name
+//          ∣	 inst-var-name <-  expr
+//          ∣	 ( expr :>  typexpr )
+//          ∣	 ( expr :  typexpr :>  typexpr )
+//          ∣	 {< [ inst-var-name =  expr  { ; inst-var-name =  expr }  [;] ] >}
+//
+//    argument	::=	expr
+//          ∣	 ~ label-name
+//          ∣	 ~ label-name :  expr
+//          ∣	 ? label-name
+//          ∣	 ? label-name :  expr
+//
+//    pattern-matching	::=	[ | ] pattern  [when expr] ->  expr  { | pattern  [when expr] ->  expr }
+//
+//    multiple-matching	::=	{ parameter }+  [when expr] ->  expr
+//
+//    let-binding	::=	pattern =  expr
+//          ∣	 value-name  { parameter }  [: typexpr]  [:> typexpr] =  expr
+//
+//    parameter	::=	pattern
+//          ∣	 ~ label-name
+//          ∣	 ~ ( label-name  [: typexpr] )
+//          ∣	 ~ label-name :  pattern
+//          ∣	 ? label-name
+//          ∣	 ? ( label-name  [: typexpr]  [= expr] )
+//          ∣	 ? label-name :  pattern
+//          ∣	 ? label-name : (  pattern  [: typexpr]  [= expr] )
 //
 
 struct begin_end_parenthized_expr;
@@ -1663,11 +1867,178 @@ struct object_duplication_expr
 };
 
 //
+// Type and exception definitions
+//
+
+//
+//  BNF-like notation:
+//  ========================================================================
+//
+//    type-definition	::=	type typedef  { and typedef }
+//
+//    typedef	::=	[type-params]  typeconstr-name  type-information
+//
+//    type-information	::=	[type-equation]  [type-representation]  { type-constraint }
+//
+//    type-equation	::=	= typexpr
+//
+//    type-representation	::=	= [|] constr-decl  { | constr-decl }
+//          ∣	 = { field-decl  { ; field-decl }  [;] }
+//
+//    type-params	::=	type-param
+//          ∣	 ( type-param  { , type-param } )
+//
+//    type-param	::=	[variance] '  ident
+//
+//    variance	::=	+
+//          ∣	 -
+//
+//    constr-decl	::=	(constr-name ∣  ()) [ of typexpr  { * typexpr } ]
+//
+//    field-decl	::=	[mutable] field-name :  poly-typexpr
+//
+//    type-constraint	::=	constraint ' ident =  typexpr
+//
+//    exception-definition	::=	exception constr-name  [ of typexpr  { * typexpr } ]
+//          ∣	 exception constr-name =  constr
+//
+
+
+//
 // Classes
+//
+
+//
+//  BNF-like notation:
+//  ========================================================================
+//
+//    class-type	::=	[[?]label-name:]  typexpr ->  class-type
+//          ∣	   class-body-type
+//
+//    class-body-type	::=	object [( typexpr )]  {class-field-spec} end
+//          ∣	  [[ typexpr  {, typexpr} ]]  classtype-path
+//
+//    class-field-spec	::=	inherit class-body-type
+//          ∣	  val [mutable] [virtual] inst-var-name :  typexpr
+//          ∣	  val virtual mutable inst-var-name :  typexpr
+//          ∣	  method [private] [virtual] method-name :  poly-typexpr
+//          ∣	  method virtual private method-name :  poly-typexpr
+//          ∣	  constraint typexpr =  typexpr
+//
+//    class-expr	::=	class-path
+//          ∣	  [ typexpr  {, typexpr} ]  class-path
+//          ∣	  ( class-expr )
+//          ∣	  ( class-expr :  class-type )
+//          ∣	  class-expr  {argument}+
+//          ∣	  fun {parameter}+ ->  class-expr
+//          ∣	  let [rec] let-binding  {and let-binding} in  class-expr
+//          ∣	  object class-body end
+//
+//    class-field	::=	inherit class-expr  [as lowercase-ident]
+//          ∣	  val [mutable] inst-var-name  [: typexpr] =  expr
+//          ∣	  val [mutable] virtual inst-var-name :  typexpr
+//          ∣	  val virtual mutable inst-var-name :  typexpr
+//          ∣	  method [private] method-name  {parameter}  [: typexpr] =  expr
+//          ∣	  method [private] method-name :  poly-typexpr =  expr
+//          ∣	  method [private] virtual method-name :  poly-typexpr
+//          ∣	  method virtual private method-name :  poly-typexpr
+//          ∣	  constraint typexpr =  typexpr
+//          ∣	  initializer expr
+//
+//    class-body	::=	  [( pattern  [: typexpr] )]  { class-field }
+//
+//    class-definition	::=	class class-binding  { and class-binding }
+//
+//    class-binding	::=	[virtual] [[ type-parameters ]]  class-name  {parameter}  [: class-type]  =  class-expr
+//
+//    type-parameters	::=	' ident  { , ' ident }
+//
+//    class-specification	::=	class class-spec  { and class-spec }
+//
+//    class-spec	::=	[virtual] [[ type-parameters ]]  class-name :  class-type
+//
+//    classtype-definition	::=	class type classtype-def  { and classtype-def }
+//
+//    classtype-def	::=	[virtual] [[ type-parameters ]]  class-name =  class-body-type
 //
 
 // Placeholder
 struct class_body { };
+
+//
+// Module types (module specifications)
+//
+
+//
+//  BNF-like notation:
+//  ========================================================================
+//
+//    module-type	::=	modtype-path
+//          ∣	 sig { specification  [;;] } end
+//          ∣	 functor ( module-name :  module-type ) ->  module-type
+//          ∣	 module-type with  mod-constraint  { and mod-constraint }
+//          ∣	 ( module-type )
+//
+//    mod-constraint	::=	type [type-params]  typeconstr  type-equation
+//          ∣	 module module-path =  extended-module-path
+//
+//    specification	::=	val value-name :  typexpr
+//          ∣	 external value-name :  typexpr =  external-declaration
+//          ∣	 type-definition
+//          ∣	 exception constr-decl
+//          ∣	 class-specification
+//          ∣	 classtype-definition
+//          ∣	 module module-name :  module-type
+//          ∣	 module module-name  { ( module-name :  module-type ) } :  module-type
+//          ∣	 module type modtype-name
+//          ∣	 module type modtype-name =  module-type
+//          ∣	 open module-path
+//          ∣	 include module-type
+//
+
+
+//
+// Module expressions (module implementations)
+//
+
+//
+//  BNF-like notation:
+//  ========================================================================
+//
+//    module-expr	::=	module-path
+//          ∣	 struct [ module-items ] end
+//          ∣	 functor ( module-name :  module-type ) ->  module-expr
+//          ∣	 module-expr (  module-expr )
+//          ∣	 ( module-expr )
+//          ∣	 ( module-expr :  module-type )
+//
+//    module-items	::=	[;;] ( definition ∣  expr )  { [;;] definition ∣  ;; expr }  [;;]
+//
+//    definition	::=	let [rec] let-binding  { and let-binding }
+//          ∣	 external value-name :  typexpr =  external-declaration
+//          ∣	 type-definition
+//          ∣	 exception-definition
+//          ∣	 class-definition
+//          ∣	 classtype-definition
+//          ∣	 module module-name  { ( module-name :  module-type ) }  [ : module-type ]  =  module-expr
+//          ∣	 module type modtype-name =  module-type
+//          ∣	 open module-path
+//          ∣	 include module-expr
+//
+
+
+//
+// Compilation units
+//
+
+//
+//  BNF-like notation:
+//  ========================================================================
+//
+//    unit-interface	::=	 { specification  [;;] }
+//
+//    unit-implementation	::=	 [ module-items ]
+//
 
 } // namespace ast
 } // namespace ocaml
