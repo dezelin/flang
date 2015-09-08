@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(LexerTest)
     typedef lex::lexertl::actor_lexer<lex::lexertl::token<base_iterator_type>>
         lexer_type;
 
-    std::cout << "Lexing files from Ocaml distribution:\n";
+    std::cout << "Lexing files from OCaml distribution:\n";
     std::for_each(files.begin(), files.end(), [&](path file) {
         std::cout << ">> File: " << file << "\n";
         // OCaml lexer
