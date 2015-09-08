@@ -186,14 +186,20 @@ for
 BR ocamlc(1)
 .
 .TP
-.BI \-I \
-directory
-    Add
-the given
-directory to
-the list
-of directories
-searched for
+.BI \-
+I \
+ directory
+Add
+    the
+given
+    directory
+to
+    the
+list
+    of
+directories
+    searched
+for
 compiled interface
 files (.
 cmo and

@@ -292,7 +292,7 @@ int caml_read_directory(char *dirname, struct ext_table *contents)
         if (e == NULL) break;
         if (strcmp(e->d_name, ".") == 0 ||
             strcmp(e->d_name, "..") == 0) {
-                continue;
+            continue;
         }
         caml_ext_table_add(contents, caml_strdup(e->d_name));
     }

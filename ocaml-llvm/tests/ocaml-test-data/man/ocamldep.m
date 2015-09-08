@@ -129,14 +129,20 @@ absolute filenames
 in error
 messages.
 .TP
-.BI \-I \
-directory
-    Add
-the given
-directory to
-the list
-of directories
-searched for
+.BI \-
+I \
+ directory
+Add
+    the
+given
+    directory
+to
+    the
+list
+    of
+directories
+    searched
+for
 source files
 .
 If a
@@ -224,11 +230,13 @@ form
 IR filename
     :
 \ Module1\ Module2 \ ... \
+
 ModuleN
     where
 .
 IR Module1,
 \ ..., \
+
 ModuleN
     are
 the names
@@ -326,9 +334,10 @@ explicit .
 mli interface
 files.)
 .TP
-.BI \-pp \
-command
-    Cause
+.BI \-
+pp \
+ command
+Cause
 .
 BR ocamldep(1)
 to call
@@ -340,12 +349,15 @@ preprocessor for
 each source
 file.
 .TP
-.BI \-ppx \
-command
-    Pipe
-abstract syntax
-tree through
-preprocessor
+.BI \-
+ppx \
+ command
+Pipe
+    abstract
+syntax
+    tree
+through
+    preprocessor
 .
 IR command
 .

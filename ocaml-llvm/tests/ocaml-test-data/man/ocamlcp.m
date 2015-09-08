@@ -155,9 +155,10 @@ option to
 control the
 kind of
 profiling information, the
-.BI \-P \
-letters
-    option
+.BI \-
+P \
+ letters
+option
 . The
 .
 I letters
@@ -228,6 +229,7 @@ B t
 .
 BR try
 \ ... \
+
 with
     branches
     :

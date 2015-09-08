@@ -12,7 +12,7 @@ include_directories(../include)
 # Generate main() for tests
 #add_definitions(-DBOOST_TEST_DYN_LINK)
 
-set(OCAML_TEST_CASE_DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ocaml)
+set(OCAML_TEST_CASE_DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ocaml-test-data)
 add_definitions(-DOCAML_TEST_CASE_DATA_DIR="${OCAML_TEST_CASE_DATA_DIR}")
 
 add_executable(ocaml-llvm-dummy_test dummy_test.cpp)

@@ -494,6 +494,7 @@ caml.out
 .
 IR arg1
 \  \ arg2 \ ... \
+
 argn
     executes
 the compiled
@@ -798,9 +799,10 @@ to
 modules separately
 .
 .TP
-.BI \-cc \
-ccomp
-    Use
+.BI \-
+cc \
+ ccomp
+Use
 .
 I ccomp
 as the
@@ -843,10 +845,12 @@ linked with
 the program
 .
 .TP
-.BI \-ccopt \
-option
-    Pass
-the given
+.BI \-
+ccopt \
+ option
+Pass
+    the
+given
 .
 I option
 to the
@@ -999,10 +1003,12 @@ start-
 up time
 .
 .TP
-.BI \-dllpath \
-dir
-    Adds
-the directory
+.BI \-
+dllpath \
+ dir
+Adds
+    the
+directory
 .
 I dir
 to the
@@ -1043,11 +1049,14 @@ it and
 use it
 .
 .TP
-.BI \-for\-pack \
-ident
-    This
-option is
-accepted for
+.BI \-for\-
+pack \
+ ident
+This
+    option
+is
+    accepted
+for
 compatibility with
 .
 BR ocamlopt(1);
@@ -1140,14 +1149,20 @@ declarations of
 unexported names
 .
 .TP
-.BI \-I \
-directory
-    Add
-the given
-directory to
-the list
-of directories
-searched for
+.BI \-
+I \
+ directory
+Add
+    the
+given
+    directory
+to
+    the
+list
+    of
+directories
+    searched
+for
 compiled interface
 files (.cmi),
 compiled object
@@ -1215,10 +1230,12 @@ library to
 the search
 path.
 .TP
-.BI \-impl \
-filename
-    Compile
-the file
+.BI \-
+impl \
+ filename
+Compile
+    the
+file
 .
 I filename
 as an
@@ -1228,10 +1245,12 @@ its extension
 is not
 .ml.
 .TP
-.BI \-intf \
-filename
-    Compile
-the file
+.BI \-
+intf \
+ filename
+Compile
+    the
+file
 .
 I filename
 as an
@@ -1241,11 +1260,14 @@ its extension
 is not
 .mli.
 .TP
-.BI \-intf\-suffix \
-string
-    Recognize
-file names
-ending with
+.BI \-intf\-
+suffix \
+ string
+Recognize
+    file
+names
+    ending
+with
 .
 I string
 as interface
@@ -1396,7 +1418,8 @@ the special
 form
 .
 B assert
-\
+    \
+
 false
     is
 always compiled
@@ -1435,7 +1458,7 @@ a library
 contains incorrect
 specifications of
 C libraries
-or Coptions; in this
+    or Coptions; in this
 case,
 during linking, set
 .B \-
@@ -1563,14 +1586,20 @@ to the
 first dot
 .
 .TP
-.BI \-open \
-module
-    Opens
-the given
-module before
-processing the
-interface or
-implementation files
+.BI \-
+open \
+ module
+Opens
+    the
+given
+    module
+before
+    processing
+the
+    interface
+or
+    implementation
+files
 .
 If several
 .B \-
@@ -1711,12 +1740,16 @@ the remainder
 of the
 program.
 .TP
-.BI \-pp \
-command
-    Cause
-the compiler
-to call
-the given
+.BI \-
+pp \
+ command
+Cause
+    the
+compiler
+    to
+call
+    the
+given
 .
 I command
 as a
@@ -1757,14 +1790,19 @@ an
     implementation(
 .ml) file.
 .TP
-.BI \-ppx \
-command
-    After
-parsing,
-pipe the
-abstract syntax
-tree through
-the preprocessor
+.BI \-
+ppx \
+ command
+After
+    parsing,
+    pipe
+the
+    abstract
+syntax
+    tree
+through
+    the
+preprocessor
 .
 IR command
 .
@@ -1823,8 +1861,8 @@ different binary
 signatures,
 and this
 may slow
-down typechecking; yet it is a good idea to
-use it once before publishing source code
+    down typechecking; yet it is a good idea to
+    use it once before publishing source code
 .
 .TP
 .B \-
@@ -1853,9 +1891,10 @@ again for
 all dependencies
 .
 .TP
-.BI \-runtime\-variant \
-suffix
-    Add
+.BI \-runtime\-
+variant \
+ suffix
+Add
 .
 I suffix
 to the
@@ -2157,6 +2196,7 @@ the following
 
 .BI + num
 \ \
+
 Enable warning
 number
 .
@@ -2165,6 +2205,7 @@ IR num
 
 .BI \- num
 \ \
+
 Disable warning
 number
 .
@@ -2173,6 +2214,7 @@ IR num
 
 .BI @ num
 \ \
+
 Enable and
 mark as
 fatal warning
@@ -2183,6 +2225,7 @@ IR num
 
 .BI + num1 .. num2
 \ \
+
 Enable all
 warnings between
 .
@@ -2197,6 +2240,7 @@ I num2
 
 .BI \- num1 .. num2
 \ \
+
 Disable all
 warnings between
 .
@@ -2211,6 +2255,7 @@ I num2
 
 .BI @ num1 .. num2
 \ \
+
 Enable and
 mark as
 fatal all
@@ -2227,6 +2272,7 @@ I num2
 
 .BI + letter
 \ \
+
 Enable the
 set of
 warnings corresponding
@@ -2241,6 +2287,7 @@ lowercase.
 
 .BI \- letter
 \ \
+
 Disable the
 set of
 warnings corresponding
@@ -2255,6 +2302,7 @@ lowercase.
 
 .BI @ letter
 \ \
+
 Enable and
 mark as
 fatal the
@@ -2273,6 +2321,7 @@ lowercase.
 I uppercase
 \-letter
 \ \
+
 Enable the
 set of
 warnings corresponding
@@ -2285,6 +2334,7 @@ IR uppercase
 I lowercase
 \-letter
 \ \
+
 Disable the
 set of
 warnings corresponding
@@ -2314,11 +2364,13 @@ comment mark
 
 3
 \ \ \
+
 Deprecated feature
 .
 
 4
 \ \ \
+
 Fragile pattern
 matching
     : matching
@@ -2335,6 +2387,7 @@ matched.
 
 5
 \ \ \
+
 Partially applied
 function
     : expression
@@ -2347,18 +2400,21 @@ is ignored
 
 6
 \ \ \
+
 Label omitted
 in function
 application.
 
 7
 \ \ \
+
 Method overridden
 without using
 the "method!" keyword
 
 8
 \ \ \
+
 Partial match
     :
 missing cases
@@ -2367,6 +2423,7 @@ in pattern
 
 9
 \ \ \
+
 Missing fields
 in a
 record pattern
@@ -2374,6 +2431,7 @@ record pattern
 
 10
 \ \
+
 Expression on
 the left
 -
@@ -2401,6 +2459,7 @@ case).
 
 12
 \ \
+
 Redundant sub
 -
 pattern in
@@ -2409,12 +2468,14 @@ a pattern
 
 13
 \ \
+
 Override of
 an instance
 variable.
 
 14
 \ \
+
 Illegal backslash
 escape in
 a string
@@ -2422,17 +2483,20 @@ constant.
 
 15
 \ \
+
 Private method
 made public
 implicitly.
 
 16
 \ \
+
 Unerasable optional
 argument.
 
 17
 \ \
+
 Undeclared virtual
 method.
 
@@ -2443,11 +2507,13 @@ principal type
 
 19
 \ \
+
 Type without
 principality.
 
 20
 \ \
+
 Unused function
 argument.
 
@@ -2458,11 +2524,13 @@ returning statement
 
 22
 \ \
+
 Preprocessor warning
 .
 
 23
 \ \
+
 Useless record
 .
 B with
@@ -2470,6 +2538,7 @@ clause.
 
 24
 \ \
+
 Bad module
 name
     : the
@@ -2488,6 +2557,7 @@ guarded.
 
 26
 \ \
+
 Suspicious unused
 variable
     : unused
@@ -2502,6 +2572,7 @@ and doesn
 
 27
 \ \
+
 Innocuous unused
 variable
     : unused
@@ -2516,6 +2587,7 @@ and doesn
 
 28
 \ \
+
 A pattern
 contains a
 constant constructor
@@ -2527,6 +2599,7 @@ pattern.
 
 29
 \ \
+
 A non
 -
 escaped end
@@ -2543,6 +2616,7 @@ Windows.
 
 30
 \ \
+
 Two labels
 or constructors
 of the
@@ -2554,6 +2628,7 @@ types.
 
 31
 \ \
+
 A module
 is linked
 twice in
@@ -2562,16 +2637,19 @@ executable.
 
 32
 \ \
+
 Unused value
 declaration.
 
 33
 \ \
+
 Unused open
 statement.
 
 34
 \ \
+
 Unused type
 declaration.
 
@@ -2582,26 +2660,31 @@ loop index
 
 36
 \ \
+
 Unused ancestor
 variable.
 
 37
 \ \
+
 Unused constructor
 .
 
 38
 \ \
+
 Unused extension
 constructor.
 
 39
 \ \
+
 Unused rec
 flag.
 
 40
 \ \
+
 Constructor or
 label name
 used out
@@ -2610,24 +2693,28 @@ of scope
 
 41
 \ \
+
 Ambiguous constructor
 or label
 name.
 
 42
 \ \
+
 Disambiguated constructor
 or label
 name.
 
 43
 \ \
+
 Nonoptional label
 applied as
 optional.
 
 44
 \ \
+
 Open statement
 shadows an
 already defined
@@ -2635,6 +2722,7 @@ identifier.
 
 45
 \ \
+
 Open statement
 shadows an
 already defined
@@ -2643,23 +2731,27 @@ constructor.
 
 46
 \ \
+
 Error in
 environment variable
 .
 
 47
 \ \
+
 Illegal attribute
 payload.
 
 48
 \ \
+
 Implicit elimination
 of optional
 arguments.
 
 49
 \ \
+
 Missing cmi
 file when
 looking up
@@ -2668,6 +2760,7 @@ module alias
 
 50
 \ \
+
 Unexpected documentation
 comment.
 
@@ -2686,7 +2779,8 @@ empty set
 
 .
 B A
-\
+    \
+
 all warnings
 
 .
@@ -2870,6 +2964,7 @@ standard library, then
 exit.
 .TP
 .BI \- \
+
 file
     Process
 .
