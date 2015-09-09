@@ -1903,6 +1903,107 @@ struct object_duplication_expr
 //          ∣	 exception constr-name =  constr
 //
 
+struct type_constraint
+    : tagged
+{
+    ident ident_;
+    typexpr type;
+};
+
+struct field_decl
+    : tagged
+{
+    field_name name;
+    poly_typexpr type;
+};
+
+struct constr_decl
+    : tagged
+{
+    boost::optional<constr_name> name;
+    boost::optional<typexpr_list> types;
+};
+
+// + | -
+struct variance
+    : tagged
+{
+    ocaml::lexer::Tokens token;
+};
+
+struct type_param
+    : tagged
+{
+    boost::optional<variance> variance;
+    ident ident_;
+};
+
+typedef std::list<type_param> type_param_list;
+
+struct type_params
+    : tagged
+      , boost::spirit::extended_variant<type_param,
+        type_param_list>
+{
+    type_params()
+        : base_type() { }
+
+    type_params(type_param const &val)
+        : base_type(val) { }
+
+    type_params(type_param_list const &val)
+        : base_type(val) { }
+};
+
+typedef std::list<constr_decl> constr_decl_list;
+typedef std::list<field_decl> field_decl_list;
+
+struct type_representation
+    : tagged
+      , boost::spirit::extended_variant<constr_decl_list, field_decl_list>
+{
+    type_representation()
+        : base_type() { }
+
+    type_representation(constr_decl_list const &val)
+        : base_type(val) { }
+
+    type_representation(field_decl_list const &val)
+        : base_type(val) { }
+};
+
+struct type_equation
+    : tagged
+{
+    typexpr type;
+};
+
+typedef std::list<type_constraint> type_constraint_list;
+
+struct type_information
+    : tagged
+{
+    boost::optional<type_equation> equation;
+    boost::optional<type_representation> representation;
+    boost::optional<type_constraint_list> constraints;
+};
+
+struct typedef_
+    : tagged
+{
+    boost::optional<type_params> params;
+    typeconstr_name name;
+    type_information information;
+};
+
+typedef std::list<typedef_> typedef_list;
+
+struct type_definition
+    : tagged
+{
+    typedef_ typeDef;
+    boost::optional<typedef_list> and_;
+};
 
 //
 // Classes
