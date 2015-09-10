@@ -1934,7 +1934,7 @@ struct variance
 struct type_param
     : tagged
 {
-    boost::optional<variance> variance;
+    boost::optional<variance> var;
     ident ident_;
 };
 
@@ -2005,6 +2005,38 @@ struct type_definition
     boost::optional<typedef_list> and_;
 };
 
+struct exception_definition_new
+    : tagged
+{
+    constr_name name;
+    boost::optional<typexpr_list> types;
+};
+
+struct exception_definition_alias
+    : tagged
+{
+    constr_name name;
+    constr constr_;
+};
+
+struct exception_definition
+    : tagged
+      , boost::spirit::extended_variant<
+        exception_definition_new,
+        exception_definition_alias
+    >
+{
+    exception_definition()
+        : base_type() { }
+
+    exception_definition(exception_definition_new const &val)
+        : base_type(val) { }
+
+    exception_definition(exception_definition_alias const &val)
+        : base_type(val) { }
+};
+
+
 //
 // Classes
 //
@@ -2063,8 +2095,370 @@ struct type_definition
 //    classtype-def	::=	[virtual] [[ type-parameters ]]  class-name =  class-body-type
 //
 
-// Placeholder
-struct class_body { };
+struct class_field_spec_val
+    : tagged
+{
+    inst_var_name name;
+    typexpr type;
+};
+
+struct class_field_spec_method
+    : tagged
+{
+    method_name name;
+    poly_typexpr type;
+};
+
+struct class_field_spec_constraint
+    : tagged
+{
+    typexpr first;
+    typexpr second;
+};
+
+struct class_body_type;
+
+struct class_field_spec
+    : tagged
+      , boost::spirit::extended_variant<
+        boost::recursive_wrapper<class_body_type>,
+        class_field_spec_val,
+        class_field_spec_method,
+        class_field_spec_constraint
+    >
+{
+    class_field_spec()
+        : base_type() { }
+
+    class_field_spec(class_body_type const &val)
+        : base_type(val) { }
+
+    class_field_spec(class_field_spec_val const &val)
+        : base_type(val) { }
+
+    class_field_spec(class_field_spec_method const &val)
+        : base_type(val) { }
+
+    class_field_spec(class_field_spec_constraint const &val)
+        : base_type(val) { }
+};
+
+typedef std::list<class_field_spec> class_field_spec_list;
+
+struct class_body_type_object
+    : tagged
+{
+    boost::optional<typexpr> type;
+    boost::optional<class_field_spec_list> fields;
+};
+
+struct class_body_type_parametric
+    : tagged
+{
+    boost::optional<typexpr_list> types;
+    classtype_path path;
+};
+
+struct class_body_type
+    : tagged
+      , boost::spirit::extended_variant<
+        class_body_type_object,
+        class_body_type_parametric>
+{
+    class_body_type()
+        : base_type() { }
+
+    class_body_type(class_body_type_object const &val)
+        : base_type(val) { }
+
+    class_body_type(class_body_type_parametric const &val)
+        : base_type(val) { }
+};
+
+struct class_function_type;
+
+struct class_type
+    : tagged
+      , boost::spirit::extended_variant<
+        boost::recursive_wrapper<class_function_type>,
+        class_body_type
+    >
+{
+    class_type()
+        : base_type() { }
+
+    class_type(class_function_type const &val)
+        : base_type(val) { }
+
+    class_type(class_body_type const &val)
+        : base_type(val) { }
+};
+
+struct class_function_type
+    : tagged
+{
+    boost::optional<label_name> name;
+    typexpr type;
+    class_type classType;
+};
+
+struct class_expr;
+
+struct class_field_class_expr
+    : tagged
+{
+    boost::recursive_wrapper<class_expr> expr;
+    boost::optional<lowercase_ident> ident;
+};
+
+struct class_field_val_expr
+    : tagged
+{
+    inst_var_name name;
+    boost::optional<typexpr> type;
+    expr expr_;
+};
+
+struct class_field_val
+    : tagged
+{
+    inst_var_name name;
+    typexpr type;
+};
+
+struct class_field_method_typexpr_expr
+    : tagged
+{
+    method_name name;
+    boost::optional<parameter_list> params;
+    boost::optional<typexpr> type;
+    expr expr_;
+};
+
+struct class_field_method_expr
+    : tagged
+{
+    method_name name;
+    poly_typexpr type;
+    expr expr_;
+};
+
+struct class_field_method
+    : tagged
+{
+    method_name name;
+    poly_typexpr type;
+};
+
+struct class_field_constraint
+    : tagged
+{
+    typexpr first;
+    typexpr second;
+};
+
+struct class_field_initializer
+    : tagged
+{
+    expr expr_;
+};
+
+struct class_field
+    : tagged
+      , boost::spirit::extended_variant<
+        class_field_class_expr,
+        class_field_val_expr,
+        class_field_val,
+        class_field_method_typexpr_expr,
+        class_field_method_expr,
+        class_field_method,
+        class_field_constraint,
+        class_field_initializer
+    >
+{
+    class_field()
+        : base_type() { }
+
+    class_field(class_field_class_expr const &val)
+        : base_type(val) { }
+
+    class_field(class_field_val_expr const &val)
+        : base_type(val) { }
+
+    class_field(class_field_val const &val)
+        : base_type(val) { }
+
+    class_field(class_field_method_typexpr_expr const &val)
+        : base_type(val) { }
+
+    class_field(class_field_method_expr const &val)
+        : base_type(val) { }
+
+    class_field(class_field_method const &val)
+        : base_type(val) { }
+
+    class_field(class_field_constraint const &val)
+        : base_type(val) { }
+
+    class_field(class_field_initializer const &val)
+        : base_type(val) { }
+};
+
+struct class_expr_parameterized;
+struct class_expr_class_type;
+struct class_expr_arguments;
+struct class_expr_function;
+struct class_expr_let_binding;
+struct class_expr_object;
+
+struct class_expr
+    : tagged
+      , boost::spirit::extended_variant<
+        class_path,
+        boost::recursive_wrapper<class_expr_parameterized>,
+        boost::recursive_wrapper<class_expr_class_type>,
+        boost::recursive_wrapper<class_expr_arguments>,
+        boost::recursive_wrapper<class_expr_function>,
+        boost::recursive_wrapper<class_expr_let_binding>,
+        boost::recursive_wrapper<class_expr_object>
+    >
+{
+    class_expr()
+        : base_type() { }
+
+    class_expr(class_path const &val)
+        : base_type(val) { }
+
+    class_expr(class_expr_parameterized const &val)
+        : base_type(val) { }
+
+    class_expr(class_expr_class_type const &val)
+        : base_type(val) { }
+
+    class_expr(class_expr_arguments const &val)
+        : base_type(val) { }
+
+    class_expr(class_expr_function const &val)
+        : base_type(val) { }
+
+    class_expr(class_expr_let_binding const &val)
+        : base_type(val) { }
+
+    class_expr(class_expr_object const &val)
+        : base_type(val) { }
+};
+
+struct class_expr_parameterized
+    : tagged
+{
+    typexpr type;
+    boost::optional<typexpr_list> otherTypes;
+    class_path path;
+};
+
+struct class_expr_class_type
+    : tagged
+{
+    class_expr expr;
+    boost::optional<class_type> type;
+};
+
+struct class_expr_arguments
+    : tagged
+{
+    class_expr expr;
+    boost::optional<argument_list> arguments;
+};
+
+struct class_expr_function
+    : tagged
+{
+    parameter_list parameters;
+    class_expr expr;
+};
+
+struct class_expr_let_binding
+    : tagged
+{
+    let_binding let;
+    boost::optional<let_binding_list> and_;
+    class_expr expr;
+};
+
+struct class_expr_object
+    : tagged
+{
+    boost::recursive_wrapper<class_body> body;
+};
+
+typedef std::list<class_field> class_field_list;
+
+struct class_body
+    : tagged
+{
+    boost::optional<parenthized_pattern> pattrn;
+    class_field_list fields;
+};
+
+struct type_parameters
+    : tagged
+{
+    ident first;
+    boost::optional<ident_list> other;
+};
+
+struct class_binding
+    : tagged
+{
+    boost::optional<type_parameters> typeParams;
+    class_name className;
+    boost::optional<parameter_list> parameters;
+    boost::optional<class_type> classType;
+    class_expr classExpr;
+};
+
+typedef std::list<class_binding> class_binding_list;
+
+struct class_definition
+    : tagged
+{
+    class_binding binding;
+    boost::optional<class_binding_list> and_;
+};
+
+struct class_spec
+    : tagged
+{
+    boost::optional<type_parameters> params;
+    class_name name;
+    class_type type;
+};
+
+typedef std::list<class_spec> class_spec_list;
+
+struct class_specification
+    : tagged
+{
+    class_spec spec;
+    boost::optional<class_spec_list> and_;
+};
+
+struct classtype_def
+    : tagged
+{
+    boost::optional<type_parameters> params;
+    class_name name;
+    class_body_type bodyType;
+};
+
+typedef std::list<classtype_def> classtype_def_list;
+
+struct classtype_definition
+    : tagged
+{
+    classtype_def def;
+    boost::optional<classtype_def_list> and_;
+};
 
 //
 // Module types (module specifications)
@@ -2097,6 +2491,206 @@ struct class_body { };
 //          ∣	 include module-type
 //
 
+struct specification;
+struct module_type_functor;
+struct module_type_with_constraint;
+
+struct module_type
+    : tagged
+      , boost::spirit::extended_variant<
+        modtype_path,
+        boost::recursive_wrapper<specification>,
+        boost::recursive_wrapper<module_type_functor>,
+        boost::recursive_wrapper<module_type_with_constraint>
+    >
+{
+    module_type()
+        : base_type() { }
+
+    module_type(modtype_path const &val)
+        : base_type(val) { }
+
+    module_type(specification const &val)
+        : base_type(val) { }
+
+    module_type(module_type_functor const &val)
+        : base_type(val) { }
+
+    module_type(module_type_with_constraint const &val)
+        : base_type(val) { }
+};
+
+struct mod_constraint_type
+    : tagged
+{
+    boost::optional<type_params> type;
+    typeconstr constr;
+    type_equation equation;
+};
+
+struct mod_constraint_module
+    : tagged
+{
+    module_path path;
+    extended_module_path extendedPath;
+};
+
+struct mod_constraint
+    : tagged
+      , boost::spirit::extended_variant<
+        mod_constraint_type,
+        mod_constraint_module
+    >
+{
+    mod_constraint()
+        : base_type() { }
+
+    mod_constraint(mod_constraint_type const &val)
+        : base_type(val) { }
+
+    mod_constraint(mod_constraint_module const &val)
+        : base_type(val) { }
+};
+
+struct module_type_functor
+    : tagged
+{
+    module_name name;
+    module_type type;
+    module_type returnType;
+};
+
+typedef std::list<mod_constraint> mod_constraint_list;
+
+struct module_type_with_constraint
+    : tagged
+{
+    module_type type;
+    mod_constraint with;
+    boost::optional<mod_constraint_list> and_;
+};
+
+struct specification_val
+    : tagged
+{
+    value_name name;
+    typexpr type;
+};
+
+struct external_declaration;
+
+struct specification_external
+    : tagged
+{
+    value_name name;
+    typexpr type;
+    boost::recursive_wrapper<external_declaration> external;
+};
+
+struct specification_exception
+    : tagged
+{
+    constr_decl constr;
+};
+
+struct specification_module
+    : tagged
+{
+    module_name name;
+    module_type type;
+};
+
+typedef std::list<specification_module> specification_module_list;
+
+struct specification_module_parameterized
+    : tagged
+{
+    module_name name;
+    boost::optional<specification_module_list> other;
+    module_type type;
+};
+
+struct specification_module_type_name
+    : tagged
+{
+    module_name name;
+};
+
+struct specification_module_type_name_type
+    : tagged
+{
+    module_name name;
+    module_type type;
+};
+
+struct specification_open
+    : tagged
+{
+    module_path path;
+};
+
+struct specification_include
+    : tagged
+{
+    module_type type;
+};
+
+struct specification
+    : tagged
+      , boost::spirit::extended_variant<
+        specification_val,
+        specification_external,
+        type_definition,
+        specification_exception,
+        class_specification,
+        classtype_definition,
+        specification_module,
+        specification_module_parameterized,
+        specification_module_type_name,
+        specification_module_type_name_type,
+        specification_open,
+        specification_include
+    >
+{
+    specification()
+        : base_type() { }
+
+    specification(specification_val const &val)
+        : base_type(val) { }
+
+    specification(specification_external const &val)
+        : base_type(val) { }
+
+    specification(type_definition const &val)
+        : base_type(val) { }
+
+    specification(specification_exception const &val)
+        : base_type(val) { }
+
+    specification(class_specification const &val)
+        : base_type(val) { }
+
+    specification(classtype_definition const &val)
+        : base_type(val) { }
+
+    specification(specification_module const &val)
+        : base_type(val) { }
+
+    specification(specification_module_parameterized const &val)
+        : base_type(val) { }
+
+    specification(specification_module_type_name const &val)
+        : base_type(val) { }
+
+    specification(specification_module_type_name_type const &val)
+        : base_type(val) { }
+
+    specification(specification_open const &val)
+        : base_type(val) { }
+
+    specification(specification_include const &val)
+        : base_type(val) { }
+};
 
 //
 // Module expressions (module implementations)
@@ -2127,6 +2721,205 @@ struct class_body { };
 //          ∣	 include module-expr
 //
 
+struct definition_let_binding
+    : tagged
+{
+    let_binding let;
+    boost::optional<let_binding_list> and_;
+};
+
+struct definition_external
+    : tagged
+{
+    value_name name;
+    typexpr type;
+    boost::recursive_wrapper<external_declaration> external;
+};
+
+struct definition_module_decl
+    : tagged
+{
+    module_name name;
+    module_type type;
+};
+
+struct module_expr;
+typedef std::list<definition_module_decl> definition_module_decl_list;
+
+struct definition_module_parameterized
+    : tagged
+{
+    module_name name;
+    boost::optional<definition_module_decl_list> params;
+    boost::optional<module_type> type;
+    boost::recursive_wrapper<module_expr> expr;
+};
+
+struct definition_module_type
+    : tagged
+{
+    modtype_name name;
+    module_type type;
+};
+
+struct definition_open
+    : tagged
+{
+    module_path path;
+};
+
+struct definition_include
+    : tagged
+{
+    boost::recursive_wrapper<module_expr> expr;
+};
+
+struct definition
+    : tagged
+      , boost::spirit::extended_variant<
+        definition_let_binding,
+        definition_external,
+        type_definition,
+        exception_definition,
+        class_definition,
+        classtype_definition,
+        definition_module_parameterized,
+        definition_module_type,
+        definition_open,
+        definition_include
+    >
+{
+    definition()
+        : base_type() { }
+
+    definition(definition_let_binding const &val)
+        : base_type(val) { }
+
+    definition(definition_external const &val)
+        : base_type(val) { }
+
+    definition(type_definition const &val)
+        : base_type(val) { }
+
+    definition(exception_definition const &val)
+        : base_type(val) { }
+
+    definition(class_definition const &val)
+        : base_type(val) { }
+
+    definition(classtype_definition const &val)
+        : base_type(val) { }
+
+    definition(definition_module_parameterized const &val)
+        : base_type(val) { }
+
+    definition(definition_module_type const &val)
+        : base_type(val) { }
+
+    definition(definition_open const &val)
+        : base_type(val) { }
+
+    definition(definition_include const &val)
+        : base_type(val) { }
+};
+
+struct module_items_def_or_expr
+    : tagged
+      , boost::spirit::extended_variant<
+        definition,
+        expr
+    >
+{
+    module_items_def_or_expr()
+        : base_type() { }
+
+    module_items_def_or_expr(definition const &val)
+        : base_type(val) { }
+
+    module_items_def_or_expr(expr const &val)
+        : base_type(val) { }
+};
+
+typedef std::list<module_items_def_or_expr> module_items_def_or_expr_list;
+
+struct module_items
+    : tagged
+{
+    module_items_def_or_expr first;
+    boost::optional<module_items_def_or_expr_list> other;
+};
+
+struct module_expr_struct
+    : tagged
+{
+    boost::optional<module_items> items;
+};
+
+struct module_expr_functor;
+struct module_expr_type;
+struct module_expr_brackets;
+struct module_expr_brackets2x;
+
+struct module_expr
+    : tagged
+      , boost::spirit::extended_variant<
+        module_path,
+        module_expr_struct,
+        boost::recursive_wrapper<module_expr_functor>,
+        boost::recursive_wrapper<module_expr_brackets2x>,
+        boost::recursive_wrapper<module_expr_brackets>,
+        boost::recursive_wrapper<module_expr_type>
+    >
+{
+    module_expr()
+        : base_type() { }
+
+    module_expr(module_path const &val)
+        : base_type(val) { }
+
+    module_expr(module_expr_struct const &val)
+        : base_type(val) { }
+
+    module_expr(module_expr_functor const &val)
+        : base_type(val) { }
+
+    module_expr(module_expr_brackets2x const &val)
+        : base_type(val) { }
+
+    module_expr(module_expr_brackets const &val)
+        : base_type(val) { }
+
+    module_expr(module_expr_type const &val)
+        : base_type(val) { }
+};
+
+struct module_expr_functor
+    : tagged
+{
+    module_name name;
+    module_type type;
+    module_expr expr;
+};
+
+struct module_expr_brackets2x
+    : tagged
+{
+    module_expr first;
+    module_expr second;
+};
+
+struct module_expr_brackets
+    : tagged
+{
+    module_expr expr;
+};
+
+struct module_expr_type
+    : tagged
+{
+    module_expr expr;
+    module_type type;
+};
 
 //
 // Compilation units
@@ -2140,6 +2933,41 @@ struct class_body { };
 //
 //    unit-implementation	::=	 [ module-items ]
 //
+
+typedef std::list<specification> specification_list;
+
+struct unit_interface
+    : tagged
+{
+    boost::optional<specification_list> specs;
+};
+
+struct unit_implementation
+    : tagged
+{
+    boost::optional<module_items> items;
+};
+
+//
+// Primitives
+//
+
+//
+//  BNF-like notation:
+//  ========================================================================
+//
+//  definition	::=	 ...
+//          ∣	 external value-name :  typexpr =  external-declaration
+//
+//  external-declaration	::=	 string-literal  [ string-literal  [ string-literal ] ]
+//
+
+struct external_declaration : tagged
+{
+    string_literal first;
+    boost::optional<string_literal> second;
+    boost::optional<string_literal> third;
+};
 
 } // namespace ast
 } // namespace ocaml
