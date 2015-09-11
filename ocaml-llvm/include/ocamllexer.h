@@ -198,8 +198,6 @@ class OCamlLexer
 public:
     OCamlLexer()
         : OCamlLexer::base_type()
-        , level(0)
-
         //
         // Lexical
         //
@@ -345,6 +343,8 @@ public:
         , lessless("<<", Tokens::LessLess)
         , greatgreat(">>", Tokens::GreatGreat)
         , questquest("\\?\\?", Tokens::QuestQuest)
+
+        , level(0)
     {
         // Reserved keywords
         this->self
@@ -484,9 +484,6 @@ public:
             | comment_end[set_lexer_state("INITIAL", --level)];
     }
 
-private:
-    int level;
-
     lexer_token_def<lex::omit> blank;
 
     lexer_token_def<> comment_begin, comment_begin2, comment_end,
@@ -515,6 +512,8 @@ private:
         rcurly, tilde, dollar, dollardollar, dollarcolon, lessercolon, lessless,
         greatgreat, questquest;
 
+private:
+    int level;
 };
 
 } // namespace lexer

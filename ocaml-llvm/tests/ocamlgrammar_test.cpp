@@ -40,6 +40,21 @@
 using namespace boost::filesystem;
 using namespace boost::spirit;
 
+typedef std::string::const_iterator base_iterator_type;
+typedef lex::lexertl::actor_lexer<lex::lexertl::token<base_iterator_type>>
+    lexer_type;
+typedef lexer_type::iterator_type iterator_type;
+typedef ocaml::lexer::OCamlLexer<lexer_type> ocaml_lexer_type;
+typedef ocaml::parser::OCamlGrammar<iterator_type, ocaml_lexer_type>
+    ocaml_grammar_type;
+
+// Lexer
+ocaml_lexer_type gLexer;
+
+// Grammar
+ocaml_grammar_type gGrammar(gLexer);
+
+
 std::string read_from_file(std::string const &filePath)
 {
     std::string ctx, line;
@@ -58,9 +73,32 @@ std::string read_from_file(std::string const &filePath)
     return ctx;
 }
 
+template<typename ParserExpr>
+bool parse_string(std::string const& content, ParserExpr const& expr)
+{
+    base_iterator_type first = content.begin();
+    bool r = lex::tokenize_and_parse(first, content.end(),
+        gLexer, expr);
+    if (!r) {
+        std::string rest(first, content.end());
+        std::cerr << "Parsing failed\n" << "stopped at: \""
+            << rest << "\"\n";
+    }
+
+    return r;
+}
+
 BOOST_AUTO_TEST_SUITE(OCamlGrammarTest)
 
-BOOST_AUTO_TEST_CASE(GrammarTest)
+BOOST_AUTO_TEST_CASE(GrammarTest_lowercase_ident)
+{
+    std::string content = "llll";
+    bool r = parse_string(content, gGrammar.lowercase_ident);
+    BOOST_CHECK(r);
+}
+
+/*
+BOOST_AUTO_TEST_CASE(GrammarTest_ocaml_distribution)
 {
     path dataDir(OCAML_TEST_CASE_DATA_DIR);
     BOOST_CHECK(exists(dataDir));
@@ -78,41 +116,16 @@ BOOST_AUTO_TEST_CASE(GrammarTest)
 
     files.erase(new_end, files.end());
 
-    typedef std::string::iterator base_iterator_type;
-
-    // lexer type
-    typedef lex::lexertl::actor_lexer<lex::lexertl::token<base_iterator_type>>
-        lexer_type;
-
-    typedef lexer_type::iterator_type iterator_type;
-
-    ocaml::lexer::OCamlLexer<lexer_type> ocamlLexer;
-    ocaml::parser::OCamlGrammar<iterator_type> ocamlGrammar(ocamlLexer);
-    std::string contentToLex = "";
-    base_iterator_type first = contentToLex.begin();
-    bool r = lex::tokenize_and_parse(first, contentToLex.end(),
-        ocamlLexer, ocamlGrammar);
-    if (!r) {
-        std::string rest(first, contentToLex.end());
-        std::cerr << "Parsing failed\n" << "stopped at: \""
-            << rest << "\"\n";
-    }
-
-    BOOST_CHECK(r);
-
-/*
     std::cout << "Lexing files from Ocaml distribution:\n";
     std::for_each(files.begin(), files.end(), [&](path file) {
         std::cout << ">> File: " << file << "\n";
         // OCaml lexer
-        ocaml::lexer::OCamlLexer<lexer_type> ocamlLexer;
-        ocaml::parser::OCamlGrammar<iterator_type> ocamlGrammar(ocamlLexer);
-        std::string contentToLex = read_from_file(file.string());
-        base_iterator_type first = contentToLex.begin();
-        bool r = lex::tokenize_and_parse(first, contentToLex.end(),
-            ocamlLexer, ocamlGrammar);
+        std::string fileContent = read_from_file(file.string());
+        base_iterator_type first = fileContent.begin();
+        bool r = lex::tokenize_and_parse(first, fileContent.end(),
+            gLexer, gGrammar);
         if (!r) {
-            std::string rest(first, contentToLex.end());
+            std::string rest(first, fileContent.end());
             std::cerr << file.string() << ":\n";
             std::cerr << "Lexical analysis failed\n" << "stopped at: \""
                 << rest << "\"\n";
@@ -120,7 +133,7 @@ BOOST_AUTO_TEST_CASE(GrammarTest)
 
         BOOST_CHECK(r);
     });
-*/
 }
+*/
 
 BOOST_AUTO_TEST_SUITE_END()

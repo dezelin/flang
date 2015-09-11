@@ -9,6 +9,9 @@ link_directories(${Boost_LIBRARY_DIRS})
 
 include_directories(../include)
 
+# FIXME: Boost Spirit lex::lexertl::token gives this warning
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")
+
 # Generate main() for tests
 #add_definitions(-DBOOST_TEST_DYN_LINK)
 

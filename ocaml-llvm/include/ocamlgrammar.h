@@ -26,6 +26,8 @@
 #ifndef FLANG_OCAMLGRAMMAR_H
 #define FLANG_OCAMLGRAMMAR_H
 
+#include "ocamlast.h"
+#include "ocamlids.h"
 #include "ocamllexer.h"
 #include <boost/spirit/include/qi.hpp>
 
@@ -37,17 +39,48 @@ namespace parser
 using namespace boost::phoenix;
 using namespace boost::spirit;
 
-template <typename Iterator>
+template <typename Iterator, typename Lexer>
 struct OCamlGrammar : qi::grammar<Iterator>
 {
-    template <typename TokenDef>
-    OCamlGrammar(TokenDef const &/*tok*/)
+    OCamlGrammar(Lexer const &l)
         : OCamlGrammar::base_type(start)
     {
+        //
+        // Lexical
+        //
+
+        lowercase_ident %= eps >> l.lowercase_ident;
+        capitalized_ident %= eps >> l.capitalized_ident;
+        ident %= eps >> l.ident;
+        lowercase_ident %= eps >> l.lowercase_ident;
+        label_name %= eps >> l.label_name;
+        label %= eps >> l.label;
+        optlabel %= eps >> l.optlabel;
+        integer_literal %= eps >> l.integer_literal;
+        float_literal %= eps >> l.float_literal;
+        char_literal %= eps >> l.char_literal;
+        string_literal %= eps >> l.string_literal;
+
         start = eps;
     }
 
     qi::rule<Iterator> start;
+
+    //
+    // Lexical
+    //
+
+    qi::rule<Iterator, ocaml::ast::lowercase_ident> lowercase_ident;
+    qi::rule<Iterator, ocaml::ast::capitalized_ident> capitalized_ident;
+    qi::rule<Iterator, ocaml::ast::ident> ident;
+    qi::rule<Iterator, ocaml::ast::label_name> label_name;
+    qi::rule<Iterator, ocaml::ast::label> label;
+    qi::rule<Iterator, ocaml::ast::optlabel> optlabel;
+    qi::rule<Iterator, ocaml::ast::integer_literal> integer_literal;
+    qi::rule<Iterator, ocaml::ast::float_literal> float_literal;
+    qi::rule<Iterator, ocaml::ast::char_literal> char_literal;
+    qi::rule<Iterator, ocaml::ast::string_literal> string_literal;
+
 };
 
 } // namespace grammar

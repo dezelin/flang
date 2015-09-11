@@ -90,24 +90,30 @@ struct ident
 };
 
 struct label_name
-    : lowercase_ident
+    : tagged
 {
     label_name(std::string const &name = "")
-        : lowercase_ident(name) { }
+        : name(name) { }
+
+    std::string name;
 };
 
 struct label
-    : label_name
+    : tagged
 {
     label(std::string const &name = "")
-        : label_name(name) { }
+        : name(name) { }
+
+    std::string name;
 };
 
 struct optlabel
-    : label_name
+    : tagged
 {
     optlabel(std::string const &name = "")
-        : label_name(name) { }
+        : name(name) { }
+
+    std::string name;
 };
 
 struct integer_literal
@@ -205,66 +211,57 @@ struct string_literal
 //
 
 struct method_name
-    : lowercase_ident
+    : tagged
 {
-    method_name(std::string const &name = "")
-        : lowercase_ident(name) { }
+    lowercase_ident name;
 };
 
 struct inst_var_name
-    : lowercase_ident
+    : tagged
 {
-    inst_var_name(std::string const &name = "")
-        : lowercase_ident(name) { }
+    lowercase_ident name;
 };
 
 struct class_name
-    : lowercase_ident
+    : tagged
 {
-    class_name(std::string const &name = "")
-        : lowercase_ident(name) { }
+    lowercase_ident name;
 };
 
 struct modtype_name
-    : ident
+    : tagged
 {
-    modtype_name(std::string const &name = "")
-        : ident(name) { }
+    ident name;
 };
 
 struct module_name
-    : capitalized_ident
+    : tagged
 {
-    module_name(std::string const &name = "")
-        : capitalized_ident(name) { }
+    capitalized_ident name;
 };
 
 struct field_name
-    : lowercase_ident
+    : tagged
 {
-    field_name(std::string const &name = "")
-        : lowercase_ident(name) { }
+    lowercase_ident name;
 };
 
 struct typeconstr_name
-    : lowercase_ident
+    : tagged
 {
-    typeconstr_name(std::string const &name = "")
-        : lowercase_ident(name) { }
+    lowercase_ident name;
 };
 
 struct tag_name
-    : capitalized_ident
+    : tagged
 {
-    tag_name(std::string const &name = "")
-        : capitalized_ident(name) { }
+    capitalized_ident name;
 };
 
 struct constr_name
-    : capitalized_ident
+    : tagged
 {
-    constr_name(std::string const &name = "")
-        : capitalized_ident(name) { }
+    capitalized_ident name;
 };
 
 struct operation
@@ -326,7 +323,9 @@ struct operator_name
 struct value_name
     : tagged
       , boost::spirit::extended_variant<
-        lowercase_ident, operator_name>
+        lowercase_ident,
+        operator_name
+    >
 {
     value_name()
         : base_type() { }
@@ -2971,5 +2970,108 @@ struct external_declaration : tagged
 
 } // namespace ast
 } // namespace ocaml
+
+//
+// Structures adaptation
+//
+
+
+//
+// Lexical
+//
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::lowercase_ident,
+    (std::string, name)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::capitalized_ident,
+    (std::string, name)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::ident,
+    (std::string, name)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::label_name,
+    (std::string, name)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::label,
+    (std::string, name)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::optlabel,
+    (std::string, name)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::integer_literal,
+    (int, val)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::float_literal,
+    (float, val)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::char_literal,
+    (char, val)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::string_literal,
+    (std::string, val)
+)
+
+//
+// Names
+//
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::constr_name,
+    (ocaml::ast::capitalized_ident, name)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::tag_name,
+    (ocaml::ast::capitalized_ident, name)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::typeconstr_name,
+    (ocaml::ast::lowercase_ident, name)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::field_name,
+    (ocaml::ast::lowercase_ident, name)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::module_name,
+    (ocaml::ast::capitalized_ident, name)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::class_name,
+    (ocaml::ast::lowercase_ident, name)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::inst_var_name,
+    (ocaml::ast::lowercase_ident, name)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::method_name,
+    (ocaml::ast::lowercase_ident, name)
+)
 
 #endif //FLANG_OCAMLAST_H
