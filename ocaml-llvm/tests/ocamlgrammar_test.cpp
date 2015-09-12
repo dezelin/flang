@@ -27,11 +27,15 @@
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
 
+#define BOOST_SPIRIT_LEXERTL_DEBUG
+#define BOOST_SPIRIT_DEBUG
+
 #include "ocamlast.h"
 #include "ocamllexer.h"
 #include "ocamlgrammar.h"
 
 #include <boost/filesystem.hpp>
+#include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <iomanip>
@@ -41,12 +45,17 @@ using namespace boost::filesystem;
 using namespace boost::spirit;
 
 typedef std::string::const_iterator base_iterator_type;
-typedef lex::lexertl::actor_lexer<lex::lexertl::token<base_iterator_type>>
-    lexer_type;
-typedef lexer_type::iterator_type iterator_type;
+
+// This is the lexer token type to use.
+typedef lex::lexertl::token<base_iterator_type> token_type_;
+
+typedef lex::lexertl::actor_lexer<token_type_> lexer_type;
+
+typedef lexer_type::iterator_type lexer_iterator_type;
+
 typedef ocaml::lexer::OCamlLexer<lexer_type> ocaml_lexer_type;
-typedef ocaml::parser::OCamlGrammar<iterator_type, ocaml_lexer_type>
-    ocaml_grammar_type;
+
+typedef ocaml::parser::OCamlGrammar<lexer_iterator_type> ocaml_grammar_type;
 
 // Lexer
 ocaml_lexer_type gLexer;
@@ -73,29 +82,119 @@ std::string read_from_file(std::string const &filePath)
     return ctx;
 }
 
-template<typename ParserExpr>
-bool parse_string(std::string const& content, ParserExpr const& expr)
+template<typename ParserExpr, typename Attribute>
+bool parse_string(std::string const& content, ParserExpr const& expr, Attribute& attr)
 {
     base_iterator_type first = content.begin();
-    bool r = lex::tokenize_and_parse(first, content.end(),
-        gLexer, expr);
-    if (!r) {
-        std::string rest(first, content.end());
-        std::cerr << "Parsing failed\n" << "stopped at: \""
-            << rest << "\"\n";
-    }
-
+    base_iterator_type last = content.end();
+    lexer_iterator_type lfirst = gLexer.begin(first, last);
+    lexer_iterator_type llast = gLexer.end();
+    bool r = qi::parse(lfirst, llast, expr, attr);
     return r;
 }
 
 BOOST_AUTO_TEST_SUITE(OCamlGrammarTest)
 
+//
+// Lexical
+//
+
+BOOST_AUTO_TEST_CASE(GrammarTest_capitalized_ident)
+{
+    ocaml::ast::capitalized_ident ident;
+    std::string content = "Test";
+    bool r = parse_string(content, gGrammar.capitalized_ident, ident);
+    BOOST_CHECK(r);
+    BOOST_CHECK(ident.name == content);
+}
+
 BOOST_AUTO_TEST_CASE(GrammarTest_lowercase_ident)
 {
-    std::string content = "llll";
-    bool r = parse_string(content, gGrammar.lowercase_ident);
+    ocaml::ast::lowercase_ident ident;
+    std::string content = "test";
+    bool r = parse_string(content, gGrammar.lowercase_ident, ident);
     BOOST_CHECK(r);
+    BOOST_CHECK(ident.name == content);
 }
+
+BOOST_AUTO_TEST_CASE(GrammarTest_ident)
+{
+    ocaml::ast::ident ident;
+    std::string content = "test";
+    bool r = parse_string(content, gGrammar.ident, ident);
+    BOOST_CHECK(r);
+    BOOST_CHECK(ident.name == content);
+
+    ident = ocaml::ast::ident();
+    content = "Test";
+    r = parse_string(content, gGrammar.ident, ident);
+    BOOST_CHECK(r);
+    BOOST_CHECK(ident.name == content);
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_label_name)
+{
+    ocaml::ast::label_name label_name;
+    std::string content = "test";
+    bool r = parse_string(content, gGrammar.label_name, label_name);
+    BOOST_CHECK(r);
+    BOOST_CHECK(label_name.name == content);
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_label)
+{
+    ocaml::ast::label label;
+    std::string content = "~test";
+    bool r = parse_string(content, gGrammar.label, label);
+    BOOST_CHECK(r);
+    BOOST_CHECK(label.name == content);
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_optlabel)
+{
+    ocaml::ast::optlabel optlabel;
+    std::string content = "?test";
+    bool r = parse_string(content, gGrammar.optlabel, optlabel);
+    BOOST_CHECK(r);
+    BOOST_CHECK(optlabel.name == content);
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_integer_literal)
+{
+    ocaml::ast::integer_literal integer_literal;
+    std::string content = "23";
+    bool r = parse_string(content, gGrammar.integer_literal, integer_literal);
+    BOOST_CHECK(r);
+    BOOST_CHECK(integer_literal.val == atoi(content.c_str()));
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_float_literal)
+{
+    ocaml::ast::float_literal float_literal;
+    std::string content = "1.23";
+    bool r = parse_string(content, gGrammar.float_literal, float_literal);
+    BOOST_CHECK(r);
+    BOOST_CHECK_CLOSE(float_literal.val, atof(content.c_str()), 0.0001);
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_char_literal)
+{
+    ocaml::ast::char_literal char_literal;
+    std::string content = "'t'";
+    bool r = parse_string(content, gGrammar.char_literal, char_literal);
+    BOOST_CHECK(r);
+    BOOST_CHECK(char_literal.val == content[0]);
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_string_literal)
+{
+    ocaml::ast::string_literal string_literal;
+    std::string content = "\"test\"";
+    bool r = parse_string(content, gGrammar.string_literal, string_literal);
+    BOOST_CHECK(r);
+    BOOST_CHECK(string_literal.val == content);
+}
+
 
 /*
 BOOST_AUTO_TEST_CASE(GrammarTest_ocaml_distribution)

@@ -26,6 +26,8 @@
 #ifndef FLANG_OCAMLGRAMMAR_H
 #define FLANG_OCAMLGRAMMAR_H
 
+//#define BOOST_SPIRIT_DEBUG
+
 #include "ocamlast.h"
 #include "ocamlids.h"
 #include "ocamllexer.h"
@@ -39,29 +41,71 @@ namespace parser
 using namespace boost::phoenix;
 using namespace boost::spirit;
 
-template <typename Iterator, typename Lexer>
+template <typename Iterator>
 struct OCamlGrammar : qi::grammar<Iterator>
 {
-    OCamlGrammar(Lexer const &l)
+    template <typename Lexer>
+    OCamlGrammar(Lexer const &tok)
         : OCamlGrammar::base_type(start)
     {
+        start = qi::eps;
+        
         //
         // Lexical
         //
+        namespace qi = boost::spirit::qi;
+        
+        capitalized_ident %= 
+            qi::eps >> tok.capitalized_ident
+            ;
+        
+        lowercase_ident %= 
+            qi::eps >> tok.lowercase_ident
+            ;
+        
+        ident %= 
+            qi::eps 
+            >> (tok.lowercase_ident | tok.capitalized_ident)
+            ;
+            
+        label_name %= 
+            qi::eps >> tok.lowercase_ident
+            ;
+            
+        label %= 
+            qi::eps >> tok.label
+            ;
+            
+        optlabel %= 
+            qi::eps >> tok.optlabel
+            ;
+            
+        integer_literal %= 
+            qi::eps >> tok.integer_literal
+            ;
+            
+        float_literal %= 
+            qi::eps >> tok.float_literal
+            ;
+            
+        char_literal %= 
+            qi::eps >> tok.char_literal
+            ;
+            
+        string_literal %= 
+            qi::eps >> tok.string_literal
+            ;
 
-        lowercase_ident %= eps >> l.lowercase_ident;
-        capitalized_ident %= eps >> l.capitalized_ident;
-        ident %= eps >> l.ident;
-        lowercase_ident %= eps >> l.lowercase_ident;
-        label_name %= eps >> l.label_name;
-        label %= eps >> l.label;
-        optlabel %= eps >> l.optlabel;
-        integer_literal %= eps >> l.integer_literal;
-        float_literal %= eps >> l.float_literal;
-        char_literal %= eps >> l.char_literal;
-        string_literal %= eps >> l.string_literal;
-
-        start = eps;
+        BOOST_SPIRIT_DEBUG_NODE(capitalized_ident);
+        BOOST_SPIRIT_DEBUG_NODE(lowercase_ident);
+        BOOST_SPIRIT_DEBUG_NODE(ident);
+        BOOST_SPIRIT_DEBUG_NODE(label_name);
+        BOOST_SPIRIT_DEBUG_NODE(label);
+        BOOST_SPIRIT_DEBUG_NODE(optlabel);
+        BOOST_SPIRIT_DEBUG_NODE(integer_literal);
+        BOOST_SPIRIT_DEBUG_NODE(float_literal);
+        BOOST_SPIRIT_DEBUG_NODE(char_literal);
+        BOOST_SPIRIT_DEBUG_NODE(string_literal);
     }
 
     qi::rule<Iterator> start;
@@ -70,8 +114,8 @@ struct OCamlGrammar : qi::grammar<Iterator>
     // Lexical
     //
 
-    qi::rule<Iterator, ocaml::ast::lowercase_ident> lowercase_ident;
     qi::rule<Iterator, ocaml::ast::capitalized_ident> capitalized_ident;
+    qi::rule<Iterator, ocaml::ast::lowercase_ident> lowercase_ident;
     qi::rule<Iterator, ocaml::ast::ident> ident;
     qi::rule<Iterator, ocaml::ast::label_name> label_name;
     qi::rule<Iterator, ocaml::ast::label> label;
@@ -87,3 +131,4 @@ struct OCamlGrammar : qi::grammar<Iterator>
 } // namespace ocaml
 
 #endif //FLANG_OCAMLGRAMMAR_H
+

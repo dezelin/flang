@@ -459,9 +459,9 @@ public:
             | questquest[echo_input(std::cout)];
 
         this->self
-            += ident[echo_input(std::cout)]
-            | capitalized_ident[echo_input(std::cout)]
+            += capitalized_ident[echo_input(std::cout)]
             | lowercase_ident[echo_input(std::cout)]
+            | ident[echo_input(std::cout)]
             | integer_literal[echo_input(std::cout)]
             | float_literal[echo_input(std::cout)]
             | char_literal[echo_input(std::cout)]
