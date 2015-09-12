@@ -48,12 +48,14 @@ struct OCamlGrammar : qi::grammar<Iterator>
     OCamlGrammar(Lexer const &tok)
         : OCamlGrammar::base_type(start)
     {
+        namespace lexer = ocaml::lexer;
+        namespace qi = boost::spirit::qi;
+        
         start = qi::eps;
         
         //
         // Lexical
         //
-        namespace qi = boost::spirit::qi;
         
         capitalized_ident %= 
             qi::eps >> tok.capitalized_ident
@@ -106,6 +108,69 @@ struct OCamlGrammar : qi::grammar<Iterator>
         BOOST_SPIRIT_DEBUG_NODE(float_literal);
         BOOST_SPIRIT_DEBUG_NODE(char_literal);
         BOOST_SPIRIT_DEBUG_NODE(string_literal);
+        
+        //
+        // Names
+        //
+        
+        infix_symbol %=
+            qi::eps 
+            >> (tok.infix_symbol
+                // Include this reserved sequences
+                | tok.dollardollar
+                | tok.lesserminus
+                | tok.lessercolon
+                | tok.dollarcolon
+                | tok.lessless
+                | tok.greatgreat
+                | tok.minusgreater)
+            ;
+        
+        operation %=
+            qi::eps
+            >> (qi::tokenid(lexer::Tokens::Asterisk)
+                | qi::tokenid(lexer::Tokens::Plus)
+                | qi::tokenid(lexer::Tokens::Minus)
+                | qi::tokenid(lexer::Tokens::MinusDot)
+                | qi::tokenid(lexer::Tokens::Equal)
+                | qi::tokenid(lexer::Tokens::BangEqual)
+                | qi::tokenid(lexer::Tokens::Lesser)
+                | qi::tokenid(lexer::Tokens::Greater)
+                | qi::tokenid(lexer::Tokens::Or)
+                | qi::tokenid(lexer::Tokens::BarBar)
+                | qi::tokenid(lexer::Tokens::Ampersand)
+                | qi::tokenid(lexer::Tokens::AmpAmp)
+                | qi::tokenid(lexer::Tokens::ColonEqual)
+                | qi::tokenid(lexer::Tokens::Mod)
+                | qi::tokenid(lexer::Tokens::Land)
+                | qi::tokenid(lexer::Tokens::Lor)
+                | qi::tokenid(lexer::Tokens::Lxor)
+                | qi::tokenid(lexer::Tokens::Lsl)
+                | qi::tokenid(lexer::Tokens::Lsr)
+                | qi::tokenid(lexer::Tokens::Asr))
+            ;
+            
+        infix_op %=
+            operation
+            | infix_symbol
+            ;
+        
+        BOOST_SPIRIT_DEBUG_NODE(infix_symbol);
+        BOOST_SPIRIT_DEBUG_NODE(operation);
+        BOOST_SPIRIT_DEBUG_NODE(infix_op);
+        /*
+        BOOST_SPIRIT_DEBUG_NODE(operator_name);
+        BOOST_SPIRIT_DEBUG_NODE(value_name);
+        BOOST_SPIRIT_DEBUG_NODE(constr_name);
+        BOOST_SPIRIT_DEBUG_NODE(tag_name);
+        BOOST_SPIRIT_DEBUG_NODE(typeconstr_name);
+        BOOST_SPIRIT_DEBUG_NODE(field_name);
+        BOOST_SPIRIT_DEBUG_NODE(module_name);
+        BOOST_SPIRIT_DEBUG_NODE(modtype_name);
+        BOOST_SPIRIT_DEBUG_NODE(class_name);
+        BOOST_SPIRIT_DEBUG_NODE(inst_var_name);
+        BOOST_SPIRIT_DEBUG_NODE(method_name);
+        */
     }
 
     qi::rule<Iterator> start;
@@ -125,6 +190,24 @@ struct OCamlGrammar : qi::grammar<Iterator>
     qi::rule<Iterator, ocaml::ast::char_literal> char_literal;
     qi::rule<Iterator, ocaml::ast::string_literal> string_literal;
 
+    //
+    // Names
+    //
+    
+    qi::rule<Iterator, ocaml::ast::infix_symbol> infix_symbol;
+    qi::rule<Iterator, ocaml::ast::operation> operation;
+    qi::rule<Iterator, ocaml::ast::infix_op> infix_op;
+    qi::rule<Iterator, ocaml::ast::operator_name> operator_name;
+    qi::rule<Iterator, ocaml::ast::value_name> value_name;
+    qi::rule<Iterator, ocaml::ast::constr_name> constr_name;
+    qi::rule<Iterator, ocaml::ast::tag_name> tag_name;
+    qi::rule<Iterator, ocaml::ast::typeconstr_name> typeconstr_name;
+    qi::rule<Iterator, ocaml::ast::field_name> field_name;
+    qi::rule<Iterator, ocaml::ast::module_name> module_name;
+    qi::rule<Iterator, ocaml::ast::modtype_name> modtype_name;
+    qi::rule<Iterator, ocaml::ast::class_name> class_name;
+    qi::rule<Iterator, ocaml::ast::inst_var_name> inst_var_name;
+    qi::rule<Iterator, ocaml::ast::method_name> method_name;
 };
 
 } // namespace grammar

@@ -404,11 +404,6 @@ public:
             | kwhile[echo_input(std::cout)]
             | kwith[echo_input(std::cout)];
 
-        // Infix symbols must be defined before some 
-        // of the reserved sequences
-        this->self 
-            += infix_symbol[echo_input(std::cout)];
-            
         // Reserved sequences
         this->self
             += bangequal[echo_input(std::cout)]
@@ -460,11 +455,12 @@ public:
             | lessless[echo_input(std::cout)]
             | greatgreat[echo_input(std::cout)]
             | questquest[echo_input(std::cout)];
-            
-        // Prefix symbol must be defined after !=
-        this->self
-            += prefix_symbol[echo_input(std::cout)];
 
+        // Infix and prefix symbols must be defined after reserved sequences
+        this->self 
+            += infix_symbol[echo_input(std::cout)]
+            | prefix_symbol[echo_input(std::cout)];
+            
         this->self
             += capitalized_ident[echo_input(std::cout)]
             | lowercase_ident[echo_input(std::cout)]
@@ -509,7 +505,7 @@ public:
         kparser, kprivate, krec, ksig, kstruct, kthen, kto, ktrue, ktry, ktype,
         kval, kvalue, kvirtual, kwhen, kwhile, kwith;
 
-    lexer_token_def<> bangequal, hash, ampersand, ampamp, apostrophe, lbrace,
+    lexer_token_def<std::string> bangequal, hash, ampersand, ampamp, apostrophe, lbrace,
         rbrace, asterisk, plus, comma, minus, minusdot, minusgreater, dot,
         dotdot, colon, coloncolon, colonequal, colongreater, semicolon, semisemi,
         lesser, lesserminus, equal, greater, greaterrbracket, greaterrcurly,

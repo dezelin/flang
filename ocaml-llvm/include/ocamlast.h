@@ -267,7 +267,10 @@ struct constr_name
 struct operation
     : tagged
 {
-    ocaml::lexer::Tokens operation;
+    operation(ocaml::lexer::Tokens op = ocaml::lexer::Tokens::Unknown)
+        : op(op) {}
+        
+    ocaml::lexer::Tokens op;
 };
 
 struct infix_symbol
@@ -282,7 +285,8 @@ struct infix_symbol
 struct infix_op
     : tagged
       , boost::spirit::extended_variant<
-        infix_symbol, operation
+        infix_symbol, 
+        operation
     >
 {
     infix_op()
@@ -3033,6 +3037,16 @@ BOOST_FUSION_ADAPT_STRUCT(
 //
 // Names
 //
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::infix_symbol,
+    (std::string, symbol)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::operation,
+    (ocaml::lexer::Tokens, op)
+)
 
 BOOST_FUSION_ADAPT_STRUCT(
     ocaml::ast::constr_name,

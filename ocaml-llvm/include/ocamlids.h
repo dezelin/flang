@@ -26,6 +26,7 @@
 #ifndef FLANG_OCAMLIDS_H
 #define FLANG_OCAMLIDS_H
 
+#include <boost/fusion/include/io.hpp>
 #include <boost/spirit/include/lex_lexertl.hpp>
 
 namespace ocaml
@@ -42,7 +43,8 @@ enum class Tokens
     // Lexical
     //
 
-    Blank = lex::min_token_id + 1,
+    Unknown = lex::min_token_id,
+    Blank,
     Ident,
     CapitalizedIdent,
     LowercaseIdent,
@@ -171,6 +173,13 @@ enum class Tokens
     GreatGreat,
     QuestQuest
 };
+
+// Print function for debugging
+inline std::ostream& operator<<(std::ostream& out, Tokens token)
+{
+    out << static_cast<std::size_t>(token); 
+    return out;
+}
 
 } // namespace lexer
 } // namespace ocaml
