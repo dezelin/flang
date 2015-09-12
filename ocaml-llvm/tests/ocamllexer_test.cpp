@@ -27,6 +27,8 @@
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
 
+//#define BOOST_SPIRIT_LEXERTL_DEBUG
+
 #include "ocamllexer.h"
 
 #include <boost/filesystem.hpp>
@@ -60,6 +62,26 @@ BOOST_AUTO_TEST_SUITE(OCamlLexerTest)
 
 BOOST_AUTO_TEST_CASE(LexerTest)
 {
+/*
+    typedef std::string::iterator base_iterator_type;
+    typedef lex::lexertl::actor_lexer<lex::lexertl::token<base_iterator_type>>
+        lexer_type;
+        
+    std::cout << "First token: " << ocaml::lexer::Tokens::Blank << "\n";
+    
+    ocaml::lexer::OCamlLexer<lexer_type> ocamlLexer;
+    std::string contentToLex = "=!!";
+    base_iterator_type first = contentToLex.begin();
+    bool r = lex::tokenize(first, contentToLex.end(), ocamlLexer);
+    if (!r) {
+        std::string rest(first, contentToLex.end());
+        std::cerr << "Lexical analysis failed\n" << "stopped at: \""
+        << rest << "\"\n";
+    }
+    
+    BOOST_CHECK(r);
+*/    
+
     path dataDir(OCAML_TEST_CASE_DATA_DIR);
     BOOST_CHECK(exists(dataDir));
     BOOST_CHECK(is_directory(dataDir));

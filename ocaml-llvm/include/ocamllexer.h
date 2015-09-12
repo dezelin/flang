@@ -104,15 +104,13 @@ class OCamlLexer
 
     const std::string kOptLabel = "\\?" + kLowercaseIdent;
 
-    const std::string kOperatorChar = "[!]∣[$]∣[%]∣[&]∣[*]∣[+]∣[-]∣["
-        ".]∣[\\/]∣[:]∣[<]∣[=]∣[>]∣[?]∣[@]∣[\\^]∣[|]∣[~]";
+    const std::string kOperatorChar = "!|\\$|%|&|\\*|\\+|-|\\.|\\/|:|<|=|>|\\?|@|\\^|\\||~";
 
     const std::string kPrefixSymbol = "[!](" + kOperatorChar + ")*|[?~](" +
         kOperatorChar +
         ")+";
 
-    const std::string kInfixSymbol =
-        "([=]|[<]|[>]|[@]|[\\^]|[|]|[&]|[+]|[-]|[*]|[\\/]|[$]|[%])(" +
+    const std::string kInfixSymbol = "(=|<|>|@|\\^|\\||&|\\+|-|\\*|\\/|\\$|%)(" +
             kOperatorChar + ")*";
 
     const std::string kLinenumDirective = "#[0-9]+|#[0-9]+" + kStringLiteral;
@@ -406,6 +404,11 @@ public:
             | kwhile[echo_input(std::cout)]
             | kwith[echo_input(std::cout)];
 
+        // Infix symbols must be defined before some 
+        // of the reserved sequences
+        this->self 
+            += infix_symbol[echo_input(std::cout)];
+            
         // Reserved sequences
         this->self
             += bangequal[echo_input(std::cout)]
@@ -457,6 +460,10 @@ public:
             | lessless[echo_input(std::cout)]
             | greatgreat[echo_input(std::cout)]
             | questquest[echo_input(std::cout)];
+            
+        // Prefix symbol must be defined after !=
+        this->self
+            += prefix_symbol[echo_input(std::cout)];
 
         this->self
             += capitalized_ident[echo_input(std::cout)]
@@ -468,10 +475,9 @@ public:
             | string_literal[echo_input(std::cout)]
             | label[echo_input(std::cout)]
             | optlabel[echo_input(std::cout)]
-            | prefix_symbol[echo_input(std::cout)]
-            | infix_symbol[echo_input(std::cout)]
             | linenum_directive[echo_input(std::cout)];
-
+            
+            
         // Ignore whitespace
         this->self += blank[lex::_pass = lex::pass_flags::pass_ignore];
 
