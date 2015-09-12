@@ -491,7 +491,7 @@ public:
     lexer_token_def<> comment_begin, comment_begin2, comment_end,
         comment_blank, comment_any;
 
-    lexer_token_def<std::string> lowercase_letter, uppercase_letter, letter,
+    lexer_token_def<> lowercase_letter, uppercase_letter, letter,
         ident, capitalized_ident, lowercase_ident, integer_literal,
         float_literal, escape_sequence, char_literal, string_character,
         string_literal, label_name, label, optlabel, operator_char,
@@ -505,7 +505,7 @@ public:
         kparser, kprivate, krec, ksig, kstruct, kthen, kto, ktrue, ktry, ktype,
         kval, kvalue, kvirtual, kwhen, kwhile, kwith;
 
-    lexer_token_def<std::string> bangequal, hash, ampersand, ampamp, apostrophe, lbrace,
+    lexer_token_def<> bangequal, hash, ampersand, ampamp, apostrophe, lbrace,
         rbrace, asterisk, plus, comma, minus, minusdot, minusgreater, dot,
         dotdot, colon, coloncolon, colonequal, colongreater, semicolon, semisemi,
         lesser, lesserminus, equal, greater, greaterrbracket, greaterrcurly,
