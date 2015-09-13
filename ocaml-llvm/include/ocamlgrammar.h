@@ -50,51 +50,51 @@ struct OCamlGrammar : qi::grammar<Iterator>
     {
         namespace lexer = ocaml::lexer;
         namespace qi = boost::spirit::qi;
-        
+
         start = qi::eps;
-        
+
         //
         // Lexical
         //
-        
-        capitalized_ident %= 
+
+        capitalized_ident %=
             qi::eps >> tok.capitalized_ident
             ;
-        
-        lowercase_ident %= 
+
+        lowercase_ident %=
             qi::eps >> tok.lowercase_ident
             ;
-        
-        ident %= 
-            qi::eps 
+
+        ident %=
+            qi::eps
             >> (tok.lowercase_ident | tok.capitalized_ident)
             ;
-            
-        label_name %= 
+
+        label_name %=
             qi::eps >> tok.lowercase_ident
             ;
-            
-        label %= 
+
+        label %=
             qi::eps >> tok.label
             ;
-            
-        optlabel %= 
+
+        optlabel %=
             qi::eps >> tok.optlabel
             ;
-            
-        integer_literal %= 
+
+        integer_literal %=
             qi::eps >> tok.integer_literal
             ;
-            
-        float_literal %= 
+
+        float_literal %=
             qi::eps >> tok.float_literal
             ;
-            
-        char_literal %= 
+
+        char_literal %=
             qi::eps >> tok.char_literal
             ;
-            
-        string_literal %= 
+
+        string_literal %=
             qi::eps >> tok.string_literal
             ;
 
@@ -108,15 +108,15 @@ struct OCamlGrammar : qi::grammar<Iterator>
         BOOST_SPIRIT_DEBUG_NODE(float_literal);
         BOOST_SPIRIT_DEBUG_NODE(char_literal);
         BOOST_SPIRIT_DEBUG_NODE(string_literal);
-        
+
         //
         // Names
         //
-        
+
         infix_symbol %=
-            qi::eps 
+            qi::eps
             >> (tok.infix_symbol
-                // Include this reserved sequences
+                // Include these reserved sequences
                 | tok.dollardollar
                 | tok.lesserminus
                 | tok.lessercolon
@@ -125,7 +125,7 @@ struct OCamlGrammar : qi::grammar<Iterator>
                 | tok.greatgreat
                 | tok.minusgreater)
             ;
-        
+
         operation %=
             qi::eps
             >> (qi::tokenid(lexer::Tokens::Asterisk)
@@ -149,17 +149,30 @@ struct OCamlGrammar : qi::grammar<Iterator>
                 | qi::tokenid(lexer::Tokens::Lsr)
                 | qi::tokenid(lexer::Tokens::Asr))
             ;
-            
+
         infix_op %=
-            operation
-            | infix_symbol
+            operation | infix_symbol
             ;
-        
+
+        prefix_symbol %=
+            qi::eps
+            >> (tok.prefix_symbol
+                // Include these reserved sequences
+                | tok.bangequal
+                | tok.questquest)
+            ;
+
+        operator_name %=
+            prefix_symbol | infix_op
+            ;
+
         BOOST_SPIRIT_DEBUG_NODE(infix_symbol);
         BOOST_SPIRIT_DEBUG_NODE(operation);
         BOOST_SPIRIT_DEBUG_NODE(infix_op);
-        /*
+        BOOST_SPIRIT_DEBUG_NODE(prefix_symbol);
         BOOST_SPIRIT_DEBUG_NODE(operator_name);
+
+        /*
         BOOST_SPIRIT_DEBUG_NODE(value_name);
         BOOST_SPIRIT_DEBUG_NODE(constr_name);
         BOOST_SPIRIT_DEBUG_NODE(tag_name);
@@ -193,10 +206,11 @@ struct OCamlGrammar : qi::grammar<Iterator>
     //
     // Names
     //
-    
+
     qi::rule<Iterator, ocaml::ast::infix_symbol> infix_symbol;
     qi::rule<Iterator, ocaml::ast::operation> operation;
     qi::rule<Iterator, ocaml::ast::infix_op> infix_op;
+    qi::rule<Iterator, ocaml::ast::prefix_symbol> prefix_symbol;
     qi::rule<Iterator, ocaml::ast::operator_name> operator_name;
     qi::rule<Iterator, ocaml::ast::value_name> value_name;
     qi::rule<Iterator, ocaml::ast::constr_name> constr_name;

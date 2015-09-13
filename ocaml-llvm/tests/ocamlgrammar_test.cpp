@@ -44,6 +44,10 @@
 using namespace boost::filesystem;
 using namespace boost::spirit;
 
+using namespace ocaml;
+using namespace lexer;
+using namespace parser;
+
 typedef std::string::const_iterator base_iterator_type;
 
 // This is the lexer token type to use.
@@ -53,15 +57,52 @@ typedef lex::lexertl::actor_lexer<token_type_> lexer_type;
 
 typedef lexer_type::iterator_type lexer_iterator_type;
 
-typedef ocaml::lexer::OCamlLexer<lexer_type> ocaml_lexer_type;
+typedef OCamlLexer<lexer_type> ocaml_lexer_type;
 
-typedef ocaml::parser::OCamlGrammar<lexer_iterator_type> ocaml_grammar_type;
+typedef OCamlGrammar<lexer_iterator_type> ocaml_grammar_type;
 
 // Lexer
 ocaml_lexer_type gLexer;
 
 // Grammar
 ocaml_grammar_type gGrammar(gLexer);
+
+std::string infix_symbols[] = {
+    "=", "<", ">", "@", "^", "|", "&", "+", "-", "*", "/", "$", "%"
+};
+
+std::string operator_chars[] = {
+    "!", "$", "%", "&", "*", "+", "-", ".", "/", ":", "<", "=", ">", "?",
+    "@", "^", "|", "~"
+};
+
+struct token {
+    std::string symbol;
+    Tokens tokenId;
+};
+
+struct token operations[] = {
+    { "*",          Tokens::Asterisk },
+    { "+",          Tokens::Plus },
+    { "-",          Tokens::Minus },
+    { "-.",         Tokens::MinusDot },
+    { "=",          Tokens::Equal },
+    { "!=",         Tokens::BangEqual },
+    { "<",          Tokens::Lesser },
+    { ">",          Tokens::Greater },
+    { "or",         Tokens::Or },
+    { "||",         Tokens::BarBar },
+    { "&",          Tokens::Ampersand },
+    { "&&",         Tokens::AmpAmp },
+    { ":=",         Tokens::ColonEqual },
+    { "mod",        Tokens::Mod },
+    { "land",       Tokens::Land },
+    { "lor",        Tokens::Lor },
+    { "lxor",       Tokens::Lxor },
+    { "lsl",        Tokens::Lsl },
+    { "lsr",        Tokens::Lsr },
+    { "asr",        Tokens::Asr }
+};
 
 
 std::string read_from_file(std::string const &filePath)
@@ -101,7 +142,7 @@ BOOST_AUTO_TEST_SUITE(OCamlGrammarTest)
 
 BOOST_AUTO_TEST_CASE(GrammarTest_capitalized_ident)
 {
-    ocaml::ast::capitalized_ident ident;
+    ast::capitalized_ident ident;
     std::string content = "Test";
     bool r = parse_string(content, gGrammar.capitalized_ident, ident);
     BOOST_CHECK(r);
@@ -110,7 +151,7 @@ BOOST_AUTO_TEST_CASE(GrammarTest_capitalized_ident)
 
 BOOST_AUTO_TEST_CASE(GrammarTest_lowercase_ident)
 {
-    ocaml::ast::lowercase_ident ident;
+    ast::lowercase_ident ident;
     std::string content = "test";
     bool r = parse_string(content, gGrammar.lowercase_ident, ident);
     BOOST_CHECK(r);
@@ -119,13 +160,13 @@ BOOST_AUTO_TEST_CASE(GrammarTest_lowercase_ident)
 
 BOOST_AUTO_TEST_CASE(GrammarTest_ident)
 {
-    ocaml::ast::ident ident;
+    ast::ident ident;
     std::string content = "test";
     bool r = parse_string(content, gGrammar.ident, ident);
     BOOST_CHECK(r);
     BOOST_CHECK(ident.name == content);
 
-    ident = ocaml::ast::ident();
+    ident = ast::ident();
     content = "Test";
     r = parse_string(content, gGrammar.ident, ident);
     BOOST_CHECK(r);
@@ -134,7 +175,7 @@ BOOST_AUTO_TEST_CASE(GrammarTest_ident)
 
 BOOST_AUTO_TEST_CASE(GrammarTest_label_name)
 {
-    ocaml::ast::label_name label_name;
+    ast::label_name label_name;
     std::string content = "test";
     bool r = parse_string(content, gGrammar.label_name, label_name);
     BOOST_CHECK(r);
@@ -143,7 +184,7 @@ BOOST_AUTO_TEST_CASE(GrammarTest_label_name)
 
 BOOST_AUTO_TEST_CASE(GrammarTest_label)
 {
-    ocaml::ast::label label;
+    ast::label label;
     std::string content = "~test";
     bool r = parse_string(content, gGrammar.label, label);
     BOOST_CHECK(r);
@@ -152,7 +193,7 @@ BOOST_AUTO_TEST_CASE(GrammarTest_label)
 
 BOOST_AUTO_TEST_CASE(GrammarTest_optlabel)
 {
-    ocaml::ast::optlabel optlabel;
+    ast::optlabel optlabel;
     std::string content = "?test";
     bool r = parse_string(content, gGrammar.optlabel, optlabel);
     BOOST_CHECK(r);
@@ -161,7 +202,7 @@ BOOST_AUTO_TEST_CASE(GrammarTest_optlabel)
 
 BOOST_AUTO_TEST_CASE(GrammarTest_integer_literal)
 {
-    ocaml::ast::integer_literal integer_literal;
+    ast::integer_literal integer_literal;
     std::string content = "23";
     bool r = parse_string(content, gGrammar.integer_literal, integer_literal);
     BOOST_CHECK(r);
@@ -170,7 +211,7 @@ BOOST_AUTO_TEST_CASE(GrammarTest_integer_literal)
 
 BOOST_AUTO_TEST_CASE(GrammarTest_float_literal)
 {
-    ocaml::ast::float_literal float_literal;
+    ast::float_literal float_literal;
     std::string content = "1.23";
     bool r = parse_string(content, gGrammar.float_literal, float_literal);
     BOOST_CHECK(r);
@@ -179,7 +220,7 @@ BOOST_AUTO_TEST_CASE(GrammarTest_float_literal)
 
 BOOST_AUTO_TEST_CASE(GrammarTest_char_literal)
 {
-    ocaml::ast::char_literal char_literal;
+    ast::char_literal char_literal;
     std::string content = "'t'";
     bool r = parse_string(content, gGrammar.char_literal, char_literal);
     BOOST_CHECK(r);
@@ -188,7 +229,7 @@ BOOST_AUTO_TEST_CASE(GrammarTest_char_literal)
 
 BOOST_AUTO_TEST_CASE(GrammarTest_string_literal)
 {
-    ocaml::ast::string_literal string_literal;
+    ast::string_literal string_literal;
     std::string content = "\"test\"";
     bool r = parse_string(content, gGrammar.string_literal, string_literal);
     BOOST_CHECK(r);
@@ -201,71 +242,111 @@ BOOST_AUTO_TEST_CASE(GrammarTest_string_literal)
 
 BOOST_AUTO_TEST_CASE(GrammarTest_infix_op)
 {
-    using namespace ocaml;
-    using namespace ocaml::lexer;
-    
-    struct token { 
-        std::string symbol; 
-        Tokens tokenId;
-    }; 
-    
-    struct token operations[] = {
-        { "*",          Tokens::Asterisk },
-        { "+",          Tokens::Plus }, 
-        { "-",          Tokens::Minus },
-        { "-.",         Tokens::MinusDot },
-        { "=",          Tokens::Equal },
-        { "!=",         Tokens::BangEqual },
-        { "<",          Tokens::Lesser },
-        { ">",          Tokens::Greater },
-        { "or",         Tokens::Or },
-        { "||",         Tokens::BarBar },
-        { "&",          Tokens::Ampersand },
-        { "&&",         Tokens::AmpAmp },
-        { ":=",         Tokens::ColonEqual },
-        { "mod",        Tokens::Mod },
-        { "land",       Tokens::Land },
-        { "lor",        Tokens::Lor },
-        { "lxor",       Tokens::Lxor },
-        { "lsl",        Tokens::Lsl },
-        { "lsr",        Tokens::Lsr },
-        { "asr",        Tokens::Asr }
-    };
-    
-    std::cout << "First token: " << Tokens::Blank << "\n";
-    
     for (struct token op : operations) {
         ast::infix_op infix_op;
         bool r = parse_string(std::string(op.symbol), gGrammar.infix_op, infix_op);
         BOOST_CHECK(r);
         BOOST_CHECK(boost::get<ast::operation>(infix_op).op == op.tokenId);
     }
-    
-    std::string infix_symbols[] = {
-        "=", "<", ">", "@", "^", "|", "&", "+", "-", "*", "/", "$", "%"
-    };
-    
-    std::string operator_chars[] = {
-        "!", "$", "%", "&", "*", "+", "-", ".", "/", ":", "<", "=", ">", "?", 
-        "@", "^", "|", "~"
-    };
-    
-    for(std::string i : operator_chars) {
+
+    for(auto i : operator_chars) {
         for(std::string j : infix_symbols) {
             std::string op = j + i;
             ast::infix_op infix_op;
             bool r = parse_string(op, gGrammar.infix_op, infix_op);
             BOOST_CHECK(r);
-            
+
             // Skip operations tested above
             if (op != "&&" && op != "-." && op != "||")
                 BOOST_CHECK(boost::get<ast::infix_symbol>(infix_op).symbol == op);
 
-            for(std::string k : infix_symbols) {
+            for(auto k : infix_symbols) {
                 std::string op = j + i + k;
                 ast::infix_op infix_op;
                 bool r = parse_string(op, gGrammar.infix_op, infix_op);
                 BOOST_CHECK(r);
+                BOOST_CHECK(boost::get<ast::infix_symbol>(infix_op).symbol == op);
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_operator_name)
+{
+    //
+    // prefix_symbol part
+    //
+
+    // "!" is prefix_symbol
+
+    std::string op = "!";
+    ast::operator_name operator_name;
+    bool r = parse_string(op, gGrammar.operator_name, operator_name);
+    BOOST_CHECK(r);
+    BOOST_CHECK(boost::get<ast::prefix_symbol>(operator_name).symbol == op);
+
+    // ! { operator-char } | (? | ~) { operator-char } +
+    std::string prefixes[] = { "!", "?", "~" };
+
+    for(auto prefix : prefixes) {
+        for(auto i : operator_chars) {
+            std::string op = prefix + i;
+            ast::operator_name operator_name;
+            bool r = parse_string(op, gGrammar.operator_name, operator_name);
+            BOOST_CHECK(r);
+            BOOST_CHECK(boost::get<ast::prefix_symbol>(operator_name).symbol == op);
+
+            for(auto j : operator_chars) {
+                std::string op = prefix + i + j;
+                ast::operator_name operator_name;
+                bool r = parse_string(op, gGrammar.operator_name, operator_name);
+                BOOST_CHECK(r);
+                BOOST_CHECK(boost::get<ast::prefix_symbol>(operator_name).symbol == op);
+            }
+        }
+    }
+
+    //
+    // infix_op part
+    //
+
+    for (struct token op : operations) {
+        std::string symbol(op.symbol);
+        ast::operator_name operator_name;
+        bool r = parse_string(symbol, gGrammar.operator_name, operator_name);
+        BOOST_CHECK(r);
+
+        // Skip prefix symbols tested above
+        if (symbol != "!=") {
+            ast::infix_op infix_op = boost::get<ast::infix_op>(operator_name);
+            BOOST_CHECK(boost::get<ast::operation>(infix_op).op == op.tokenId);
+        }
+    }
+
+    for(auto i : operator_chars) {
+        for(std::string j : infix_symbols) {
+            std::string op = j + i;
+            ast::operator_name operator_name;
+            bool r = parse_string(op, gGrammar.operator_name, operator_name);
+            BOOST_CHECK(r);
+
+            ast::infix_op infix_op = boost::get<ast::infix_op>(operator_name);
+
+            if (op == "&&")
+                BOOST_CHECK(boost::get<ast::operation>(infix_op).op == Tokens::AmpAmp);
+            else if (op == "-.")
+                BOOST_CHECK(boost::get<ast::operation>(infix_op).op == Tokens::MinusDot);
+            else if (op == "||")
+                BOOST_CHECK(boost::get<ast::operation>(infix_op).op == Tokens::BarBar);
+            else
+                BOOST_CHECK(boost::get<ast::infix_symbol>(infix_op).symbol == op);
+
+            for(auto k : infix_symbols) {
+                std::string op = j + i + k;
+                ast::operator_name operator_name;
+                bool r = parse_string(op, gGrammar.operator_name, operator_name);
+                BOOST_CHECK(r);
+                ast::infix_op infix_op = boost::get<ast::infix_op>(operator_name);
                 BOOST_CHECK(boost::get<ast::infix_symbol>(infix_op).symbol == op);
             }
         }

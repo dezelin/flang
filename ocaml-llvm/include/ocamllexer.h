@@ -457,10 +457,10 @@ public:
             | questquest[echo_input(std::cout)];
 
         // Infix and prefix symbols must be defined after reserved sequences
-        this->self 
+        this->self
             += infix_symbol[echo_input(std::cout)]
             | prefix_symbol[echo_input(std::cout)];
-            
+
         this->self
             += capitalized_ident[echo_input(std::cout)]
             | lowercase_ident[echo_input(std::cout)]
@@ -472,8 +472,8 @@ public:
             | label[echo_input(std::cout)]
             | optlabel[echo_input(std::cout)]
             | linenum_directive[echo_input(std::cout)];
-            
-            
+
+
         // Ignore whitespace
         this->self += blank[lex::_pass = lex::pass_flags::pass_ignore];
 

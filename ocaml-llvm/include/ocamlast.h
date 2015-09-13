@@ -311,7 +311,8 @@ struct prefix_symbol
 struct operator_name
     : tagged
       , boost::spirit::extended_variant<
-        prefix_symbol, infix_op
+        prefix_symbol, 
+        infix_op
     >
 {
     operator_name()
@@ -3040,6 +3041,11 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
     ocaml::ast::infix_symbol,
+    (std::string, symbol)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::prefix_symbol,
     (std::string, symbol)
 )
 
