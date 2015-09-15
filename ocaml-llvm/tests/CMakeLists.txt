@@ -12,6 +12,9 @@ include_directories(../include)
 # FIXME: Boost Spirit lex::lexertl::token gives this warning
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")
 
+# FIXME: Boost Spirit Karma gives this warning
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-local-typedefs")
+
 # Generate main() for tests
 #add_definitions(-DBOOST_TEST_DYN_LINK)
 

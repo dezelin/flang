@@ -45,8 +45,8 @@ using namespace boost::filesystem;
 using namespace boost::spirit;
 
 using namespace ocaml;
-using namespace lexer;
-using namespace parser;
+using namespace ocaml::lexer;
+using namespace ocaml::parser;
 
 typedef std::string::const_iterator base_iterator_type;
 
@@ -239,7 +239,7 @@ BOOST_AUTO_TEST_CASE(GrammarTest_string_literal)
 //
 // Names
 //
-
+/*
 BOOST_AUTO_TEST_CASE(GrammarTest_infix_op)
 {
     for (struct token op : operations) {
@@ -351,6 +351,24 @@ BOOST_AUTO_TEST_CASE(GrammarTest_operator_name)
             }
         }
     }
+}
+*/
+BOOST_AUTO_TEST_CASE(GrammarTest_value_name)
+{
+    ast::value_name value_name;
+    std::string content = "test";
+    bool r = parse_string(content, gGrammar.value_name, value_name);
+    BOOST_CHECK(r);
+    ast::lowercase_ident lowercase_ident = boost::get<ast::lowercase_ident>(value_name);
+    BOOST_CHECK(lowercase_ident.name == content);
+
+    value_name = ast::value_name();
+    content = "!=";
+    r = parse_string("(" + content + ")", gGrammar.value_name, value_name);
+    BOOST_CHECK(r);
+    ast::operator_name operator_name = boost::get<ast::operator_name>(value_name);
+    ast::prefix_symbol prefix_symbol = boost::get<ast::prefix_symbol>(operator_name);
+    BOOST_CHECK(prefix_symbol.symbol == content);
 }
 
 /*

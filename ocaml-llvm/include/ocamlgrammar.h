@@ -166,14 +166,19 @@ struct OCamlGrammar : qi::grammar<Iterator>
             prefix_symbol | infix_op
             ;
 
+        value_name %=
+            lowercase_ident
+            | (qi::omit[tok.lbrace] >> operator_name >> qi::omit[tok.rbrace])
+            ;
+
         BOOST_SPIRIT_DEBUG_NODE(infix_symbol);
         BOOST_SPIRIT_DEBUG_NODE(operation);
         BOOST_SPIRIT_DEBUG_NODE(infix_op);
         BOOST_SPIRIT_DEBUG_NODE(prefix_symbol);
         BOOST_SPIRIT_DEBUG_NODE(operator_name);
-
-        /*
         BOOST_SPIRIT_DEBUG_NODE(value_name);
+        /*
+
         BOOST_SPIRIT_DEBUG_NODE(constr_name);
         BOOST_SPIRIT_DEBUG_NODE(tag_name);
         BOOST_SPIRIT_DEBUG_NODE(typeconstr_name);
