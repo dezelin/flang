@@ -380,6 +380,84 @@ BOOST_AUTO_TEST_CASE(GrammarTest_constr_name)
     BOOST_CHECK(constr_name.name.name == content);
 }
 
+BOOST_AUTO_TEST_CASE(GrammarTest_tag_name)
+{
+    ast::tag_name tag_name;
+    std::string content = "Test";
+    bool r = parse_string(content, gGrammar.tag_name, tag_name);
+    BOOST_CHECK(r);
+    BOOST_CHECK(tag_name.name.name == content);
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_typeconstr_name)
+{
+    ast::typeconstr_name typeconstr_name;
+    std::string content = "test";
+    bool r = parse_string(content, gGrammar.typeconstr_name, typeconstr_name);
+    BOOST_CHECK(r);
+    BOOST_CHECK(typeconstr_name.name.name == content);
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_field_name)
+{
+    ast::field_name field_name;
+    std::string content = "test";
+    bool r = parse_string(content, gGrammar.field_name, field_name);
+    BOOST_CHECK(r);
+    BOOST_CHECK(field_name.name.name == content);
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_module_name)
+{
+    ast::module_name module_name;
+    std::string content = "Test";
+    bool r = parse_string(content, gGrammar.module_name, module_name);
+    BOOST_CHECK(r);
+    BOOST_CHECK(module_name.name.name == content);
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_modtype_name)
+{
+    ast::modtype_name modtype_name;
+    std::string content = "test";
+    bool r = parse_string(content, gGrammar.modtype_name, modtype_name);
+    BOOST_CHECK(r);
+    BOOST_CHECK(modtype_name.name.name == content);
+
+    modtype_name = ast::modtype_name();
+    content = "Test";
+    r = parse_string(content, gGrammar.modtype_name, modtype_name);
+    BOOST_CHECK(r);
+    BOOST_CHECK(modtype_name.name.name == content);
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_class_name)
+{
+    ast::class_name class_name;
+    std::string content = "test";
+    bool r = parse_string(content, gGrammar.class_name, class_name);
+    BOOST_CHECK(r);
+    BOOST_CHECK(class_name.name.name == content);
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_inst_var_name)
+{
+    ast::inst_var_name inst_var_name;
+    std::string content = "test";
+    bool r = parse_string(content, gGrammar.inst_var_name, inst_var_name);
+    BOOST_CHECK(r);
+    BOOST_CHECK(inst_var_name.name.name == content);
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_method_name)
+{
+    ast::method_name method_name;
+    std::string content = "test";
+    bool r = parse_string(content, gGrammar.method_name, method_name);
+    BOOST_CHECK(r);
+    BOOST_CHECK(method_name.name.name == content);
+}
+
 /*
 BOOST_AUTO_TEST_CASE(GrammarTest_ocaml_distribution)
 {

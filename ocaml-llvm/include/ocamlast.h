@@ -231,6 +231,9 @@ struct class_name
 struct modtype_name
     : tagged
 {
+    modtype_name(ident const& name = ident())
+      : name(name) {}
+
     ident name;
 };
 
@@ -269,7 +272,7 @@ struct operation
 {
     operation(ocaml::lexer::Tokens op = ocaml::lexer::Tokens::Unknown)
         : op(op) {}
-        
+
     ocaml::lexer::Tokens op;
 };
 
@@ -285,7 +288,7 @@ struct infix_symbol
 struct infix_op
     : tagged
       , boost::spirit::extended_variant<
-        infix_symbol, 
+        infix_symbol,
         operation
     >
 {
@@ -311,7 +314,7 @@ struct prefix_symbol
 struct operator_name
     : tagged
       , boost::spirit::extended_variant<
-        prefix_symbol, 
+        prefix_symbol,
         infix_op
     >
 {
@@ -2972,6 +2975,23 @@ struct external_declaration : tagged
     boost::optional<string_literal> second;
     boost::optional<string_literal> third;
 };
+
+//
+// Print functions for debugging
+//
+
+inline std::ostream& operator<<(std::ostream& out, ident ident)
+{
+    out << ident.name;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, modtype_name name)
+{
+    out << name.name;
+    return out;
+}
+
 
 } // namespace ast
 } // namespace ocaml
