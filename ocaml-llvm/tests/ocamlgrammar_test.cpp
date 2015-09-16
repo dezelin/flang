@@ -371,6 +371,15 @@ BOOST_AUTO_TEST_CASE(GrammarTest_value_name)
     BOOST_CHECK(prefix_symbol.symbol == content);
 }
 
+BOOST_AUTO_TEST_CASE(GrammarTest_constr_name)
+{
+    ast::constr_name constr_name;
+    std::string content = "Test";
+    bool r = parse_string(content, gGrammar.constr_name, constr_name);
+    BOOST_CHECK(r);
+    BOOST_CHECK(constr_name.name.name == content);
+}
+
 /*
 BOOST_AUTO_TEST_CASE(GrammarTest_ocaml_distribution)
 {

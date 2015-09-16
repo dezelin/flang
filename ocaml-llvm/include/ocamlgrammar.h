@@ -171,14 +171,48 @@ struct OCamlGrammar : qi::grammar<Iterator>
             | (qi::omit[tok.lbrace] >> operator_name >> qi::omit[tok.rbrace])
             ;
 
+        constr_name %=
+            capitalized_ident
+            ;
+
+        tag_name %=
+            capitalized_ident
+            ;
+
+        typeconstr_name %=
+            lowercase_ident
+            ;
+
+        field_name %=
+            lowercase_ident
+            ;
+
+        module_name %=
+            capitalized_ident
+            ;
+
+        modtype_name %=
+            ident
+            ;
+
+        class_name %=
+            lowercase_ident
+            ;
+
+        inst_var_name %=
+            lowercase_ident
+            ;
+
+        method_name %=
+            lowercase_ident
+            ;
+
         BOOST_SPIRIT_DEBUG_NODE(infix_symbol);
         BOOST_SPIRIT_DEBUG_NODE(operation);
         BOOST_SPIRIT_DEBUG_NODE(infix_op);
         BOOST_SPIRIT_DEBUG_NODE(prefix_symbol);
         BOOST_SPIRIT_DEBUG_NODE(operator_name);
         BOOST_SPIRIT_DEBUG_NODE(value_name);
-        /*
-
         BOOST_SPIRIT_DEBUG_NODE(constr_name);
         BOOST_SPIRIT_DEBUG_NODE(tag_name);
         BOOST_SPIRIT_DEBUG_NODE(typeconstr_name);
@@ -188,7 +222,6 @@ struct OCamlGrammar : qi::grammar<Iterator>
         BOOST_SPIRIT_DEBUG_NODE(class_name);
         BOOST_SPIRIT_DEBUG_NODE(inst_var_name);
         BOOST_SPIRIT_DEBUG_NODE(method_name);
-        */
     }
 
     qi::rule<Iterator> start;
