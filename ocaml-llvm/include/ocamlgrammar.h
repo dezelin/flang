@@ -32,6 +32,7 @@
 #include "ocamlids.h"
 #include "ocamllexer.h"
 #include <boost/spirit/include/qi.hpp>
+#include <boost/spirit/include/phoenix.hpp>
 
 namespace ocaml
 {
@@ -207,6 +208,59 @@ struct OCamlGrammar : qi::grammar<Iterator>
             lowercase_ident
             ;
 
+        value_path %=
+            -(module_path >> qi::omit[tok.dot]) >> value_name
+            ;
+
+        constr =
+            //
+            // This is a BNF notation for the rule:
+            //
+            //  (module_path >> qi::omit[tok.dot]) >> constr_name
+            //
+            // Boost Spirit rules are greedy so module_path subrule eats all
+            // capitalized_ident tokens including the last one for the
+            // constr_name subrule.
+            //
+            (module_name >> *(qi::omit[tok.dot] >> module_name)) [
+                    // Construct ast::constr from module_name tokens
+                    _val = construct<ast::constr>(_1, _2)
+                ]
+            ;
+
+        typeconstr %=
+            -(extended_module_path >> qi::omit[tok.dot]) >> typeconstr_name
+            ;
+
+        field %=
+            -(module_path >> qi::omit[tok.dot]) >> field_name
+            ;
+
+        modtype_path %=
+            -(extended_module_path >> qi::omit[tok.dot]) >> modtype_name
+            ;
+
+        class_path %=
+            -(module_path >> qi::omit[tok.dot]) >> class_name
+            ;
+
+        classtype_path %=
+            -(extended_module_path >> qi::omit[tok.dot]) >> class_name
+            ;
+
+        module_path %=
+            module_name >> *(qi::omit[tok.dot] >> module_name)
+            ;
+
+        extended_module_path %=
+            extended_module_name >> *(qi::omit[tok.dot] >> extended_module_name)
+            ;
+
+        extended_module_name %=
+            module_name
+            >> *(qi::omit[tok.lbrace] >> extended_module_path >> qi::omit[tok.rbrace])
+            ;
+
         BOOST_SPIRIT_DEBUG_NODE(infix_symbol);
         BOOST_SPIRIT_DEBUG_NODE(operation);
         BOOST_SPIRIT_DEBUG_NODE(infix_op);
@@ -222,6 +276,17 @@ struct OCamlGrammar : qi::grammar<Iterator>
         BOOST_SPIRIT_DEBUG_NODE(class_name);
         BOOST_SPIRIT_DEBUG_NODE(inst_var_name);
         BOOST_SPIRIT_DEBUG_NODE(method_name);
+
+        BOOST_SPIRIT_DEBUG_NODE(value_path);
+        BOOST_SPIRIT_DEBUG_NODE(constr);
+        BOOST_SPIRIT_DEBUG_NODE(typeconstr);
+        BOOST_SPIRIT_DEBUG_NODE(field);
+        BOOST_SPIRIT_DEBUG_NODE(modtype_path);
+        BOOST_SPIRIT_DEBUG_NODE(class_path);
+        BOOST_SPIRIT_DEBUG_NODE(classtype_path);
+        BOOST_SPIRIT_DEBUG_NODE(module_path);
+        BOOST_SPIRIT_DEBUG_NODE(extended_module_path);
+        BOOST_SPIRIT_DEBUG_NODE(extended_module_name);
     }
 
     qi::rule<Iterator> start;
@@ -230,36 +295,47 @@ struct OCamlGrammar : qi::grammar<Iterator>
     // Lexical
     //
 
-    qi::rule<Iterator, ocaml::ast::capitalized_ident> capitalized_ident;
-    qi::rule<Iterator, ocaml::ast::lowercase_ident> lowercase_ident;
-    qi::rule<Iterator, ocaml::ast::ident> ident;
-    qi::rule<Iterator, ocaml::ast::label_name> label_name;
-    qi::rule<Iterator, ocaml::ast::label> label;
-    qi::rule<Iterator, ocaml::ast::optlabel> optlabel;
-    qi::rule<Iterator, ocaml::ast::integer_literal> integer_literal;
-    qi::rule<Iterator, ocaml::ast::float_literal> float_literal;
-    qi::rule<Iterator, ocaml::ast::char_literal> char_literal;
-    qi::rule<Iterator, ocaml::ast::string_literal> string_literal;
+    qi::rule<Iterator, ocaml::ast::capitalized_ident()> capitalized_ident;
+    qi::rule<Iterator, ocaml::ast::lowercase_ident()> lowercase_ident;
+    qi::rule<Iterator, ocaml::ast::ident()> ident;
+    qi::rule<Iterator, ocaml::ast::label_name()> label_name;
+    qi::rule<Iterator, ocaml::ast::label()> label;
+    qi::rule<Iterator, ocaml::ast::optlabel()> optlabel;
+    qi::rule<Iterator, ocaml::ast::integer_literal()> integer_literal;
+    qi::rule<Iterator, ocaml::ast::float_literal()> float_literal;
+    qi::rule<Iterator, ocaml::ast::char_literal()> char_literal;
+    qi::rule<Iterator, ocaml::ast::string_literal()> string_literal;
 
     //
     // Names
     //
 
-    qi::rule<Iterator, ocaml::ast::infix_symbol> infix_symbol;
-    qi::rule<Iterator, ocaml::ast::operation> operation;
-    qi::rule<Iterator, ocaml::ast::infix_op> infix_op;
-    qi::rule<Iterator, ocaml::ast::prefix_symbol> prefix_symbol;
-    qi::rule<Iterator, ocaml::ast::operator_name> operator_name;
-    qi::rule<Iterator, ocaml::ast::value_name> value_name;
-    qi::rule<Iterator, ocaml::ast::constr_name> constr_name;
-    qi::rule<Iterator, ocaml::ast::tag_name> tag_name;
-    qi::rule<Iterator, ocaml::ast::typeconstr_name> typeconstr_name;
-    qi::rule<Iterator, ocaml::ast::field_name> field_name;
-    qi::rule<Iterator, ocaml::ast::module_name> module_name;
-    qi::rule<Iterator, ocaml::ast::modtype_name> modtype_name;
-    qi::rule<Iterator, ocaml::ast::class_name> class_name;
-    qi::rule<Iterator, ocaml::ast::inst_var_name> inst_var_name;
-    qi::rule<Iterator, ocaml::ast::method_name> method_name;
+    qi::rule<Iterator, ocaml::ast::infix_symbol()> infix_symbol;
+    qi::rule<Iterator, ocaml::ast::operation()> operation;
+    qi::rule<Iterator, ocaml::ast::infix_op()> infix_op;
+    qi::rule<Iterator, ocaml::ast::prefix_symbol()> prefix_symbol;
+    qi::rule<Iterator, ocaml::ast::operator_name()> operator_name;
+    qi::rule<Iterator, ocaml::ast::value_name()> value_name;
+    qi::rule<Iterator, ocaml::ast::constr_name()> constr_name;
+    qi::rule<Iterator, ocaml::ast::tag_name()> tag_name;
+    qi::rule<Iterator, ocaml::ast::typeconstr_name()> typeconstr_name;
+    qi::rule<Iterator, ocaml::ast::field_name()> field_name;
+    qi::rule<Iterator, ocaml::ast::module_name()> module_name;
+    qi::rule<Iterator, ocaml::ast::modtype_name()> modtype_name;
+    qi::rule<Iterator, ocaml::ast::class_name()> class_name;
+    qi::rule<Iterator, ocaml::ast::inst_var_name()> inst_var_name;
+    qi::rule<Iterator, ocaml::ast::method_name()> method_name;
+
+    qi::rule<Iterator, ocaml::ast::value_path()> value_path;
+    qi::rule<Iterator, ocaml::ast::constr()> constr;
+    qi::rule<Iterator, ocaml::ast::typeconstr()> typeconstr;
+    qi::rule<Iterator, ocaml::ast::field()> field;
+    qi::rule<Iterator, ocaml::ast::modtype_path()> modtype_path;
+    qi::rule<Iterator, ocaml::ast::class_path()> class_path;
+    qi::rule<Iterator, ocaml::ast::classtype_path()> classtype_path;
+    qi::rule<Iterator, ocaml::ast::module_path()> module_path;
+    qi::rule<Iterator, ocaml::ast::extended_module_path()> extended_module_path;
+    qi::rule<Iterator, ocaml::ast::extended_module_name()> extended_module_name;
 };
 
 } // namespace grammar

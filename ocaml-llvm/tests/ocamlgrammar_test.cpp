@@ -458,6 +458,91 @@ BOOST_AUTO_TEST_CASE(GrammarTest_method_name)
     BOOST_CHECK(method_name.name.name == content);
 }
 
+
+BOOST_AUTO_TEST_CASE(GrammarTest_value_path)
+{
+    ast::value_path value_path;
+    std::string content = "test";
+    bool r = parse_string(content, gGrammar.value_path, value_path);
+    BOOST_CHECK(r);
+    BOOST_CHECK(boost::get<ast::lowercase_ident>(value_path.name).name == content);
+    BOOST_CHECK(!value_path.path.is_initialized());
+
+    std::string additional;
+    for(int i = 0; i < 10; ++i) {
+        value_path = ast::value_path();
+        additional += "Test.";
+        r = parse_string(additional + content, gGrammar.value_path, value_path);
+        BOOST_CHECK(r);
+        BOOST_CHECK(boost::get<ast::lowercase_ident>(value_path.name).name == content);
+        BOOST_CHECK(value_path.path.is_initialized());
+        BOOST_CHECK(value_path.path.get().name.name.name == "Test");
+        if (i == 0)
+            BOOST_CHECK(!value_path.path.get().other.is_initialized());
+        else {
+            BOOST_CHECK(value_path.path.get().other.is_initialized());
+            BOOST_CHECK(value_path.path.get().other.get().size() == i);
+            for(ast::module_name const& name : value_path.path.get().other.get())
+                BOOST_CHECK(name.name.name == "Test");
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_constr)
+{
+    ast::constr constr;
+    std::string content = "TTest";
+    bool r = parse_string(content, gGrammar.constr, constr);
+    BOOST_CHECK(r);
+    BOOST_CHECK(constr.name.name.name == content);
+    BOOST_CHECK(!constr.path.is_initialized());
+
+    std::string additional;
+    std::string moduleName = "Test";
+    for(int i = 0; i < 10; ++i) {
+        constr = ast::constr();
+        additional += moduleName + ".";
+        r = parse_string(additional + content, gGrammar.constr, constr);
+        BOOST_CHECK(r);
+        BOOST_CHECK(constr.name.name.name == content);
+        BOOST_CHECK(constr.path.is_initialized());
+
+        if (i == 0) {
+            BOOST_CHECK(!constr.path.get().other.is_initialized());
+            BOOST_CHECK(constr.path.get().name.name.name == moduleName);
+        } else {
+            BOOST_CHECK(constr.path.get().name.name.name == moduleName);
+            BOOST_CHECK(constr.path.get().other.is_initialized());
+            BOOST_CHECK(constr.path.get().other.get().size() == i);
+            for(ast::module_name const& name : constr.path.get().other.get())
+                BOOST_CHECK(name.name.name == moduleName);
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_module_path)
+{
+    ast::module_path module_path;
+    std::string content = "Test";
+    bool r = parse_string(content, gGrammar.module_path, module_path);
+    BOOST_CHECK(r);
+    BOOST_CHECK(module_path.name.name.name == content);
+    BOOST_CHECK(!module_path.other.is_initialized());
+
+    std::string additional;
+    for(int i = 0; i < 10; ++i) {
+        module_path = ast::module_path();
+        additional += "." + content;
+        r = parse_string(content + additional, gGrammar.module_path, module_path);
+        BOOST_CHECK(r);
+        BOOST_CHECK(module_path.name.name.name == content);
+        BOOST_CHECK(module_path.other.is_initialized());
+        BOOST_CHECK(module_path.other.get().size() == i + 1);
+        for(ast::module_name const& name : module_path.other.get())
+            BOOST_CHECK(name.name.name == content);
+    }
+}
+
 /*
 BOOST_AUTO_TEST_CASE(GrammarTest_ocaml_distribution)
 {

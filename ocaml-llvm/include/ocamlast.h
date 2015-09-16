@@ -35,9 +35,10 @@
 
 #include <boost/config/warning_disable.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
+#include <boost/optional.hpp>
+#include <boost/optional/optional_io.hpp>
 #include <boost/spirit/include/support_extended_variant.hpp>
 #include <boost/spirit/include/support_attributes.hpp>
-#include <boost/optional.hpp>
 #include <boost/variant/recursive_variant.hpp>
 
 #include <list>
@@ -240,6 +241,9 @@ struct modtype_name
 struct module_name
     : tagged
 {
+    module_name(capitalized_ident const& name = capitalized_ident())
+        : name(name) {}
+
     capitalized_ident name;
 };
 
@@ -264,6 +268,9 @@ struct tag_name
 struct constr_name
     : tagged
 {
+    constr_name(ast::capitalized_ident const& name = ast::capitalized_ident())
+        : name(name) {}
+
     capitalized_ident name;
 };
 
@@ -347,36 +354,59 @@ struct value_name
 
 struct extended_module_path;
 
-typedef std::list<extended_module_path> extended_module_path_list;
+typedef std::vector<extended_module_path> extended_module_path_list;
 
 struct extended_module_name
     : tagged
 {
+    extended_module_name(module_name const& name = module_name())
+        : name(name) {}
+
     module_name name;
-    boost::optional<extended_module_path_list> path_list;
+    boost::optional<extended_module_path_list> paths;
 };
 
-typedef std::list<extended_module_name> extended_module_name_list;
+typedef std::vector<extended_module_name> extended_module_name_list;
 
 struct extended_module_path
     : tagged
 {
+    extended_module_path(extended_module_name const& name = extended_module_name())
+        : name(name) {}
+
     extended_module_name name;
-    boost::optional<extended_module_name_list> name_list;
+    boost::optional<extended_module_name_list> other;
 };
 
-typedef std::list<module_name> module_name_list;
+typedef std::vector<module_name> module_name_list;
 
 struct module_path
     : tagged
 {
+    module_path(module_name const& name = module_name())
+        : name(name) {}
+
+    module_path(module_name const& name,
+                boost::optional<module_name_list> const& other)
+        : name(name)
+    {
+        if (other.is_initialized())
+            if (other.get().size() > 0)
+                this->other = other;
+    }
+
     module_name name;
-    boost::optional<module_name_list> name_list;
+    boost::optional<module_name_list> other;
 };
 
 struct classtype_path
     : tagged
 {
+    classtype_path(
+        boost::optional<extended_module_path> const& path =
+            boost::optional<extended_module_path>())
+        : path(path) {}
+
     boost::optional<extended_module_path> path;
     class_name name;
 };
@@ -384,6 +414,11 @@ struct classtype_path
 struct class_path
     : tagged
 {
+    class_path(
+        boost::optional<module_path> const path =
+            boost::optional<module_path>())
+        : path(path) {}
+
     boost::optional<module_path> path;
     class_name name;
 };
@@ -391,6 +426,11 @@ struct class_path
 struct modtype_path
     : tagged
 {
+    modtype_path(
+        boost::optional<extended_module_path> const& path =
+            boost::optional<extended_module_path>())
+        : path(path) {}
+
     boost::optional<extended_module_path> path;
     modtype_name name;
 };
@@ -398,6 +438,11 @@ struct modtype_path
 struct field
     : tagged
 {
+    field(
+        boost::optional<module_path> const& path =
+            boost::optional<module_path>())
+        : path(path) {}
+
     boost::optional<module_path> path;
     field_name name;
 };
@@ -405,6 +450,11 @@ struct field
 struct typeconstr
     : tagged
 {
+    typeconstr(
+        boost::optional<extended_module_path> const& path =
+            boost::optional<extended_module_path>())
+        : path(path) {}
+
     boost::optional<extended_module_path> path;
     typeconstr_name name;
 };
@@ -412,6 +462,33 @@ struct typeconstr
 struct constr
     : tagged
 {
+    constr(
+        boost::optional<module_path> const& path =
+            boost::optional<module_path>())
+        : path(path) {}
+
+    constr(constr_name const& name)
+        : name(name) {}
+
+    constr(
+        boost::optional<module_path> const& path, constr_name const& name)
+        : path(path), name(name) {}
+
+    constr(module_name const& name, module_name_list const& list)
+    {
+        if (list.size() == 0)
+            this->name = constr_name(name.name);
+        else {
+            // the last parsed element is constr name
+            this->name = constr_name(list[list.size() - 1].name);
+            if (list.size() == 1)
+                this->path = module_path(name.name);
+            else
+                this->path = module_path(name.name,
+                    module_name_list(list.begin(), list.end() - 1));
+        }
+    }
+
     boost::optional<module_path> path;
     constr_name name;
 };
@@ -419,6 +496,11 @@ struct constr
 struct value_path
     : tagged
 {
+    value_path(
+        boost::optional<module_path> const& path =
+            boost::optional<module_path>())
+        : path(path) {}
+
     boost::optional<module_path> path;
     value_name name;
 };
@@ -549,7 +631,7 @@ struct function_typexpr
     typexpr retexpr;
 };
 
-typedef std::list<typexpr> typexpr_list;
+typedef std::vector<typexpr> typexpr_list;
 
 //  typexpr  { * typexpr }+
 struct tuple_typexpr
@@ -664,7 +746,7 @@ struct tag_spec_full
         : base_type(val) { }
 };
 
-typedef std::list<tag_spec> tag_spec_list;
+typedef std::vector<tag_spec> tag_spec_list;
 
 struct exact_variant_type
     : tagged
@@ -680,8 +762,8 @@ struct opened_variant_type
     boost::optional<tag_spec_list> other;
 };
 
-typedef std::list<tag_spec_full> tag_spec_full_list;
-typedef std::list<tag_name> tag_name_list;
+typedef std::vector<tag_spec_full> tag_spec_full_list;
+typedef std::vector<tag_name> tag_name_list;
 
 struct closed_variant_type
     : tagged
@@ -747,8 +829,8 @@ struct row_method_type
     method_type last;
 };
 
-typedef std::list<method_type> method_type_list;
-typedef std::list<row_method_type> row_method_type_list;
+typedef std::vector<method_type> method_type_list;
+typedef std::vector<row_method_type> row_method_type_list;
 
 // < method-type  { ; method-type }  [; ∣  ; ..] >
 struct object_typexpr
@@ -775,7 +857,7 @@ struct octothorpe_list_typexpr
     class_path path;
 };
 
-typedef std::list<ident> ident_list;
+typedef std::vector<ident> ident_list;
 
 struct explicit_poly_typexpr
     : tagged
@@ -1077,7 +1159,7 @@ struct polymorphic_variant_abbrev_pattern
     typeconstr constr;
 };
 
-typedef std::list<pattern> pattern_list;
+typedef std::vector<pattern> pattern_list;
 
 // pattern  { , pattern }+
 struct tuple_pattern
@@ -1094,7 +1176,7 @@ struct record_field
     pattern pattrn;
 };
 
-typedef std::list<record_field> record_field_list;
+typedef std::vector<record_field> record_field_list;
 
 // { field =  pattern  { ; field =  pattern }  [ ; ] }
 struct record_pattern
@@ -1454,7 +1536,7 @@ struct pattern_match
     expr returnExpr;
 };
 
-typedef std::list<pattern_match> pattern_match_list;
+typedef std::vector<pattern_match> pattern_match_list;
 
 struct pattern_matching
     : tagged
@@ -1548,7 +1630,7 @@ struct parameter_optlabel_with_pattern_typexpr_expr
     boost::optional<expr> expt;
 };
 
-typedef std::list<parameter> parameter_list;
+typedef std::vector<parameter> parameter_list;
 
 struct multiple_matching
     : tagged
@@ -1620,7 +1702,7 @@ struct parenthized_coercion_expr
     typexpr coercion;
 };
 
-typedef std::list<expr> expr_list;
+typedef std::vector<expr> expr_list;
 
 struct tuple_expr
     : tagged
@@ -1679,7 +1761,7 @@ struct with_record_expr
     boost::optional<record_field_list> withOther;
 };
 
-typedef std::list<argument> argument_list;
+typedef std::vector<argument> argument_list;
 
 struct function_application_expr
     : tagged
@@ -1817,7 +1899,7 @@ struct try_expr
     pattern_matching with;
 };
 
-typedef std::list<let_binding> let_binding_list;
+typedef std::vector<let_binding> let_binding_list;
 
 struct let_expr
     : tagged
@@ -1864,7 +1946,7 @@ struct inst_var_name_expr
     expr expr_;
 };
 
-typedef std::list<inst_var_name_expr> inst_var_name_expr_list;
+typedef std::vector<inst_var_name_expr> inst_var_name_expr_list;
 
 struct object_duplication_expr
     : tagged
@@ -1945,7 +2027,7 @@ struct type_param
     ident ident_;
 };
 
-typedef std::list<type_param> type_param_list;
+typedef std::vector<type_param> type_param_list;
 
 struct type_params
     : tagged
@@ -1962,8 +2044,8 @@ struct type_params
         : base_type(val) { }
 };
 
-typedef std::list<constr_decl> constr_decl_list;
-typedef std::list<field_decl> field_decl_list;
+typedef std::vector<constr_decl> constr_decl_list;
+typedef std::vector<field_decl> field_decl_list;
 
 struct type_representation
     : tagged
@@ -1985,7 +2067,7 @@ struct type_equation
     typexpr type;
 };
 
-typedef std::list<type_constraint> type_constraint_list;
+typedef std::vector<type_constraint> type_constraint_list;
 
 struct type_information
     : tagged
@@ -2003,7 +2085,7 @@ struct typedef_
     type_information information;
 };
 
-typedef std::list<typedef_> typedef_list;
+typedef std::vector<typedef_> typedef_list;
 
 struct type_definition
     : tagged
@@ -2150,7 +2232,7 @@ struct class_field_spec
         : base_type(val) { }
 };
 
-typedef std::list<class_field_spec> class_field_spec_list;
+typedef std::vector<class_field_spec> class_field_spec_list;
 
 struct class_body_type_object
     : tagged
@@ -2398,7 +2480,7 @@ struct class_expr_object
     boost::recursive_wrapper<class_body> body;
 };
 
-typedef std::list<class_field> class_field_list;
+typedef std::vector<class_field> class_field_list;
 
 struct class_body
     : tagged
@@ -2424,7 +2506,7 @@ struct class_binding
     class_expr classExpr;
 };
 
-typedef std::list<class_binding> class_binding_list;
+typedef std::vector<class_binding> class_binding_list;
 
 struct class_definition
     : tagged
@@ -2441,7 +2523,7 @@ struct class_spec
     class_type type;
 };
 
-typedef std::list<class_spec> class_spec_list;
+typedef std::vector<class_spec> class_spec_list;
 
 struct class_specification
     : tagged
@@ -2458,7 +2540,7 @@ struct classtype_def
     class_body_type bodyType;
 };
 
-typedef std::list<classtype_def> classtype_def_list;
+typedef std::vector<classtype_def> classtype_def_list;
 
 struct classtype_definition
     : tagged
@@ -2567,7 +2649,7 @@ struct module_type_functor
     module_type returnType;
 };
 
-typedef std::list<mod_constraint> mod_constraint_list;
+typedef std::vector<mod_constraint> mod_constraint_list;
 
 struct module_type_with_constraint
     : tagged
@@ -2607,7 +2689,7 @@ struct specification_module
     module_type type;
 };
 
-typedef std::list<specification_module> specification_module_list;
+typedef std::vector<specification_module> specification_module_list;
 
 struct specification_module_parameterized
     : tagged
@@ -2751,7 +2833,7 @@ struct definition_module_decl
 };
 
 struct module_expr;
-typedef std::list<definition_module_decl> definition_module_decl_list;
+typedef std::vector<definition_module_decl> definition_module_decl_list;
 
 struct definition_module_parameterized
     : tagged
@@ -2847,7 +2929,7 @@ struct module_items_def_or_expr
         : base_type(val) { }
 };
 
-typedef std::list<module_items_def_or_expr> module_items_def_or_expr_list;
+typedef std::vector<module_items_def_or_expr> module_items_def_or_expr_list;
 
 struct module_items
     : tagged
@@ -2941,7 +3023,7 @@ struct module_expr_type
 //    unit-implementation	::=	 [ module-items ]
 //
 
-typedef std::list<specification> specification_list;
+typedef std::vector<specification> specification_list;
 
 struct unit_interface
     : tagged
@@ -2980,18 +3062,168 @@ struct external_declaration : tagged
 // Print functions for debugging
 //
 
-inline std::ostream& operator<<(std::ostream& out, ident ident)
+struct debug_output_visitor : public boost::static_visitor<>
+{
+    debug_output_visitor(std::ostream& out)
+        : out(out)
+    {
+    }
+
+    template<typename T>
+    void operator()(T & field) const
+    {
+        out << field;
+    }
+
+    std::ostream& out;
+};
+
+inline std::ostream& operator<<(std::ostream& out, capitalized_ident const& ident)
 {
     out << ident.name;
     return out;
 }
 
-inline std::ostream& operator<<(std::ostream& out, modtype_name name)
+inline std::ostream& operator<<(std::ostream& out, lowercase_ident const& ident)
+{
+    out << ident.name;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, ident const& ident)
+{
+    out << ident.name;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, modtype_name const& name)
 {
     out << name.name;
     return out;
 }
 
+inline std::ostream& operator<<(std::ostream& out, module_name const& name)
+{
+    out << name.name;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, module_name_list const& list)
+{
+    for(module_name const& name : list)
+        out << name;
+
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, module_path const& path)
+{
+    out << path.name << path.other;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, value_name const& name)
+{
+    boost::apply_visitor(debug_output_visitor(out), name);
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, value_path const& path)
+{
+    out << path.path << path.name;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, constr_name const& name)
+{
+    out << name.name;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, constr const& constr_)
+{
+    out << constr_.path << constr_.name;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, typeconstr_name const& name)
+{
+    out << name.name;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, typeconstr const& constr_)
+{
+    out << constr_.path << constr_.name;
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& out, extended_module_name const& name);
+std::ostream& operator<<(std::ostream& out, extended_module_path const& path);
+
+inline std::ostream& operator<<(std::ostream& out, extended_module_name_list const& list)
+{
+    for(extended_module_name const& name: list)
+        out << name;
+
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, extended_module_name const& name)
+{
+    out << name.name << name.paths;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, extended_module_path_list const& list)
+{
+    for(extended_module_path const& path : list)
+        out << path;
+
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, extended_module_path const& path)
+{
+    out << path.name << path.other;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, field_name const& name)
+{
+    out << name.name;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, field const& field_)
+{
+    out << field_.path << field_.name;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, modtype_path const& path)
+{
+    out << path.path << path.name;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, class_name const& name)
+{
+    out << name.name;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, class_path const& path)
+{
+    out << path.path << path.name;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, classtype_path const& path)
+{
+    out << path.path << path.name;
+    return out;
+}
 
 } // namespace ast
 } // namespace ocaml
@@ -3113,5 +3345,66 @@ BOOST_FUSION_ADAPT_STRUCT(
     ocaml::ast::method_name,
     (ocaml::ast::lowercase_ident, name)
 )
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::value_path,
+    (boost::optional<ocaml::ast::module_path>, path)
+    (ocaml::ast::value_name, name)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::constr,
+    (boost::optional<ocaml::ast::module_path>, path)
+    (ocaml::ast::constr_name, name)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::typeconstr,
+    (boost::optional<ocaml::ast::extended_module_path>, path)
+    (ocaml::ast::typeconstr_name, name)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::field,
+    (boost::optional<ocaml::ast::module_path>, path)
+    (ocaml::ast::field_name, name)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::modtype_path,
+    (boost::optional<ocaml::ast::extended_module_path>, path)
+    (ocaml::ast::modtype_name, name)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::class_path,
+    (boost::optional<ocaml::ast::module_path>, path)
+    (ocaml::ast::class_name, name)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::classtype_path,
+    (boost::optional<ocaml::ast::extended_module_path>, path)
+    (ocaml::ast::class_name, name)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::module_path,
+    (ocaml::ast::module_name, name)
+    (boost::optional<ocaml::ast::module_name_list>, other)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::extended_module_path,
+    (ocaml::ast::extended_module_name, name)
+    (boost::optional<ocaml::ast::extended_module_name_list>, other)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::extended_module_name,
+    (ocaml::ast::module_name, name)
+    (boost::optional<ocaml::ast::extended_module_path_list>, paths)
+)
+
 
 #endif //FLANG_OCAMLAST_H
