@@ -551,6 +551,35 @@ BOOST_AUTO_TEST_CASE(GrammarTest_typeconstr)
     }
 }
 
+BOOST_AUTO_TEST_CASE(GrammarTest_field)
+{
+    ast::field field;
+    std::string content = "test";
+    bool r = parse_string(content, gGrammar.field, field);
+    BOOST_CHECK(r);
+    BOOST_CHECK(field.name.name.name == content);
+    BOOST_CHECK(!field.path.is_initialized());
+
+    std::string additional;
+    for(int i = 0; i < 10; ++i) {
+        field = ast::field();
+        additional += "Test.";
+        r = parse_string(additional + content, gGrammar.field, field);
+        BOOST_CHECK(r);
+        BOOST_CHECK(field.name.name.name == content);
+        BOOST_CHECK(field.path.is_initialized());
+        BOOST_CHECK(field.path.get().name.name.name == "Test");
+        if (i == 0)
+            BOOST_CHECK(!field.path.get().other.is_initialized());
+        else {
+            BOOST_CHECK(field.path.get().other.is_initialized());
+            BOOST_CHECK(field.path.get().other.get().size() == i);
+            for(ast::module_name const& name : field.path.get().other.get())
+                BOOST_CHECK(name.name.name == "Test");
+        }
+    }
+}
+
 
 BOOST_AUTO_TEST_CASE(GrammarTest_module_path)
 {
