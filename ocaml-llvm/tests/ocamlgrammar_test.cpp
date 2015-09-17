@@ -520,6 +520,38 @@ BOOST_AUTO_TEST_CASE(GrammarTest_constr)
     }
 }
 
+BOOST_AUTO_TEST_CASE(GrammarTest_typeconstr)
+{
+    ast::typeconstr typeconstr;
+    std::string content = "test";
+    bool r = parse_string(content, gGrammar.typeconstr, typeconstr);
+    BOOST_CHECK(r);
+    BOOST_CHECK(typeconstr.name.name.name == content);
+    BOOST_CHECK(!typeconstr.path.is_initialized());
+
+    std::string modulePath;
+    std::string moduleName = "Test";
+    for(int i = 0; i < 10; ++i) {
+        typeconstr = ast::typeconstr();
+        modulePath += moduleName + ".";
+        r = parse_string(modulePath + content, gGrammar.typeconstr, typeconstr);
+        BOOST_CHECK(r);
+        BOOST_CHECK(typeconstr.name.name.name == content);
+        BOOST_CHECK(typeconstr.path.is_initialized());
+        BOOST_CHECK(typeconstr.path.get().name.name.name.name == moduleName);
+        if (i == 0)
+            BOOST_CHECK(!typeconstr.path.get().other.is_initialized());
+        else {
+            BOOST_CHECK(typeconstr.path.get().other.is_initialized());
+            for(ast::extended_module_name const& name : typeconstr.path.get().other.get()) {
+                BOOST_CHECK(name.name.name.name == moduleName);
+                BOOST_CHECK(!name.paths.is_initialized());
+            }
+        }
+    }
+}
+
+
 BOOST_AUTO_TEST_CASE(GrammarTest_module_path)
 {
     ast::module_path module_path;
