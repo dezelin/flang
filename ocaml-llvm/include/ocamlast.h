@@ -277,6 +277,9 @@ struct constr_name
 struct operation
     : tagged
 {
+    operation(std::size_t tokenId)
+        : op((ocaml::lexer::Tokens)tokenId) {}
+
     operation(ocaml::lexer::Tokens op = ocaml::lexer::Tokens::Unknown)
         : op(op) {}
 
@@ -431,6 +434,9 @@ struct modtype_path
             boost::optional<extended_module_path>())
         : path(path) {}
 
+    modtype_path(modtype_name const& name)
+    	: name(name) {}
+
     boost::optional<extended_module_path> path;
     modtype_name name;
 };
@@ -473,21 +479,6 @@ struct constr
     constr(
         boost::optional<module_path> const& path, constr_name const& name)
         : path(path), name(name) {}
-
-    constr(module_name const& name, module_name_list const& list)
-    {
-        if (list.size() == 0)
-            this->name = constr_name(name.name);
-        else {
-            // the last parsed element is constr name
-            this->name = constr_name(list[list.size() - 1].name);
-            if (list.size() == 1)
-                this->path = module_path(name.name);
-            else
-                this->path = module_path(name.name,
-                    module_name_list(list.begin(), list.end() - 1));
-        }
-    }
 
     boost::optional<module_path> path;
     constr_name name;
@@ -3229,9 +3220,8 @@ inline std::ostream& operator<<(std::ostream& out, classtype_path const& path)
 } // namespace ocaml
 
 //
-// Structures adaptation
+// Structure adaptations
 //
-
 
 //
 // Lexical

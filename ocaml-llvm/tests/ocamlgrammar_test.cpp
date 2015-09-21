@@ -580,6 +580,36 @@ BOOST_AUTO_TEST_CASE(GrammarTest_field)
     }
 }
 
+BOOST_AUTO_TEST_CASE(GrammarTest_modtype_path)
+{
+    ast::modtype_path modtype_path;
+    std::string content = "test";
+    bool r = parse_string(content, gGrammar.modtype_path, modtype_path);
+    BOOST_CHECK(r);
+    BOOST_CHECK(modtype_path.name.name.name == content);
+    BOOST_CHECK(!modtype_path.path.is_initialized());
+
+    std::string modulePath;
+    std::string moduleName = "Test";
+    for(int i = 0; i < 10; ++i) {
+        modtype_path = ast::modtype_path();
+        modulePath += moduleName + ".";
+        r = parse_string(modulePath + content, gGrammar.modtype_path, modtype_path);
+        BOOST_CHECK(r);
+        BOOST_CHECK(modtype_path.name.name.name == content);
+        BOOST_CHECK(modtype_path.path.is_initialized());
+        BOOST_CHECK(modtype_path.path.get().name.name.name.name == moduleName);
+        if (i == 0)
+            BOOST_CHECK(!modtype_path.path.get().other.is_initialized());
+        else {
+            BOOST_CHECK(modtype_path.path.get().other.is_initialized());
+            for(ast::extended_module_name const& name : modtype_path.path.get().other.get()) {
+                BOOST_CHECK(name.name.name.name == moduleName);
+                BOOST_CHECK(!name.paths.is_initialized());
+            }
+        }
+    }
+}
 
 BOOST_AUTO_TEST_CASE(GrammarTest_module_path)
 {
