@@ -240,7 +240,7 @@ struct OCamlGrammar : qi::grammar<Iterator>
             ;
 
         // Module path but without the last module name
-        // for rules having capitalized_ident as the last subrule.
+        // for rules that have capitalized_ident as the last subrule.
         module_path_wl %=
             module_name >> qi::omit[tok.dot] >>
                 (
@@ -252,6 +252,8 @@ struct OCamlGrammar : qi::grammar<Iterator>
             extended_module_name >> *(qi::omit[tok.dot] >> extended_module_name)
             ;
 
+        // Extended module path but without the last module name
+        // for rules that have capitalized_ident as the last subrule.
         extended_module_path_wl %=
             extended_module_name >> qi::omit[tok.dot] >>
                 (

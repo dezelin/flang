@@ -611,6 +611,67 @@ BOOST_AUTO_TEST_CASE(GrammarTest_modtype_path)
     }
 }
 
+BOOST_AUTO_TEST_CASE(GrammarTest_class_path)
+{
+    ast::class_path class_path;
+    std::string content = "test";
+    bool r = parse_string(content, gGrammar.class_path, class_path);
+    BOOST_CHECK(r);
+    BOOST_CHECK(class_path.name.name.name == content);
+    BOOST_CHECK(!class_path.path.is_initialized());
+
+    std::string additional;
+    for(int i = 0; i < 10; ++i) {
+        class_path = ast::class_path();
+        additional += "Test.";
+        r = parse_string(additional + content, gGrammar.class_path, class_path);
+        BOOST_CHECK(r);
+        BOOST_CHECK(class_path.name.name.name == content);
+        BOOST_CHECK(class_path.path.is_initialized());
+        BOOST_CHECK(class_path.path.get().name.name.name == "Test");
+        if (i == 0)
+            BOOST_CHECK(!class_path.path.get().other.is_initialized());
+        else {
+            BOOST_CHECK(class_path.path.get().other.is_initialized());
+            BOOST_CHECK(class_path.path.get().other.get().size() == i);
+            for(ast::module_name const& name : class_path.path.get().other.get())
+                BOOST_CHECK(name.name.name == "Test");
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_classtype_path)
+{
+    ast::classtype_path classtype_path;
+    std::string content = "test";
+    bool r = parse_string(content, gGrammar.classtype_path, classtype_path);
+    BOOST_CHECK(r);
+    BOOST_CHECK(classtype_path.name.name.name == content);
+    BOOST_CHECK(!classtype_path.path.is_initialized());
+
+    std::string modulePath;
+    std::string moduleName = "Test";
+    for(int i = 0; i < 10; ++i) {
+        classtype_path = ast::classtype_path();
+        modulePath += moduleName + ".";
+        r = parse_string(modulePath + content, gGrammar.classtype_path, classtype_path);
+        BOOST_CHECK(r);
+        BOOST_CHECK(classtype_path.name.name.name == content);
+        BOOST_CHECK(classtype_path.path.is_initialized());
+        BOOST_CHECK(classtype_path.path.get().name.name.name.name == moduleName);
+        if (i == 0)
+            BOOST_CHECK(!classtype_path.path.get().other.is_initialized());
+        else {
+            BOOST_CHECK(classtype_path.path.get().other.is_initialized());
+            for(ast::extended_module_name const& name : classtype_path.path.get().other.get()) {
+                BOOST_CHECK(name.name.name.name == moduleName);
+                BOOST_CHECK(!name.paths.is_initialized());
+            }
+        }
+    }
+
+}
+
 BOOST_AUTO_TEST_CASE(GrammarTest_module_path)
 {
     ast::module_path module_path;
@@ -631,6 +692,87 @@ BOOST_AUTO_TEST_CASE(GrammarTest_module_path)
         BOOST_CHECK(module_path.other.get().size() == i + 1);
         for(ast::module_name const& name : module_path.other.get())
             BOOST_CHECK(name.name.name == content);
+    }
+}
+
+// Module path but without the last module name
+// for rules that have capitalized_ident as the last subrule.
+BOOST_AUTO_TEST_CASE(GrammarTest_module_path_wl)
+{
+    ast::module_path module_path_wl;
+    std::string content = "TTTTT";
+    bool r = parse_string(content + ".", gGrammar.module_path_wl, module_path_wl);
+    BOOST_CHECK(r);
+    BOOST_CHECK(module_path_wl.name.name.name == content);
+    BOOST_CHECK(!module_path_wl.other.is_initialized());
+
+    std::string additional;
+    std::string moduleName = "Test";
+    for(int i = 0; i < 10; ++i) {
+        module_path_wl = ast::module_path();
+        additional += moduleName + ".";
+        r = parse_string(additional + content, gGrammar.module_path_wl, module_path_wl);
+        BOOST_CHECK(r);
+        BOOST_CHECK(module_path_wl.name.name.name != content);
+        BOOST_CHECK(module_path_wl.name.name.name == moduleName);
+        if (i == 0)
+            BOOST_CHECK(!module_path_wl.other.is_initialized());
+        else {
+            BOOST_CHECK(module_path_wl.other.is_initialized());
+            BOOST_CHECK(module_path_wl.other.get().size() == i);
+            for(ast::module_name const& name : module_path_wl.other.get())
+                BOOST_CHECK(name.name.name == moduleName);
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_extended_module_name)
+{
+    ast::extended_module_name extended_module_name;
+    std::string content = "Test";
+    bool r = parse_string(content, gGrammar.extended_module_name, extended_module_name);
+    BOOST_CHECK(r);
+    BOOST_CHECK(extended_module_name.name.name.name == content);
+    BOOST_CHECK(!extended_module_name.paths.is_initialized());
+
+    std::string additional;
+    for(int i = 0; i < 10; ++i) {
+        extended_module_name = ast::extended_module_name();
+        additional += "." + content;
+        r = parse_string(content + additional, gGrammar.extended_module_name, extended_module_name);
+        BOOST_CHECK(r);
+        /*
+        BOOST_CHECK(extended_module_name.name.name.name == content);
+        BOOST_CHECK(extended_module_name.paths.is_initialized());
+        BOOST_CHECK(extended_module_name.paths.get().size() == i + 1);
+        for(ast::extended_module_path const& path : extended_module_name.paths.get())
+            BOOST_CHECK(path. == content);
+        */
+    }
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_extended_module_path)
+{
+    ast::extended_module_path extended_module_path;
+    std::string content = "Test";
+    bool r = parse_string(content, gGrammar.extended_module_path, extended_module_path);
+    BOOST_CHECK(r);
+    BOOST_CHECK(extended_module_path.name.name.name.name == content);
+    BOOST_CHECK(!extended_module_path.other.is_initialized());
+
+    std::string additional;
+    for(int i = 0; i < 10; ++i) {
+        extended_module_path = ast::extended_module_path();
+        additional += "." + content;
+        r = parse_string(content + additional, gGrammar.extended_module_path, extended_module_path);
+        BOOST_CHECK(r);
+        /*
+        BOOST_CHECK(extended_module_path.name.name.name.name == content);
+        BOOST_CHECK(extended_module_path.other.is_initialized());
+        BOOST_CHECK(extended_module_path.other.get().size() == i + 1);
+        for(ast::extended_module_name const& name : extended_module_path.other.get())
+            BOOST_CHECK(name.name.name == content);
+        */
     }
 }
 
