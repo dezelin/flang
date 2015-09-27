@@ -739,15 +739,20 @@ BOOST_AUTO_TEST_CASE(GrammarTest_extended_module_name)
     for(int i = 0; i < 10; ++i) {
         extended_module_name = ast::extended_module_name();
         additional += "." + content;
-        r = parse_string(content + additional, gGrammar.extended_module_name, extended_module_name);
+        r = parse_string(content + "(" + content + additional + ")", gGrammar.extended_module_name, extended_module_name);
         BOOST_CHECK(r);
-        /*
         BOOST_CHECK(extended_module_name.name.name.name == content);
         BOOST_CHECK(extended_module_name.paths.is_initialized());
-        BOOST_CHECK(extended_module_name.paths.get().size() == i + 1);
-        for(ast::extended_module_path const& path : extended_module_name.paths.get())
-            BOOST_CHECK(path. == content);
-        */
+        BOOST_CHECK(extended_module_name.paths.get().size() == 1);
+        for(ast::extended_module_path const& path : extended_module_name.paths.get()) {
+            BOOST_CHECK(path.name.name.name.name == content);
+            BOOST_CHECK(path.other.is_initialized());
+            BOOST_CHECK(path.other.get().size() == i + 1);
+            for(ast::extended_module_path const& other : path.other.get()) {
+                BOOST_CHECK(other.name.name.name.name == content);
+                BOOST_CHECK(!other.other.is_initialized());
+            }
+        }
     }
 }
 
