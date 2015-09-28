@@ -3396,5 +3396,14 @@ BOOST_FUSION_ADAPT_STRUCT(
     (boost::optional<ocaml::ast::extended_module_path_list>, paths)
 )
 
+//
+// Type expressions
+//
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::method_type,
+    (ocaml::ast::method_name, name)
+    (ocaml::ast::poly_typexpr, expt)
+)
 
 #endif //FLANG_OCAMLAST_H

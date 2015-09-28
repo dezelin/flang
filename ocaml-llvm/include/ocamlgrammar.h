@@ -266,6 +266,12 @@ struct OCamlGrammar : qi::grammar<Iterator>
             >> *(qi::omit[tok.lbrace] >> extended_module_path >> qi::omit[tok.rbrace])
             ;
 
+        //
+        // Type expressions
+        //
+
+
+
         BOOST_SPIRIT_DEBUG_NODE(infix_symbol);
         BOOST_SPIRIT_DEBUG_NODE(operation);
         BOOST_SPIRIT_DEBUG_NODE(infix_op);
@@ -345,6 +351,18 @@ struct OCamlGrammar : qi::grammar<Iterator>
     qi::rule<Iterator, ocaml::ast::extended_module_path()> extended_module_path;
     qi::rule<Iterator, ocaml::ast::extended_module_path()> extended_module_path_wl;
     qi::rule<Iterator, ocaml::ast::extended_module_name()> extended_module_name;
+
+    //
+    // Type expressions
+    //
+
+    qi::rule<Iterator, ocaml::ast::typexpr()> type_expr;
+    qi::rule<Iterator, ocaml::ast::poly_typexpr()> poly_typexpr;
+    qi::rule<Iterator, ocaml::ast::method_type()> method_type;
+    qi::rule<Iterator, ocaml::ast::polymorphic_variant_type()> polymorphic_variant_type;
+    qi::rule<Iterator, ocaml::ast::tag_spec_first()> tag_spec_first;
+    qi::rule<Iterator, ocaml::ast::tag_spec()> tag_spec;
+    qi::rule<Iterator, ocaml::ast::tag_spec_full()> tag_spec_full;
 };
 
 } // namespace grammar
