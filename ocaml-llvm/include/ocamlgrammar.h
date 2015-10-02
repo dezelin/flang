@@ -273,6 +273,7 @@ struct OCamlGrammar : qi::grammar<Iterator>
         typexpr %=
             ident_type_variable
             | anon_type_variable
+            | parenthesized_types
             ;
             /*
             | qi::omit[tok.lbrace] >> typexpr >> qi::omit[tok.rbrace]
@@ -353,6 +354,10 @@ struct OCamlGrammar : qi::grammar<Iterator>
             qi::tokenid(lexer::Tokens::Underscore) >> qi::eps
             ;
 
+        parenthesized_types %=
+            qi::omit[tok.lbrace] >> typexpr >> qi::omit[tok.rbrace]
+            ;
+
         BOOST_SPIRIT_DEBUG_NODE(infix_symbol);
         BOOST_SPIRIT_DEBUG_NODE(operation);
         BOOST_SPIRIT_DEBUG_NODE(infix_op);
@@ -390,7 +395,9 @@ struct OCamlGrammar : qi::grammar<Iterator>
         BOOST_SPIRIT_DEBUG_NODE(tag_spec);
         BOOST_SPIRIT_DEBUG_NODE(tag_spec_full);
 
+        BOOST_SPIRIT_DEBUG_NODE(ident_type_variable);
         BOOST_SPIRIT_DEBUG_NODE(anon_type_variable);
+        BOOST_SPIRIT_DEBUG_NODE(parenthesized_types);
     }
 
     qi::rule<Iterator> start;
@@ -457,6 +464,7 @@ struct OCamlGrammar : qi::grammar<Iterator>
 
     qi::rule<Iterator, ocaml::ast::ident()> ident_type_variable;
     qi::rule<Iterator, ocaml::ast::anon_type_variable()> anon_type_variable;
+    qi::rule<Iterator, ocaml::ast::typexpr()> parenthesized_types;
 
 };
 

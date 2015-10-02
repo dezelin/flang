@@ -804,6 +804,22 @@ BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_anon_type_variable)
         ocaml::lexer::Tokens::Underscore);
 }
 
+BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_parenthesized_types)
+{
+    ast::typexpr typexpr;
+    std::string content = "ident";
+    bool r = parse_string("('" + content + ")", gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+    BOOST_CHECK(boost::get<ast::ident>(typexpr).name == content);
+
+    typexpr = ast::typexpr();
+    content = "(_)";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+    BOOST_CHECK(boost::get<ast::anon_type_variable>(typexpr).var ==
+        ocaml::lexer::Tokens::Underscore);
+}
+
 /*
 BOOST_AUTO_TEST_CASE(GrammarTest_ocaml_distribution)
 {
