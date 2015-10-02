@@ -553,7 +553,8 @@ struct octothorpe_list_typexpr;
 
 struct typexpr
     : tagged
-      , boost::spirit::extended_variant<ident,
+      , boost::spirit::extended_variant<
+        ident,
         boost::recursive_wrapper<anon_type_variable>,
         boost::recursive_wrapper<function_typexpr>,
         boost::recursive_wrapper<tuple_typexpr>,
@@ -3069,6 +3070,10 @@ struct debug_output_visitor : public boost::static_visitor<>
     std::ostream& out;
 };
 
+//
+// Lexical
+//
+
 inline std::ostream& operator<<(std::ostream& out, capitalized_ident const& ident)
 {
     out << ident.name;
@@ -3086,6 +3091,36 @@ inline std::ostream& operator<<(std::ostream& out, ident const& ident)
     out << ident.name;
     return out;
 }
+
+inline std::ostream& operator<<(std::ostream& out, ident_list const& list)
+{
+    for(ident const& ident_ : list)
+        out << ident_;
+
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, label_name const& name)
+{
+    out << name.name;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, label const& label)
+{
+    out << label.name;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, optlabel const& label)
+{
+    out << label.name;
+    return out;
+}
+
+//
+// Names
+//
 
 inline std::ostream& operator<<(std::ostream& out, modtype_name const& name)
 {
@@ -3119,6 +3154,12 @@ inline std::ostream& operator<<(std::ostream& out, value_name const& name)
     return out;
 }
 
+inline std::ostream& operator<<(std::ostream& out, method_name const& name)
+{
+    out << name.name;
+    return out;
+}
+
 inline std::ostream& operator<<(std::ostream& out, value_path const& path)
 {
     out << path.path << path.name;
@@ -3128,6 +3169,20 @@ inline std::ostream& operator<<(std::ostream& out, value_path const& path)
 inline std::ostream& operator<<(std::ostream& out, constr_name const& name)
 {
     out << name.name;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, tag_name const& name)
+{
+    out << name.name;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, tag_name_list const& list)
+{
+    for(tag_name const& name : list)
+        out << name.name;
+
     return out;
 }
 
@@ -3215,6 +3270,212 @@ inline std::ostream& operator<<(std::ostream& out, classtype_path const& path)
     out << path.path << path.name;
     return out;
 }
+
+//
+// Type expressions
+//
+
+inline std::ostream& operator<<(std::ostream& out, anon_type_variable const& expr)
+{
+    out << expr.anon_type_variable;
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& out, typexpr const& expr);
+std::ostream& operator<<(std::ostream& out, typexpr_list const& list);
+
+inline std::ostream& operator<<(std::ostream& out, function_typexpr const& expr)
+{
+    out << expr.label << expr.optlabel_ << expr.expr << expr.retexpr;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, tuple_typexpr const& expr)
+{
+    out << expr.expr << expr.other;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, constructed_typexpr const& expr)
+{
+    out << expr.expr << expr.constr;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, constructed_nary_typexpr const& expr)
+{
+    out << expr.expr << expr.other << expr.constr;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, aliased_or_recursive_typexpr const& expr)
+{
+    out << expr.expr << expr.alias;
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& out, method_type const& type);
+std::ostream& operator<<(std::ostream& out, method_type_list const& list);
+std::ostream& operator<<(std::ostream& out, row_method_type_list const& list);
+
+inline std::ostream& operator<<(std::ostream& out, object_typexpr const& expr)
+{
+    out << expr.type << expr.other << expr.rows;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, octothorpe_typexpr const& expr)
+{
+    out << expr.expr << expr.path;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, octothorpe_list_typexpr const& expr)
+{
+    out << expr.expr << expr.other << expr.path;
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& out, polymorphic_variant_type const& type);
+
+inline std::ostream& operator<<(std::ostream& out, typexpr const& expr)
+{
+    boost::apply_visitor(debug_output_visitor(out), expr);
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, typexpr_list const& list)
+{
+    for(typexpr const& expr : list)
+        out << expr;
+
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, explicit_poly_typexpr const& expr)
+{
+    out << expr.ident_ << expr.other << expr.expr;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, poly_typexpr const& expr)
+{
+    boost::apply_visitor(debug_output_visitor(out), expr);
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, method_type const& type)
+{
+    out << type.name << type.expr;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, row_method_type const& type)
+{
+    out << type.first << type.last;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, row_method_type_list const& list)
+{
+    for(row_method_type const& type : list)
+        out << type;
+
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, method_type_list const& list)
+{
+    for(method_type const& type : list)
+        out << type;
+
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& out, tag_spec_first const& spec);
+std::ostream& operator<<(std::ostream& out, tag_spec_list const& list);
+
+inline std::ostream& operator<<(std::ostream& out, exact_variant_type const& type)
+{
+    out << type.first << type.other;
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& out, tag_spec const& spec);
+
+inline std::ostream& operator<<(std::ostream& out, opened_variant_type const& type)
+{
+    out << type.first << type.other;
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& out, tag_spec_full const& spec);
+std::ostream& operator<<(std::ostream& out, tag_spec_full_list const& list);
+
+inline std::ostream& operator<<(std::ostream& out, closed_variant_type const& type)
+{
+    out << type.first << type.other << type.tags;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, polymorphic_variant_type const& type)
+{
+    boost::apply_visitor(debug_output_visitor(out), type);
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, tag_spec_of const& spec)
+{
+    out << spec.name << spec.expr;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, tag_spec_of_list const& spec)
+{
+    out << spec.name << spec.expr;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, tag_spec_or const& spec)
+{
+    out << spec.expr << spec.tag;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, tag_spec_first const& spec)
+{
+    boost::apply_visitor(debug_output_visitor(out), spec);
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, tag_spec const& spec)
+{
+    boost::apply_visitor(debug_output_visitor(out), spec);
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, tag_spec_list const& list)
+{
+    for(tag_spec const& spec : list)
+        out << spec;
+
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, tag_spec_full const& spec)
+{
+    boost::apply_visitor(debug_output_visitor(out), spec);
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, tag_spec_full_list const& list)
+{
+    for(tag_spec_full const& spec : list)
+        out << spec;
+
+    return out;
+}
+
 
 } // namespace ast
 } // namespace ocaml
@@ -3403,7 +3664,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
     ocaml::ast::method_type,
     (ocaml::ast::method_name, name)
-    (ocaml::ast::poly_typexpr, expt)
+    (ocaml::ast::poly_typexpr, expr)
 )
 
 #endif //FLANG_OCAMLAST_H

@@ -781,6 +781,19 @@ BOOST_AUTO_TEST_CASE(GrammarTest_extended_module_path)
     }
 }
 
+//
+// Type expressions
+//
+
+BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_type_variable)
+{
+    ast::typexpr typexpr;
+    std::string content = "ident";
+    bool r = parse_string("'" + content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+    BOOST_CHECK(boost::get<ast::ident>(typexpr).name == content);
+}
+
 /*
 BOOST_AUTO_TEST_CASE(GrammarTest_ocaml_distribution)
 {

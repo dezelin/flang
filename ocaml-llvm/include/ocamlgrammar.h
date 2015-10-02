@@ -270,8 +270,78 @@ struct OCamlGrammar : qi::grammar<Iterator>
         // Type expressions
         //
 
+        typexpr %=
+            qi::omit[tok.apostrophe] >> ident
+            ;
+/*
+            | tok.underscore
+            | qi::omit[tok.lbrace] >> typexpr >> qi::omit[tok.rbrace]
+            | -(-qi::omit[tok.question] >> label_name >> qi::omit[tok.colon])
+                >> typexpr >> qi::omit[tok.minusgreater] >> typexpr
+            | typexpr >> +(qi::omit[tok.asterisk] >> typexpr)
+            | typeconstr
+            | typexpr >> typeconstr
+            | qi::omit[tok.lbrace] >> typexpr >> *(qi::omit[tok.comma] >> typexpr)
+                >> qi::omit[tok.rbrace] >> typeconstr
+            | typexpr >> qi::omit[tok.kas] >> qi::omit[tok.apostrophe] >> ident
+            | polymorphic_variant_type
+            | qi::omit[tok.lesser] >> -qi::omit[tok.dotdot] >> qi::omit[tok.greater]
+            | qi::omit[tok.lesser] >>
+                method_type
+                >> *((qi::omit[tok.semicolon] | qi::omit[tok.semicolon] >> qi::omit[tok.dotdot]) >> method_type)
+              >> qi::omit[tok.greater]
+            | qi::omit[tok.hash] >> class_path
+            | typexpr >> qi::omit[tok.hash] >> class_path
+            | qi::omit[tok.lbrace]
+                >> typexpr >> *(qi::omit[tok.comma] >> typexpr)
+              >> qi::omit[tok.rbrace]
+              >> qi::omit[tok.hash]
+              >> class_path
+            ;
 
+        poly_typexpr %=
+            typexpr
+            | +(qi::omit[tok.apostrophe] >> ident) >> qi::omit[tok.dot] >> typexpr
+            ;
 
+        method_type %=
+            method_name >> qi::omit[tok.colon] >> poly_typexpr
+            ;
+
+        polymorphic_variant_type %=
+            qi::omit[tok.lbracket]
+                >> tag_spec_first
+                >> *(qi::omit[tok.bar] >> tag_spec)
+                >> qi::omit[tok.rbracket]
+            | qi::omit[tok.lbracketgreater]
+              >> -tag_spec
+              >> *(qi::omit[tok.bar] >> tag_spec)
+              >> qi::omit[tok.rbracket]
+            | qi::omit[tok.lbracketlesser]
+              >> -qi::omit[tok.bar]
+              >> tag_spec_full
+              >> *(qi::omit[tok.bar] >> tag_spec_full)
+              >> -(qi::omit[tok.greater] >> +(qi::omit[tok.graveaccent] >> tag_name))
+              >> qi::omit[tok.rbracket]
+            ;
+
+        tag_spec_first %=
+            qi::omit[tok.graveaccent] >> tag_name >> -(qi::omit[tok.kof] >> typexpr)
+            | -typexpr >> qi::omit[tok.bar] >> tag_spec
+            ;
+
+        tag_spec %=
+            qi::omit[tok.graveaccent] >> tag_name >> -(qi::omit[tok.kof] >> typexpr)
+            | typexpr
+            ;
+
+        tag_spec_full %=
+            qi::omit[tok.graveaccent] >> tag_name
+                >> -(qi::omit[tok.kof] >> -qi::omit[tok.ampersand] >> typexpr
+                    >> *(qi::omit[tok.ampersand] >> typexpr))
+            | typexpr
+            ;
+*/
         BOOST_SPIRIT_DEBUG_NODE(infix_symbol);
         BOOST_SPIRIT_DEBUG_NODE(operation);
         BOOST_SPIRIT_DEBUG_NODE(infix_op);
@@ -300,6 +370,14 @@ struct OCamlGrammar : qi::grammar<Iterator>
         BOOST_SPIRIT_DEBUG_NODE(extended_module_path);
         BOOST_SPIRIT_DEBUG_NODE(extended_module_path_wl);
         BOOST_SPIRIT_DEBUG_NODE(extended_module_name);
+
+        BOOST_SPIRIT_DEBUG_NODE(typexpr);
+        BOOST_SPIRIT_DEBUG_NODE(poly_typexpr);
+        BOOST_SPIRIT_DEBUG_NODE(method_type);
+        BOOST_SPIRIT_DEBUG_NODE(polymorphic_variant_type);
+        BOOST_SPIRIT_DEBUG_NODE(tag_spec_first);
+        BOOST_SPIRIT_DEBUG_NODE(tag_spec);
+        BOOST_SPIRIT_DEBUG_NODE(tag_spec_full);
     }
 
     qi::rule<Iterator> start;
@@ -356,7 +434,7 @@ struct OCamlGrammar : qi::grammar<Iterator>
     // Type expressions
     //
 
-    qi::rule<Iterator, ocaml::ast::typexpr()> type_expr;
+    qi::rule<Iterator, ocaml::ast::typexpr()> typexpr;
     qi::rule<Iterator, ocaml::ast::poly_typexpr()> poly_typexpr;
     qi::rule<Iterator, ocaml::ast::method_type()> method_type;
     qi::rule<Iterator, ocaml::ast::polymorphic_variant_type()> polymorphic_variant_type;
