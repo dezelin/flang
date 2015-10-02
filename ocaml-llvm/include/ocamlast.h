@@ -609,8 +609,10 @@ struct anon_type_variable
     : tagged
 {
     // FIXME: tokens are not needed
+    anon_type_variable(ocaml::lexer::Tokens tokenId = ocaml::lexer::Tokens::Unknown)
+        : var(tokenId) { }
 
-    ocaml::lexer::Tokens anon_type_variable;
+    ocaml::lexer::Tokens var;
 };
 
 // [[?]label-name:]  typexpr ->  typexpr
@@ -3277,7 +3279,7 @@ inline std::ostream& operator<<(std::ostream& out, classtype_path const& path)
 
 inline std::ostream& operator<<(std::ostream& out, anon_type_variable const& expr)
 {
-    out << expr.anon_type_variable;
+    out << expr.var;
     return out;
 }
 
@@ -3665,6 +3667,11 @@ BOOST_FUSION_ADAPT_STRUCT(
     ocaml::ast::method_type,
     (ocaml::ast::method_name, name)
     (ocaml::ast::poly_typexpr, expr)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::anon_type_variable,
+    (ocaml::lexer::Tokens, var)
 )
 
 #endif //FLANG_OCAMLAST_H

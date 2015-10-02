@@ -271,10 +271,10 @@ struct OCamlGrammar : qi::grammar<Iterator>
         //
 
         typexpr %=
-            qi::omit[tok.apostrophe] >> ident
+            ident_type_variable
+            | anon_type_variable
             ;
-/*
-            | tok.underscore
+            /*
             | qi::omit[tok.lbrace] >> typexpr >> qi::omit[tok.rbrace]
             | -(-qi::omit[tok.question] >> label_name >> qi::omit[tok.colon])
                 >> typexpr >> qi::omit[tok.minusgreater] >> typexpr
@@ -342,6 +342,17 @@ struct OCamlGrammar : qi::grammar<Iterator>
             | typexpr
             ;
 */
+        ident_type_variable =
+            // FIXME: A bug in Boost Spirit?
+            // This gives a compilation error:
+            //  qi::omit[tok.apostrophe] >> ident
+            qi::omit[tok.apostrophe] >> ident [_val = construct<ocaml::ast::ident>(_1)]
+            ;
+
+        anon_type_variable %=
+            qi::tokenid(lexer::Tokens::Underscore) >> qi::eps
+            ;
+
         BOOST_SPIRIT_DEBUG_NODE(infix_symbol);
         BOOST_SPIRIT_DEBUG_NODE(operation);
         BOOST_SPIRIT_DEBUG_NODE(infix_op);
@@ -378,6 +389,8 @@ struct OCamlGrammar : qi::grammar<Iterator>
         BOOST_SPIRIT_DEBUG_NODE(tag_spec_first);
         BOOST_SPIRIT_DEBUG_NODE(tag_spec);
         BOOST_SPIRIT_DEBUG_NODE(tag_spec_full);
+
+        BOOST_SPIRIT_DEBUG_NODE(anon_type_variable);
     }
 
     qi::rule<Iterator> start;
@@ -441,6 +454,10 @@ struct OCamlGrammar : qi::grammar<Iterator>
     qi::rule<Iterator, ocaml::ast::tag_spec_first()> tag_spec_first;
     qi::rule<Iterator, ocaml::ast::tag_spec()> tag_spec;
     qi::rule<Iterator, ocaml::ast::tag_spec_full()> tag_spec_full;
+
+    qi::rule<Iterator, ocaml::ast::ident()> ident_type_variable;
+    qi::rule<Iterator, ocaml::ast::anon_type_variable()> anon_type_variable;
+
 };
 
 } // namespace grammar

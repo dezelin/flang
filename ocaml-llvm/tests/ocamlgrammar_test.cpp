@@ -794,6 +794,16 @@ BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_type_variable)
     BOOST_CHECK(boost::get<ast::ident>(typexpr).name == content);
 }
 
+BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_anon_type_variable)
+{
+    ast::typexpr typexpr;
+    std::string content = "_";
+    bool r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+    BOOST_CHECK(boost::get<ast::anon_type_variable>(typexpr).var ==
+        ocaml::lexer::Tokens::Underscore);
+}
+
 /*
 BOOST_AUTO_TEST_CASE(GrammarTest_ocaml_distribution)
 {
