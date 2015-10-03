@@ -820,6 +820,168 @@ BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_parenthesized_types)
         ocaml::lexer::Tokens::Underscore);
 }
 
+BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_function_types_optlabel)
+{
+    //
+    // optlabel
+    //
+    ast::typexpr typexpr;
+    std::string content = "?label: 'ident1 -> 'ident2";
+    bool r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    ast::function_typexpr ftypexpr = boost::get<ast::function_typexpr>(typexpr);
+    BOOST_CHECK(ftypexpr.label.is_initialized());
+
+    ast::optlabel optlabel = boost::get<ast::optlabel>(ftypexpr.label.get());
+    BOOST_CHECK(optlabel.name == "?label");
+
+    ast::ident ident = boost::get<ast::ident>(ftypexpr.expr);
+    BOOST_CHECK(ident.name == "ident1");
+
+    ident = boost::get<ast::ident>(ftypexpr.retexpr);
+    BOOST_CHECK(ident.name == "ident2");
+
+    typexpr = ast::typexpr();
+    content = "?label: _ -> _";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    ftypexpr = boost::get<ast::function_typexpr>(typexpr);
+    BOOST_CHECK(ftypexpr.label.is_initialized());
+
+    optlabel = boost::get<ast::optlabel>(ftypexpr.label.get());
+    BOOST_CHECK(optlabel.name == "?label");
+
+    ast::anon_type_variable anon_var = boost::get<ast::anon_type_variable>(ftypexpr.expr);
+    BOOST_CHECK(anon_var.var == ocaml::lexer::Tokens::Underscore);
+
+    anon_var = boost::get<ast::anon_type_variable>(ftypexpr.retexpr);
+    BOOST_CHECK(anon_var.var == ocaml::lexer::Tokens::Underscore);
+
+    typexpr = ast::typexpr();
+    content = "?label: ('ident1) -> ('ident2)";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    ftypexpr = boost::get<ast::function_typexpr>(typexpr);
+    BOOST_CHECK(ftypexpr.label.is_initialized());
+
+    optlabel = boost::get<ast::optlabel>(ftypexpr.label.get());
+    BOOST_CHECK(optlabel.name == "?label");
+
+    ident = boost::get<ast::ident>(ftypexpr.expr);
+    BOOST_CHECK(ident.name == "ident1");
+
+    ident = boost::get<ast::ident>(ftypexpr.retexpr);
+    BOOST_CHECK(ident.name == "ident2");
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_function_types_label_name)
+{
+    //
+    // label_name
+    //
+    ast::typexpr typexpr;
+    std::string content = "label: 'ident1 -> 'ident2";
+    bool r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    ast::function_typexpr ftypexpr = boost::get<ast::function_typexpr>(typexpr);
+    BOOST_CHECK(ftypexpr.label.is_initialized());
+
+    ast::label_name label_name = boost::get<ast::label_name>(ftypexpr.label.get());
+    BOOST_CHECK(label_name.name == "label");
+
+    ast::ident ident = boost::get<ast::ident>(ftypexpr.expr);
+    BOOST_CHECK(ident.name == "ident1");
+
+    ident = boost::get<ast::ident>(ftypexpr.retexpr);
+    BOOST_CHECK(ident.name == "ident2");
+
+    typexpr = ast::typexpr();
+    content = "label: _ -> _";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    ftypexpr = boost::get<ast::function_typexpr>(typexpr);
+    BOOST_CHECK(ftypexpr.label.is_initialized());
+
+    label_name = boost::get<ast::label_name>(ftypexpr.label.get());
+    BOOST_CHECK(label_name.name == "label");
+
+    ast::anon_type_variable anon_var = boost::get<ast::anon_type_variable>(ftypexpr.expr);
+    BOOST_CHECK(anon_var.var == ocaml::lexer::Tokens::Underscore);
+
+    anon_var = boost::get<ast::anon_type_variable>(ftypexpr.retexpr);
+    BOOST_CHECK(anon_var.var == ocaml::lexer::Tokens::Underscore);
+
+    typexpr = ast::typexpr();
+    content = "label: ('ident1) -> ('ident2)";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    ftypexpr = boost::get<ast::function_typexpr>(typexpr);
+    BOOST_CHECK(ftypexpr.label.is_initialized());
+
+    label_name = boost::get<ast::label_name>(ftypexpr.label.get());
+    BOOST_CHECK(label_name.name == "label");
+
+    ident = boost::get<ast::ident>(ftypexpr.expr);
+    BOOST_CHECK(ident.name == "ident1");
+
+    ident = boost::get<ast::ident>(ftypexpr.retexpr);
+    BOOST_CHECK(ident.name == "ident2");
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_function_types_no_label)
+{
+    //
+    // no label
+    //
+    ast::typexpr typexpr;
+    std::string content = "'ident1 -> 'ident2";
+    bool r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    ast::function_typexpr ftypexpr = boost::get<ast::function_typexpr>(typexpr);
+    BOOST_CHECK(!ftypexpr.label.is_initialized());
+
+    ast::ident ident = boost::get<ast::ident>(ftypexpr.expr);
+    BOOST_CHECK(ident.name == "ident1");
+
+    ident = boost::get<ast::ident>(ftypexpr.retexpr);
+    BOOST_CHECK(ident.name == "ident2");
+
+    typexpr = ast::typexpr();
+    content = "_ -> _";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    ftypexpr = boost::get<ast::function_typexpr>(typexpr);
+    BOOST_CHECK(!ftypexpr.label.is_initialized());
+
+    ast::anon_type_variable anon_var = boost::get<ast::anon_type_variable>(ftypexpr.expr);
+    BOOST_CHECK(anon_var.var == ocaml::lexer::Tokens::Underscore);
+
+    anon_var = boost::get<ast::anon_type_variable>(ftypexpr.retexpr);
+    BOOST_CHECK(anon_var.var == ocaml::lexer::Tokens::Underscore);
+
+    typexpr = ast::typexpr();
+    content = "('ident1) -> ('ident2)";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    ftypexpr = boost::get<ast::function_typexpr>(typexpr);
+    BOOST_CHECK(!ftypexpr.label.is_initialized());
+
+    ident = boost::get<ast::ident>(ftypexpr.expr);
+    BOOST_CHECK(ident.name == "ident1");
+
+    ident = boost::get<ast::ident>(ftypexpr.retexpr);
+    BOOST_CHECK(ident.name == "ident2");
+}
+
 /*
 BOOST_AUTO_TEST_CASE(GrammarTest_ocaml_distribution)
 {

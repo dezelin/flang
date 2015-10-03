@@ -615,12 +615,35 @@ struct anon_type_variable
     ocaml::lexer::Tokens var;
 };
 
+struct function_typexpr_label
+    : tagged
+      , boost::spirit::extended_variant<
+        label_name,
+        optlabel
+    >
+{
+    function_typexpr_label()
+        : base_type() { }
+
+    function_typexpr_label(label_name const& val)
+        : base_type(val) { }
+
+    function_typexpr_label(optlabel const& val)
+        : base_type(val) { }
+};
+
 // [[?]label-name:]  typexpr ->  typexpr
 struct function_typexpr
     : tagged
 {
-    boost::optional<label_name> label;
-    boost::optional<optlabel> optlabel_;
+    function_typexpr(boost::optional<function_typexpr_label> const& label =
+        boost::optional<function_typexpr_label>())
+        : label(label) { }
+
+    function_typexpr(typexpr const& expr, typexpr const& retexpr)
+        : expr(expr), retexpr(retexpr) { }
+
+    boost::optional<function_typexpr_label> label;
     typexpr expr;
     typexpr retexpr;
 };
@@ -3286,9 +3309,15 @@ inline std::ostream& operator<<(std::ostream& out, anon_type_variable const& exp
 std::ostream& operator<<(std::ostream& out, typexpr const& expr);
 std::ostream& operator<<(std::ostream& out, typexpr_list const& list);
 
+inline std::ostream& operator<<(std::ostream& out, function_typexpr_label const& label)
+{
+    boost::apply_visitor(debug_output_visitor(out), label);
+    return out;
+}
+
 inline std::ostream& operator<<(std::ostream& out, function_typexpr const& expr)
 {
-    out << expr.label << expr.optlabel_ << expr.expr << expr.retexpr;
+    out << expr.label << expr.expr << expr.retexpr;
     return out;
 }
 
@@ -3672,6 +3701,13 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
     ocaml::ast::anon_type_variable,
     (ocaml::lexer::Tokens, var)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::function_typexpr,
+    (boost::optional<ocaml::ast::function_typexpr_label>, label)
+    (ocaml::ast::typexpr, expr)
+    (ocaml::ast::typexpr, retexpr)
 )
 
 #endif //FLANG_OCAMLAST_H

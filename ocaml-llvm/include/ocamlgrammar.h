@@ -271,9 +271,10 @@ struct OCamlGrammar : qi::grammar<Iterator>
         //
 
         typexpr %=
-            ident_type_variable
-            | anon_type_variable
-            | parenthesized_types
+            function_types_ident
+            | function_types_anon
+            | function_types_parenthesized
+            | function_types_typexpr
             ;
             /*
             | qi::omit[tok.lbrace] >> typexpr >> qi::omit[tok.rbrace]
@@ -347,7 +348,8 @@ struct OCamlGrammar : qi::grammar<Iterator>
             // FIXME: A bug in Boost Spirit?
             // This gives a compilation error:
             //  qi::omit[tok.apostrophe] >> ident
-            qi::omit[tok.apostrophe] >> ident [_val = construct<ocaml::ast::ident>(_1)]
+            (tok.apostrophe >> ident)
+            [_val = construct<ocaml::ast::ident>(_2)]
             ;
 
         anon_type_variable %=
@@ -356,6 +358,38 @@ struct OCamlGrammar : qi::grammar<Iterator>
 
         parenthesized_types %=
             qi::omit[tok.lbrace] >> typexpr >> qi::omit[tok.rbrace]
+            ;
+
+        function_types %=
+            -((label_name | optlabel) >> qi::omit[tok.colon])
+                >> function_types_typexpr
+                >> qi::omit[tok.minusgreater]
+                >> function_types_typexpr
+            ;
+
+        function_types_ident =
+            // Special case: 'ident1 -> 'ident2
+            (ident_type_variable >> tok.minusgreater >> ident_type_variable)
+            [_val = construct<ast::function_typexpr>(_1, _3)]
+            ;
+
+        function_types_anon =
+            // Special case: _ -> _
+            (anon_type_variable >> tok.minusgreater >> anon_type_variable)
+            [_val = construct<ast::function_typexpr>(_1, _3)]
+            ;
+
+        function_types_parenthesized =
+            // Special case: (typexpr) -> (typexpr)
+            (parenthesized_types >> tok.minusgreater >> parenthesized_types)
+            [_val = construct<ast::function_typexpr>(_1, _3)]
+            ;
+
+        function_types_typexpr %=
+            ident_type_variable
+            | anon_type_variable
+            | parenthesized_types
+            | function_types
             ;
 
         BOOST_SPIRIT_DEBUG_NODE(infix_symbol);
@@ -398,6 +432,11 @@ struct OCamlGrammar : qi::grammar<Iterator>
         BOOST_SPIRIT_DEBUG_NODE(ident_type_variable);
         BOOST_SPIRIT_DEBUG_NODE(anon_type_variable);
         BOOST_SPIRIT_DEBUG_NODE(parenthesized_types);
+        BOOST_SPIRIT_DEBUG_NODE(function_types);
+        BOOST_SPIRIT_DEBUG_NODE(function_types_ident);
+        BOOST_SPIRIT_DEBUG_NODE(function_types_anon);
+        BOOST_SPIRIT_DEBUG_NODE(function_types_parenthesized);
+        BOOST_SPIRIT_DEBUG_NODE(function_types_typexpr);
     }
 
     qi::rule<Iterator> start;
@@ -465,6 +504,11 @@ struct OCamlGrammar : qi::grammar<Iterator>
     qi::rule<Iterator, ocaml::ast::ident()> ident_type_variable;
     qi::rule<Iterator, ocaml::ast::anon_type_variable()> anon_type_variable;
     qi::rule<Iterator, ocaml::ast::typexpr()> parenthesized_types;
+    qi::rule<Iterator, ocaml::ast::function_typexpr()> function_types;
+    qi::rule<Iterator, ocaml::ast::function_typexpr()> function_types_ident;
+    qi::rule<Iterator, ocaml::ast::function_typexpr()> function_types_anon;
+    qi::rule<Iterator, ocaml::ast::function_typexpr()> function_types_parenthesized;
+    qi::rule<Iterator, ocaml::ast::typexpr()> function_types_typexpr;
 
 };
 
