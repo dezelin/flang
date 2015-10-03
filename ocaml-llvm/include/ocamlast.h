@@ -90,6 +90,8 @@ struct ident
     std::string name;
 };
 
+typedef std::vector<ident> ident_list;
+
 struct label_name
     : tagged
 {
@@ -615,6 +617,8 @@ struct anon_type_variable
     ocaml::lexer::Tokens var;
 };
 
+typedef std::vector<anon_type_variable> anon_type_variable_list;
+
 struct function_typexpr_label
     : tagged
       , boost::spirit::extended_variant<
@@ -654,6 +658,10 @@ typedef std::vector<typexpr> typexpr_list;
 struct tuple_typexpr
     : tagged
 {
+    tuple_typexpr() { }
+    tuple_typexpr(typexpr const& expr, typexpr_list const& other)
+        : expr(expr), other(other) { }
+
     typexpr expr;
     typexpr_list other;
 };
@@ -3708,6 +3716,12 @@ BOOST_FUSION_ADAPT_STRUCT(
     (boost::optional<ocaml::ast::function_typexpr_label>, label)
     (ocaml::ast::typexpr, expr)
     (ocaml::ast::typexpr, retexpr)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::tuple_typexpr,
+    (ocaml::ast::typexpr, expr)
+    (ocaml::ast::typexpr_list, other)
 )
 
 #endif //FLANG_OCAMLAST_H
