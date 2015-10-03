@@ -276,6 +276,7 @@ struct OCamlGrammar : qi::grammar<Iterator>
             | ident_type_variable
             | anon_type_variable
             | parenthesized_types
+            | constructed_no_param
             ;
             /*
             | typexpr >> +(qi::omit[tok.asterisk] >> typexpr)
@@ -370,6 +371,7 @@ struct OCamlGrammar : qi::grammar<Iterator>
             | ident_type_variable
             | anon_type_variable
             | parenthesized_types
+            | constructed_no_param
             ;
 
         tuple_types %=
@@ -380,9 +382,13 @@ struct OCamlGrammar : qi::grammar<Iterator>
             ident_type_variable
             | anon_type_variable
             | parenthesized_types
+            | constructed_no_param
             | function_types
             ;
 
+        constructed_no_param %=
+            typeconstr
+            ;
 
         BOOST_SPIRIT_DEBUG_NODE(infix_symbol);
         BOOST_SPIRIT_DEBUG_NODE(operation);
@@ -428,6 +434,7 @@ struct OCamlGrammar : qi::grammar<Iterator>
         BOOST_SPIRIT_DEBUG_NODE(function_types_typexpr);
         BOOST_SPIRIT_DEBUG_NODE(tuple_types);
         BOOST_SPIRIT_DEBUG_NODE(tuple_types_typexpr);
+        BOOST_SPIRIT_DEBUG_NODE(constructed_no_param);
     }
 
     qi::rule<Iterator> start;
@@ -499,6 +506,7 @@ struct OCamlGrammar : qi::grammar<Iterator>
     qi::rule<Iterator, ocaml::ast::typexpr()> function_types_typexpr;
     qi::rule<Iterator, ocaml::ast::tuple_typexpr()> tuple_types;
     qi::rule<Iterator, ocaml::ast::typexpr()> tuple_types_typexpr;
+    qi::rule<Iterator, ocaml::ast::typeconstr()> constructed_no_param;
 };
 
 } // namespace grammar

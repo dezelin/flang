@@ -545,7 +545,7 @@ struct value_path
 struct anon_type_variable;
 struct function_typexpr;
 struct tuple_typexpr;
-struct constructed_typexpr;
+struct constructed_unary_typexpr;
 struct constructed_nary_typexpr;
 struct aliased_or_recursive_typexpr;
 struct polymorphic_variant_type;
@@ -560,7 +560,8 @@ struct typexpr
         boost::recursive_wrapper<anon_type_variable>,
         boost::recursive_wrapper<function_typexpr>,
         boost::recursive_wrapper<tuple_typexpr>,
-        boost::recursive_wrapper<constructed_typexpr>,
+        typeconstr,
+        boost::recursive_wrapper<constructed_unary_typexpr>,
         boost::recursive_wrapper<constructed_nary_typexpr>,
         boost::recursive_wrapper<aliased_or_recursive_typexpr>,
         boost::recursive_wrapper<polymorphic_variant_type>,
@@ -584,7 +585,10 @@ struct typexpr
     typexpr(tuple_typexpr const &val)
         : base_type(val) { }
 
-    typexpr(constructed_typexpr const &val)
+    typexpr(typeconstr const &val)
+        : base_type(val) { }
+
+    typexpr(constructed_unary_typexpr const &val)
         : base_type(val) { }
 
     typexpr(constructed_nary_typexpr const &val)
@@ -667,7 +671,7 @@ struct tuple_typexpr
 };
 
 // typexpr  typeconstr
-struct constructed_typexpr
+struct constructed_unary_typexpr
     : tagged
 {
     typexpr expr;
@@ -3335,7 +3339,7 @@ inline std::ostream& operator<<(std::ostream& out, tuple_typexpr const& expr)
     return out;
 }
 
-inline std::ostream& operator<<(std::ostream& out, constructed_typexpr const& expr)
+inline std::ostream& operator<<(std::ostream& out, constructed_unary_typexpr const& expr)
 {
     out << expr.expr << expr.constr;
     return out;
