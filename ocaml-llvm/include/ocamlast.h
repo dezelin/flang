@@ -3741,4 +3741,10 @@ BOOST_FUSION_ADAPT_STRUCT(
     (ocaml::ast::typeconstr, constr)
 )
 
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::aliased_or_recursive_typexpr,
+    (ocaml::ast::typexpr, expr)
+    (ocaml::ast::ident, alias)
+)
+
 #endif //FLANG_OCAMLAST_H

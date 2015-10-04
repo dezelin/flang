@@ -27,7 +27,7 @@
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
 
-#define BOOST_SPIRIT_LEXERTL_DEBUG
+//#define BOOST_SPIRIT_LEXERTL_DEBUG
 #define BOOST_SPIRIT_DEBUG
 
 #include "ocamlast.h"
@@ -1346,7 +1346,6 @@ BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_constructed_nary_param)
     r = parse_string(content, gGrammar.typexpr, typexpr);
     BOOST_CHECK(r);
 
-    //FIXME: Infinite recursion
     typexpr = ast::typexpr();
     content = "(_ * 'ident1, _ * 'ident2) Ident1.ident3";
     r = parse_string(content, gGrammar.typexpr, typexpr);
@@ -1354,6 +1353,60 @@ BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_constructed_nary_param)
 
     typexpr = ast::typexpr();
     content = "(Ident1.ident1, Ident2.ident2) Ident3.ident3";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_aliased_or_recursive)
+{
+    ast::typexpr typexpr;
+    std::string content = "'ident1 as 'ident2";
+    bool r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "_ as 'ident1";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "(_) as 'ident1";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    //FIXME: "(((((_))))) as 'ident1" is too slow
+    typexpr = ast::typexpr();
+    content = "((_)) as 'ident1";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "(?label1: _ -> 'ident1) as 'ident2";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "?label1: _ -> 'ident1 as 'ident2";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "(_ * 'ident1) as 'ident2";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "_ * 'ident1 as 'ident2";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "Ident1.ident1 as 'ident2";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "ident1 as 'ident2";
     r = parse_string(content, gGrammar.typexpr, typexpr);
     BOOST_CHECK(r);
 }

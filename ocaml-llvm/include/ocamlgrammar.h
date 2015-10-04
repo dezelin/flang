@@ -272,7 +272,8 @@ struct OCamlGrammar : qi::grammar<Iterator>
 
         // FIXME: Remove indirect left-recursions
         typexpr %=
-            function_types
+            aliased_or_recursive
+            | function_types
             | tuple_types
             | constructed_unary_param
             | constructed_nary_param
@@ -280,6 +281,7 @@ struct OCamlGrammar : qi::grammar<Iterator>
             | anon_type_variable
             | parenthesized_types
             | constructed_no_param
+
             ;
             /*
             | typexpr >> +(qi::omit[tok.asterisk] >> typexpr)
@@ -377,6 +379,7 @@ struct OCamlGrammar : qi::grammar<Iterator>
             | constructed_unary_param
             | constructed_nary_param
             | parenthesized_types
+            | aliased_or_recursive
             ;
 
         tuple_types %=
@@ -386,15 +389,16 @@ struct OCamlGrammar : qi::grammar<Iterator>
         tuple_types_typexpr %=
             ident_type_variable
             | anon_type_variable
+            | parenthesized_types
             | constructed_no_param
             | constructed_unary_param
             | constructed_nary_param
-            | parenthesized_types
             // FIXME: Remove left-recursion
             // Test typexpr rule with >>ident for example
             // or with this: (?label _ -> _)
             // Both examples cause infinite recursion.
             | function_types
+            | aliased_or_recursive
             ;
 
         constructed_no_param %=
@@ -413,6 +417,7 @@ struct OCamlGrammar : qi::grammar<Iterator>
             | parenthesized_types
             | function_types
             | tuple_types
+            | aliased_or_recursive
             ;
 
         constructed_nary_param %=
@@ -430,6 +435,22 @@ struct OCamlGrammar : qi::grammar<Iterator>
             | parenthesized_types
             | constructed_no_param
             | constructed_unary_param
+            | function_types
+            | aliased_or_recursive
+            ;
+
+        aliased_or_recursive %=
+            aliased_or_recursive_typexpr >> qi::omit[tok.kas] >> ident_type_variable
+            ;
+
+        aliased_or_recursive_typexpr %=
+            tuple_types
+            | ident_type_variable
+            | anon_type_variable
+            | constructed_no_param
+            | constructed_unary_param
+            | constructed_nary_param
+            | parenthesized_types
             | function_types
             ;
 
@@ -482,6 +503,8 @@ struct OCamlGrammar : qi::grammar<Iterator>
         BOOST_SPIRIT_DEBUG_NODE(constructed_unary_param_typexpr);
         BOOST_SPIRIT_DEBUG_NODE(constructed_nary_param);
         BOOST_SPIRIT_DEBUG_NODE(constructed_nary_param_typexpr);
+        BOOST_SPIRIT_DEBUG_NODE(aliased_or_recursive);
+        BOOST_SPIRIT_DEBUG_NODE(aliased_or_recursive_typexpr);
     }
 
     qi::rule<Iterator> start;
@@ -558,6 +581,8 @@ struct OCamlGrammar : qi::grammar<Iterator>
     qi::rule<Iterator, ocaml::ast::typexpr()> constructed_unary_param_typexpr;
     qi::rule<Iterator, ocaml::ast::constructed_nary_typexpr()> constructed_nary_param;
     qi::rule<Iterator, ocaml::ast::typexpr()> constructed_nary_param_typexpr;
+    qi::rule<Iterator, ocaml::ast::aliased_or_recursive_typexpr()> aliased_or_recursive;
+    qi::rule<Iterator, ocaml::ast::typexpr()> aliased_or_recursive_typexpr;
 
 };
 
