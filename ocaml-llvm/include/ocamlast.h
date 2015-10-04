@@ -3734,4 +3734,11 @@ BOOST_FUSION_ADAPT_STRUCT(
     (ocaml::ast::typeconstr, constr)
 )
 
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::constructed_nary_typexpr,
+    (ocaml::ast::typexpr, expr)
+    (boost::optional<ocaml::ast::typexpr_list>, other)
+    (ocaml::ast::typeconstr, constr)
+)
+
 #endif //FLANG_OCAMLAST_H

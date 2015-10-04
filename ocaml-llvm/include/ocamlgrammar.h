@@ -275,6 +275,7 @@ struct OCamlGrammar : qi::grammar<Iterator>
             function_types
             | tuple_types
             | constructed_unary_param
+            | constructed_nary_param
             | ident_type_variable
             | anon_type_variable
             | parenthesized_types
@@ -372,9 +373,10 @@ struct OCamlGrammar : qi::grammar<Iterator>
             tuple_types
             | ident_type_variable
             | anon_type_variable
-            | parenthesized_types
             | constructed_no_param
             | constructed_unary_param
+            | constructed_nary_param
+            | parenthesized_types
             ;
 
         tuple_types %=
@@ -384,9 +386,10 @@ struct OCamlGrammar : qi::grammar<Iterator>
         tuple_types_typexpr %=
             ident_type_variable
             | anon_type_variable
-            | parenthesized_types
             | constructed_no_param
             | constructed_unary_param
+            | constructed_nary_param
+            | parenthesized_types
             // FIXME: Remove left-recursion
             // Test typexpr rule with >>ident for example
             // or with this: (?label _ -> _)
@@ -405,10 +408,29 @@ struct OCamlGrammar : qi::grammar<Iterator>
         constructed_unary_param_typexpr %=
             ident_type_variable
             | anon_type_variable
-            | parenthesized_types
             | constructed_no_param
+            | constructed_nary_param
+            | parenthesized_types
             | function_types
             | tuple_types
+            ;
+
+        constructed_nary_param %=
+            qi::omit[tok.lbrace]
+            >> constructed_nary_param_typexpr
+            >> *(qi::omit[tok.comma] >> constructed_nary_param_typexpr)
+            >> qi::omit[tok.rbrace]
+            >> typeconstr
+            ;
+
+        constructed_nary_param_typexpr %=
+            tuple_types
+            | ident_type_variable
+            | anon_type_variable
+            | parenthesized_types
+            | constructed_no_param
+            | constructed_unary_param
+            | function_types
             ;
 
         BOOST_SPIRIT_DEBUG_NODE(infix_symbol);
@@ -458,6 +480,8 @@ struct OCamlGrammar : qi::grammar<Iterator>
         BOOST_SPIRIT_DEBUG_NODE(constructed_no_param);
         BOOST_SPIRIT_DEBUG_NODE(constructed_unary_param);
         BOOST_SPIRIT_DEBUG_NODE(constructed_unary_param_typexpr);
+        BOOST_SPIRIT_DEBUG_NODE(constructed_nary_param);
+        BOOST_SPIRIT_DEBUG_NODE(constructed_nary_param_typexpr);
     }
 
     qi::rule<Iterator> start;
@@ -532,6 +556,9 @@ struct OCamlGrammar : qi::grammar<Iterator>
     qi::rule<Iterator, ocaml::ast::typeconstr()> constructed_no_param;
     qi::rule<Iterator, ocaml::ast::constructed_unary_typexpr()> constructed_unary_param;
     qi::rule<Iterator, ocaml::ast::typexpr()> constructed_unary_param_typexpr;
+    qi::rule<Iterator, ocaml::ast::constructed_nary_typexpr()> constructed_nary_param;
+    qi::rule<Iterator, ocaml::ast::typexpr()> constructed_nary_param_typexpr;
+
 };
 
 } // namespace grammar

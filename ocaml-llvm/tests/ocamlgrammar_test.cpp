@@ -1324,6 +1324,40 @@ BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_constructed_unary_param)
     BOOST_CHECK(r);
 }
 
+BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_constructed_nary_param)
+{
+    ast::typexpr typexpr;
+    std::string content = "('ident1, 'ident2) Ident1.ident3";
+    bool r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "(_, _) Ident1.ident1";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "(_, 'ident1) Ident1.ident2";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "(?label1: _ -> 'ident1, ?label2: 'ident2 -> _) Ident1.ident3";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    //FIXME: Infinite recursion
+    typexpr = ast::typexpr();
+    content = "(_ * 'ident1, _ * 'ident2) Ident1.ident3";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "(Ident1.ident1, Ident2.ident2) Ident3.ident3";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+}
+
 /*
 BOOST_AUTO_TEST_CASE(GrammarTest_ocaml_distribution)
 {
