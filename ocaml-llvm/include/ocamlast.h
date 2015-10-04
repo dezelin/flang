@@ -898,8 +898,7 @@ typedef std::vector<ident> ident_list;
 struct explicit_poly_typexpr
     : tagged
 {
-    ident ident_;
-    boost::optional<ident_list> other;
+    boost::optional<ident_list> identList;
     typexpr expr;
 };
 
@@ -3404,7 +3403,7 @@ inline std::ostream& operator<<(std::ostream& out, typexpr_list const& list)
 
 inline std::ostream& operator<<(std::ostream& out, explicit_poly_typexpr const& expr)
 {
-    out << expr.ident_ << expr.other << expr.expr;
+    out << expr.identList << expr.expr;
     return out;
 }
 
@@ -3801,6 +3800,12 @@ BOOST_FUSION_ADAPT_STRUCT(
     (ocaml::ast::tag_spec_full, first)
     (boost::optional<ocaml::ast::tag_spec_full_list>, other)
     (boost::optional<ocaml::ast::tag_name_list>, tags)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::explicit_poly_typexpr,
+    (boost::optional<ocaml::ast::ident_list>, identList)
+    (ocaml::ast::typexpr, expr)
 )
 
 #endif //FLANG_OCAMLAST_H

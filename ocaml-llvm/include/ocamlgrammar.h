@@ -390,14 +390,6 @@ struct OCamlGrammar : qi::grammar<Iterator>
               >> class_path
             ;
 
-        poly_typexpr %=
-            typexpr
-            | +(qi::omit[tok.apostrophe] >> ident) >> qi::omit[tok.dot] >> typexpr
-            ;
-
-        method_type %=
-            method_name >> qi::omit[tok.colon] >> poly_typexpr
-            ;
 */
         ident_type_variable =
             // FIXME: A bug in Boost Spirit?
@@ -508,6 +500,15 @@ struct OCamlGrammar : qi::grammar<Iterator>
             | parenthesized_types
             | function_types
             | polymorphic_variant_type
+            ;
+
+        poly_typexpr %=
+            typexpr
+            | +ident_type_variable >> qi::omit[tok.dot] >> typexpr
+            ;
+
+        method_type %=
+            method_name >> qi::omit[tok.colon] >> poly_typexpr
             ;
 
         BOOST_SPIRIT_DEBUG_NODE(typexpr);
