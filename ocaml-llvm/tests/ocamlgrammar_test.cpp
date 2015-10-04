@@ -1411,6 +1411,303 @@ BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_aliased_or_recursive)
     BOOST_CHECK(r);
 }
 
+BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_tag_spec_full)
+{
+    ast::tag_spec_full tag_spec_full;
+    std::string content = "`Ident1";
+    bool r = parse_string(content, gGrammar.tag_spec_full, tag_spec_full);
+    BOOST_CHECK(r);
+
+    tag_spec_full = ast::tag_spec_full();
+    content = "`Ident1 of &'ident1";
+    r = parse_string(content, gGrammar.tag_spec_full, tag_spec_full);
+    BOOST_CHECK(r);
+
+    tag_spec_full = ast::tag_spec_full();
+    content = "`Ident1 of &'ident1 &'ident2";
+    r = parse_string(content, gGrammar.tag_spec_full, tag_spec_full);
+    BOOST_CHECK(r);
+
+    tag_spec_full = ast::tag_spec_full();
+    content = "'ident1";
+    r = parse_string(content, gGrammar.tag_spec_full, tag_spec_full);
+    BOOST_CHECK(r);
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_tag_spec)
+{
+    ast::tag_spec tag_spec;
+    std::string content = "`Ident1";
+    bool r = parse_string(content, gGrammar.tag_spec, tag_spec);
+    BOOST_CHECK(r);
+
+    tag_spec = ast::tag_spec();
+    content = "`Ident1 of 'ident1";
+    r = parse_string(content, gGrammar.tag_spec, tag_spec);
+    BOOST_CHECK(r);
+
+    tag_spec = ast::tag_spec();
+    content = "'ident1";
+    r = parse_string(content, gGrammar.tag_spec, tag_spec);
+    BOOST_CHECK(r);
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_tag_spec_first)
+{
+    ast::tag_spec_first tag_spec_first;
+    std::string content = "`Ident1";
+    bool r = parse_string(content, gGrammar.tag_spec_first, tag_spec_first);
+    BOOST_CHECK(r);
+
+    tag_spec_first = ast::tag_spec_first();
+    content = "`Ident1 of 'ident1";
+    r = parse_string(content, gGrammar.tag_spec_first, tag_spec_first);
+    BOOST_CHECK(r);
+
+    tag_spec_first = ast::tag_spec_first();
+    content = "'ident1 | `Ident1 of 'ident2";
+    r = parse_string(content, gGrammar.tag_spec_first, tag_spec_first);
+    BOOST_CHECK(r);
+
+    // FIXME: typexpr catches content first and ends in infinite loop
+    //tag_spec_first = ast::tag_spec_first();
+    //content = "| `Ident1 of 'ident1";
+    //r = parse_string(content, gGrammar.tag_spec_first, tag_spec_first);
+    //BOOST_CHECK(r);
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_exact_variant_type)
+{
+    ast::exact_variant_type exact_variant_type;
+    std::string content = "[`Ident1]";
+    bool r = parse_string(content, gGrammar.exact_variant_type, exact_variant_type);
+    BOOST_CHECK(r);
+
+    exact_variant_type = ast::exact_variant_type();
+    content = "[`Ident1 of 'ident1]";
+    r = parse_string(content, gGrammar.exact_variant_type, exact_variant_type);
+    BOOST_CHECK(r);
+
+    exact_variant_type = ast::exact_variant_type();
+    content = "[`Ident1 of 'ident1 | `Ident2]";
+    r = parse_string(content, gGrammar.exact_variant_type, exact_variant_type);
+    BOOST_CHECK(r);
+
+    exact_variant_type = ast::exact_variant_type();
+    content = "[`Ident1 of 'ident1 | `Ident2 of 'ident2]";
+    r = parse_string(content, gGrammar.exact_variant_type, exact_variant_type);
+    BOOST_CHECK(r);
+
+    exact_variant_type = ast::exact_variant_type();
+    content = "[`Ident1 of 'ident1 | 'ident2]";
+    r = parse_string(content, gGrammar.exact_variant_type, exact_variant_type);
+    BOOST_CHECK(r);
+
+    exact_variant_type = ast::exact_variant_type();
+    content = "[`Ident1 of 'ident1 | 'ident2 | 'ident3 | `Ident2 of 'ident4]";
+    r = parse_string(content, gGrammar.exact_variant_type, exact_variant_type);
+    BOOST_CHECK(r);
+
+    exact_variant_type = ast::exact_variant_type();
+    content = "['ident1 | 'ident2]";
+    r = parse_string(content, gGrammar.exact_variant_type, exact_variant_type);
+    BOOST_CHECK(r);
+
+    exact_variant_type = ast::exact_variant_type();
+    content = "['ident1 | `Ident1 of 'ident2]";
+    r = parse_string(content, gGrammar.exact_variant_type, exact_variant_type);
+    BOOST_CHECK(r);
+
+    exact_variant_type = ast::exact_variant_type();
+    content = "['ident1 | `Ident1]";
+    r = parse_string(content, gGrammar.exact_variant_type, exact_variant_type);
+    BOOST_CHECK(r);
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_opened_variant_type)
+{
+    ast::opened_variant_type opened_variant_type;
+    std::string content = "[>`Ident1]";
+    bool r = parse_string(content, gGrammar.opened_variant_type, opened_variant_type);
+    BOOST_CHECK(r);
+
+    // FIXME: Infinite recursion in typexpr
+    //opened_variant_type = ast::opened_variant_type();
+    //content = "[>]";
+    //r = parse_string(content, gGrammar.opened_variant_type, opened_variant_type);
+    //BOOST_CHECK(r);
+
+    opened_variant_type = ast::opened_variant_type();
+    content = "[>`Ident1 | `Ident2]";
+    r = parse_string(content, gGrammar.opened_variant_type, opened_variant_type);
+    BOOST_CHECK(r);
+
+    // FIXME: Infinite recursion in typexpr
+    //opened_variant_type = ast::opened_variant_type();
+    //content = "[> | `Ident2]";
+    //r = parse_string(content, gGrammar.opened_variant_type, opened_variant_type);
+    //BOOST_CHECK(r);
+
+    opened_variant_type = ast::opened_variant_type();
+    content = "[>`Ident1 | `Ident2 | `Ident3]";
+    r = parse_string(content, gGrammar.opened_variant_type, opened_variant_type);
+    BOOST_CHECK(r);
+
+    opened_variant_type = ast::opened_variant_type();
+    content = "[>`Ident1 | `Ident2 of 'ident1 | 'ident2]";
+    r = parse_string(content, gGrammar.opened_variant_type, opened_variant_type);
+    BOOST_CHECK(r);
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_closed_variant_type)
+{
+    ast::closed_variant_type closed_variant_type;
+    std::string content = "[<`Ident1]";
+    bool r = parse_string(content, gGrammar.closed_variant_type, closed_variant_type);
+    BOOST_CHECK(r);
+
+    closed_variant_type = ast::closed_variant_type();
+    content = "[< | `Ident1]";
+    r = parse_string(content, gGrammar.closed_variant_type, closed_variant_type);
+    BOOST_CHECK(r);
+
+    closed_variant_type = ast::closed_variant_type();
+    content = "[< | `Ident1 | `Ident2]";
+    r = parse_string(content, gGrammar.closed_variant_type, closed_variant_type);
+    BOOST_CHECK(r);
+
+    closed_variant_type = ast::closed_variant_type();
+    content = "[< `Ident1 | `Ident2 > `Ident3]";
+    r = parse_string(content, gGrammar.closed_variant_type, closed_variant_type);
+    BOOST_CHECK(r);
+
+    closed_variant_type = ast::closed_variant_type();
+    content = "[< `Ident1 | `Ident2 > `Ident3 `Ident4]";
+    r = parse_string(content, gGrammar.closed_variant_type, closed_variant_type);
+    BOOST_CHECK(r);
+
+    closed_variant_type = ast::closed_variant_type();
+    content = "[< `Ident1 | 'ident1 | _ > `Ident3 ]";
+    r = parse_string(content, gGrammar.closed_variant_type, closed_variant_type);
+    BOOST_CHECK(r);
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_polymorphic_variant_type)
+{
+    ast::typexpr typexpr;
+    std::string content = "[`Ident1]";
+    bool r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "[`Ident1 of 'ident1]";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "[`Ident1 of 'ident1 | `Ident2]";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "[`Ident1 of 'ident1 | `Ident2 of 'ident2]";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "[`Ident1 of 'ident1 | 'ident2]";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "[`Ident1 of 'ident1 | 'ident2 | 'ident3 | `Ident2 of 'ident4]";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "['ident1 | 'ident2]";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "['ident1 | `Ident1 of 'ident2]";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "['ident1 | `Ident1]";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "[>`Ident1]";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    // FIXME: Infinite recursion in typexpr
+    //typexpr = ast::typexpr();
+    //content = "[>]";
+    //r = parse_string(content, gGrammar.typexpr, typexpr);
+    //BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "[>`Ident1 | `Ident2]";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    // FIXME: Infinite recursion in typexpr
+    //typexpr = ast::typexpr();
+    //content = "[> | `Ident2]";
+    //r = parse_string(content, gGrammar.typexpr, typexpr);
+    //BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "[>`Ident1 | `Ident2 | `Ident3]";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "[>`Ident1 | `Ident2 of 'ident1 | 'ident2]";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "[<`Ident1]";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "[< | `Ident1]";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "[< | `Ident1 | `Ident2]";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "[< `Ident1 | `Ident2 > `Ident3]";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "[< `Ident1 | `Ident2 > `Ident3 `Ident4]";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "[< `Ident1 | 'ident1 | _ > `Ident3 ]";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "?label: [< `Ident1 | 'ident1 | _ > `Ident3 ] -> _";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+}
+
 /*
 BOOST_AUTO_TEST_CASE(GrammarTest_ocaml_distribution)
 {

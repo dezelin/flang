@@ -810,11 +810,18 @@ struct tag_spec_of
     boost::optional<typexpr> expr;
 };
 
+struct tag_spec_of_list_expr_list
+    : tagged
+{
+    typexpr expr;
+    boost::optional<typexpr_list> other;
+};
+
 struct tag_spec_of_list
     : tagged
 {
     tag_name name;
-    boost::optional<typexpr_list> expr;
+    boost::optional<tag_spec_of_list_expr_list> exprList;
 };
 
 struct tag_spec_or
@@ -3473,9 +3480,15 @@ inline std::ostream& operator<<(std::ostream& out, tag_spec_of const& spec)
     return out;
 }
 
+inline std::ostream& operator<<(std::ostream& out, tag_spec_of_list_expr_list const& exprList)
+{
+    out << exprList.expr << exprList.other;
+    return out;
+}
+
 inline std::ostream& operator<<(std::ostream& out, tag_spec_of_list const& spec)
 {
-    out << spec.name << spec.expr;
+    out << spec.name << spec.exprList;
     return out;
 }
 
@@ -3745,6 +3758,49 @@ BOOST_FUSION_ADAPT_STRUCT(
     ocaml::ast::aliased_or_recursive_typexpr,
     (ocaml::ast::typexpr, expr)
     (ocaml::ast::ident, alias)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::tag_spec_of_list_expr_list,
+    (ocaml::ast::typexpr, expr)
+    (boost::optional<ocaml::ast::typexpr_list>, other)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::tag_spec_of_list,
+    (ocaml::ast::tag_name, name)
+    (boost::optional<ocaml::ast::tag_spec_of_list_expr_list>, exprList)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::tag_spec_of,
+    (ocaml::ast::tag_name, name)
+    (boost::optional<ocaml::ast::typexpr>, expr)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::tag_spec_or,
+    (boost::optional<ocaml::ast::typexpr>, expr)
+    (ocaml::ast::tag_spec, tag)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::exact_variant_type,
+    (ocaml::ast::tag_spec_first, first)
+    (boost::optional<ocaml::ast::tag_spec_list>, other)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::opened_variant_type,
+    (boost::optional<ocaml::ast::tag_spec>, first)
+    (boost::optional<ocaml::ast::tag_spec_list>, other)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::closed_variant_type,
+    (ocaml::ast::tag_spec_full, first)
+    (boost::optional<ocaml::ast::tag_spec_full_list>, other)
+    (boost::optional<ocaml::ast::tag_name_list>, tags)
 )
 
 #endif //FLANG_OCAMLAST_H

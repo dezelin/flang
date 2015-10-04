@@ -266,13 +266,43 @@ struct OCamlGrammar : qi::grammar<Iterator>
             >> *(qi::omit[tok.lbrace] >> extended_module_path >> qi::omit[tok.rbrace])
             ;
 
+        BOOST_SPIRIT_DEBUG_NODE(infix_symbol);
+        BOOST_SPIRIT_DEBUG_NODE(operation);
+        BOOST_SPIRIT_DEBUG_NODE(infix_op);
+        BOOST_SPIRIT_DEBUG_NODE(prefix_symbol);
+        BOOST_SPIRIT_DEBUG_NODE(operator_name);
+        BOOST_SPIRIT_DEBUG_NODE(value_name);
+        BOOST_SPIRIT_DEBUG_NODE(constr_name);
+        BOOST_SPIRIT_DEBUG_NODE(tag_name);
+        BOOST_SPIRIT_DEBUG_NODE(typeconstr_name);
+        BOOST_SPIRIT_DEBUG_NODE(field_name);
+        BOOST_SPIRIT_DEBUG_NODE(module_name);
+        BOOST_SPIRIT_DEBUG_NODE(modtype_name);
+        BOOST_SPIRIT_DEBUG_NODE(class_name);
+        BOOST_SPIRIT_DEBUG_NODE(inst_var_name);
+        BOOST_SPIRIT_DEBUG_NODE(method_name);
+
+        BOOST_SPIRIT_DEBUG_NODE(value_path);
+        BOOST_SPIRIT_DEBUG_NODE(constr);
+        BOOST_SPIRIT_DEBUG_NODE(typeconstr);
+        BOOST_SPIRIT_DEBUG_NODE(field);
+        BOOST_SPIRIT_DEBUG_NODE(modtype_path);
+        BOOST_SPIRIT_DEBUG_NODE(class_path);
+        BOOST_SPIRIT_DEBUG_NODE(classtype_path);
+        BOOST_SPIRIT_DEBUG_NODE(module_path);
+        BOOST_SPIRIT_DEBUG_NODE(module_path_wl);
+        BOOST_SPIRIT_DEBUG_NODE(extended_module_path);
+        BOOST_SPIRIT_DEBUG_NODE(extended_module_path_wl);
+        BOOST_SPIRIT_DEBUG_NODE(extended_module_name);
+
         //
         // Type expressions
         //
 
         // FIXME: Remove indirect left-recursions
         typexpr %=
-            aliased_or_recursive
+            polymorphic_variant_type
+            | aliased_or_recursive
             | function_types
             | tuple_types
             | constructed_unary_param
@@ -281,7 +311,62 @@ struct OCamlGrammar : qi::grammar<Iterator>
             | anon_type_variable
             | parenthesized_types
             | constructed_no_param
+            ;
 
+        polymorphic_variant_type %=
+            exact_variant_type
+            | opened_variant_type
+            | closed_variant_type
+            ;
+
+        exact_variant_type %=
+            qi::omit[tok.lbracket]
+            >> tag_spec_first
+            >> *(qi::omit[tok.bar] >> tag_spec)
+            >> qi::omit[tok.rbracket]
+            ;
+
+        opened_variant_type %=
+            qi::omit[tok.lbracketgreater]
+            >> -tag_spec
+            >> *(qi::omit[tok.bar] >> tag_spec)
+            >> qi::omit[tok.rbracket]
+            ;
+
+        closed_variant_type %=
+            qi::omit[tok.lbracketlesser]
+            >> -qi::omit[tok.bar]
+            >> tag_spec_full
+            >> *(qi::omit[tok.bar] >> tag_spec_full)
+            >> -(qi::omit[tok.greater] >> closed_variant_type_tag_name_list)
+            >> qi::omit[tok.rbracket]
+            ;
+
+        closed_variant_type_tag_name_list =
+            // FIXME: +(qi::omit[tok.graveaccent] >> tag_name)
+            // doesn't produce appropriate type std::vector<tag_name>
+            +(tok.graveaccent >> tag_name)
+            [push_back(_val, _2)]
+            ;
+
+        tag_spec_first %=
+            qi::omit[tok.graveaccent] >> tag_name >> -(qi::omit[tok.kof] >> typexpr)
+            | -typexpr >> qi::omit[tok.bar] >> tag_spec
+            ;
+
+        tag_spec %=
+            qi::omit[tok.graveaccent] >> tag_name >> -(qi::omit[tok.kof] >> typexpr)
+            | typexpr
+            ;
+
+        tag_spec_full %=
+            qi::omit[tok.graveaccent]
+            >> tag_name
+            >> -(qi::omit[tok.kof]
+                >> -qi::omit[tok.ampersand]
+                >> typexpr
+                >> *(qi::omit[tok.ampersand] >> typexpr))
+            | typexpr
             ;
             /*
             | typexpr >> +(qi::omit[tok.asterisk] >> typexpr)
@@ -313,40 +398,6 @@ struct OCamlGrammar : qi::grammar<Iterator>
         method_type %=
             method_name >> qi::omit[tok.colon] >> poly_typexpr
             ;
-
-        polymorphic_variant_type %=
-            qi::omit[tok.lbracket]
-                >> tag_spec_first
-                >> *(qi::omit[tok.bar] >> tag_spec)
-                >> qi::omit[tok.rbracket]
-            | qi::omit[tok.lbracketgreater]
-              >> -tag_spec
-              >> *(qi::omit[tok.bar] >> tag_spec)
-              >> qi::omit[tok.rbracket]
-            | qi::omit[tok.lbracketlesser]
-              >> -qi::omit[tok.bar]
-              >> tag_spec_full
-              >> *(qi::omit[tok.bar] >> tag_spec_full)
-              >> -(qi::omit[tok.greater] >> +(qi::omit[tok.graveaccent] >> tag_name))
-              >> qi::omit[tok.rbracket]
-            ;
-
-        tag_spec_first %=
-            qi::omit[tok.graveaccent] >> tag_name >> -(qi::omit[tok.kof] >> typexpr)
-            | -typexpr >> qi::omit[tok.bar] >> tag_spec
-            ;
-
-        tag_spec %=
-            qi::omit[tok.graveaccent] >> tag_name >> -(qi::omit[tok.kof] >> typexpr)
-            | typexpr
-            ;
-
-        tag_spec_full %=
-            qi::omit[tok.graveaccent] >> tag_name
-                >> -(qi::omit[tok.kof] >> -qi::omit[tok.ampersand] >> typexpr
-                    >> *(qi::omit[tok.ampersand] >> typexpr))
-            | typexpr
-            ;
 */
         ident_type_variable =
             // FIXME: A bug in Boost Spirit?
@@ -372,7 +423,8 @@ struct OCamlGrammar : qi::grammar<Iterator>
             ;
 
         function_types_typexpr %=
-            tuple_types
+            polymorphic_variant_type
+            | tuple_types
             | ident_type_variable
             | anon_type_variable
             | constructed_no_param
@@ -399,6 +451,7 @@ struct OCamlGrammar : qi::grammar<Iterator>
             // Both examples cause infinite recursion.
             | function_types
             | aliased_or_recursive
+            | polymorphic_variant_type
             ;
 
         constructed_no_param %=
@@ -418,6 +471,7 @@ struct OCamlGrammar : qi::grammar<Iterator>
             | function_types
             | tuple_types
             | aliased_or_recursive
+            | polymorphic_variant_type
             ;
 
         constructed_nary_param %=
@@ -437,6 +491,7 @@ struct OCamlGrammar : qi::grammar<Iterator>
             | constructed_unary_param
             | function_types
             | aliased_or_recursive
+            | polymorphic_variant_type
             ;
 
         aliased_or_recursive %=
@@ -452,41 +507,17 @@ struct OCamlGrammar : qi::grammar<Iterator>
             | constructed_nary_param
             | parenthesized_types
             | function_types
+            | polymorphic_variant_type
             ;
-
-        BOOST_SPIRIT_DEBUG_NODE(infix_symbol);
-        BOOST_SPIRIT_DEBUG_NODE(operation);
-        BOOST_SPIRIT_DEBUG_NODE(infix_op);
-        BOOST_SPIRIT_DEBUG_NODE(prefix_symbol);
-        BOOST_SPIRIT_DEBUG_NODE(operator_name);
-        BOOST_SPIRIT_DEBUG_NODE(value_name);
-        BOOST_SPIRIT_DEBUG_NODE(constr_name);
-        BOOST_SPIRIT_DEBUG_NODE(tag_name);
-        BOOST_SPIRIT_DEBUG_NODE(typeconstr_name);
-        BOOST_SPIRIT_DEBUG_NODE(field_name);
-        BOOST_SPIRIT_DEBUG_NODE(module_name);
-        BOOST_SPIRIT_DEBUG_NODE(modtype_name);
-        BOOST_SPIRIT_DEBUG_NODE(class_name);
-        BOOST_SPIRIT_DEBUG_NODE(inst_var_name);
-        BOOST_SPIRIT_DEBUG_NODE(method_name);
-
-        BOOST_SPIRIT_DEBUG_NODE(value_path);
-        BOOST_SPIRIT_DEBUG_NODE(constr);
-        BOOST_SPIRIT_DEBUG_NODE(typeconstr);
-        BOOST_SPIRIT_DEBUG_NODE(field);
-        BOOST_SPIRIT_DEBUG_NODE(modtype_path);
-        BOOST_SPIRIT_DEBUG_NODE(class_path);
-        BOOST_SPIRIT_DEBUG_NODE(classtype_path);
-        BOOST_SPIRIT_DEBUG_NODE(module_path);
-        BOOST_SPIRIT_DEBUG_NODE(module_path_wl);
-        BOOST_SPIRIT_DEBUG_NODE(extended_module_path);
-        BOOST_SPIRIT_DEBUG_NODE(extended_module_path_wl);
-        BOOST_SPIRIT_DEBUG_NODE(extended_module_name);
 
         BOOST_SPIRIT_DEBUG_NODE(typexpr);
         BOOST_SPIRIT_DEBUG_NODE(poly_typexpr);
         BOOST_SPIRIT_DEBUG_NODE(method_type);
         BOOST_SPIRIT_DEBUG_NODE(polymorphic_variant_type);
+        BOOST_SPIRIT_DEBUG_NODE(exact_variant_type);
+        BOOST_SPIRIT_DEBUG_NODE(opened_variant_type);
+        BOOST_SPIRIT_DEBUG_NODE(closed_variant_type);
+        BOOST_SPIRIT_DEBUG_NODE(closed_variant_type_tag_name_list);
         BOOST_SPIRIT_DEBUG_NODE(tag_spec_first);
         BOOST_SPIRIT_DEBUG_NODE(tag_spec);
         BOOST_SPIRIT_DEBUG_NODE(tag_spec_full);
@@ -565,6 +596,10 @@ struct OCamlGrammar : qi::grammar<Iterator>
     qi::rule<Iterator, ocaml::ast::poly_typexpr()> poly_typexpr;
     qi::rule<Iterator, ocaml::ast::method_type()> method_type;
     qi::rule<Iterator, ocaml::ast::polymorphic_variant_type()> polymorphic_variant_type;
+    qi::rule<Iterator, ocaml::ast::exact_variant_type()> exact_variant_type;
+    qi::rule<Iterator, ocaml::ast::opened_variant_type()> opened_variant_type;
+    qi::rule<Iterator, ocaml::ast::closed_variant_type()> closed_variant_type;
+    qi::rule<Iterator, ocaml::ast::tag_name_list()> closed_variant_type_tag_name_list;
     qi::rule<Iterator, ocaml::ast::tag_spec_first()> tag_spec_first;
     qi::rule<Iterator, ocaml::ast::tag_spec()> tag_spec;
     qi::rule<Iterator, ocaml::ast::tag_spec_full()> tag_spec_full;
