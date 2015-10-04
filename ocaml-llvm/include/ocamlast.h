@@ -3728,4 +3728,10 @@ BOOST_FUSION_ADAPT_STRUCT(
     (ocaml::ast::typexpr_list, other)
 )
 
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::constructed_unary_typexpr,
+    (ocaml::ast::typexpr, expr)
+    (ocaml::ast::typeconstr, constr)
+)
+
 #endif //FLANG_OCAMLAST_H

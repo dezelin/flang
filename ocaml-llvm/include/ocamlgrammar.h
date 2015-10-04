@@ -270,9 +270,11 @@ struct OCamlGrammar : qi::grammar<Iterator>
         // Type expressions
         //
 
+        // FIXME: Remove indirect left-recursions
         typexpr %=
             function_types
             | tuple_types
+            | constructed_unary_param
             | ident_type_variable
             | anon_type_variable
             | parenthesized_types
@@ -372,6 +374,7 @@ struct OCamlGrammar : qi::grammar<Iterator>
             | anon_type_variable
             | parenthesized_types
             | constructed_no_param
+            | constructed_unary_param
             ;
 
         tuple_types %=
@@ -383,11 +386,29 @@ struct OCamlGrammar : qi::grammar<Iterator>
             | anon_type_variable
             | parenthesized_types
             | constructed_no_param
+            | constructed_unary_param
+            // FIXME: Remove left-recursion
+            // Test typexpr rule with >>ident for example
+            // or with this: (?label _ -> _)
+            // Both examples cause infinite recursion.
             | function_types
             ;
 
         constructed_no_param %=
             typeconstr
+            ;
+
+        constructed_unary_param %=
+            constructed_unary_param_typexpr >> typeconstr
+            ;
+
+        constructed_unary_param_typexpr %=
+            ident_type_variable
+            | anon_type_variable
+            | parenthesized_types
+            | constructed_no_param
+            | function_types
+            | tuple_types
             ;
 
         BOOST_SPIRIT_DEBUG_NODE(infix_symbol);
@@ -435,6 +456,8 @@ struct OCamlGrammar : qi::grammar<Iterator>
         BOOST_SPIRIT_DEBUG_NODE(tuple_types);
         BOOST_SPIRIT_DEBUG_NODE(tuple_types_typexpr);
         BOOST_SPIRIT_DEBUG_NODE(constructed_no_param);
+        BOOST_SPIRIT_DEBUG_NODE(constructed_unary_param);
+        BOOST_SPIRIT_DEBUG_NODE(constructed_unary_param_typexpr);
     }
 
     qi::rule<Iterator> start;
@@ -507,6 +530,8 @@ struct OCamlGrammar : qi::grammar<Iterator>
     qi::rule<Iterator, ocaml::ast::tuple_typexpr()> tuple_types;
     qi::rule<Iterator, ocaml::ast::typexpr()> tuple_types_typexpr;
     qi::rule<Iterator, ocaml::ast::typeconstr()> constructed_no_param;
+    qi::rule<Iterator, ocaml::ast::constructed_unary_typexpr()> constructed_unary_param;
+    qi::rule<Iterator, ocaml::ast::typexpr()> constructed_unary_param_typexpr;
 };
 
 } // namespace grammar

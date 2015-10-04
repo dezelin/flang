@@ -1291,6 +1291,39 @@ BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_constructed_no_param)
     BOOST_CHECK(typeconstr.name.name.name == "ident2");
 }
 
+BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_constructed_unary_param)
+{
+    ast::typexpr typexpr;
+    std::string content = "'ident1 Ident1.ident2";
+    bool r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "_ Ident1.ident2";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "(_) Ident1.ident2";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "(?label: _ -> _) Ident1.ident2";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "(_ * _) Ident1.ident2";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "(Ident1.ident2) Ident3.ident4";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+}
+
 /*
 BOOST_AUTO_TEST_CASE(GrammarTest_ocaml_distribution)
 {
