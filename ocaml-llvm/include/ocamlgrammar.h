@@ -301,7 +301,8 @@ struct OCamlGrammar : qi::grammar<Iterator>
 
         // FIXME: Remove indirect left-recursions
         typexpr %=
-            polymorphic_variant_type
+            object_typexpr_row
+            | polymorphic_variant_type
             | aliased_or_recursive
             | function_types
             | tuple_types
@@ -415,7 +416,8 @@ struct OCamlGrammar : qi::grammar<Iterator>
             ;
 
         function_types_typexpr %=
-            polymorphic_variant_type
+            object_typexpr_row
+            | polymorphic_variant_type
             | tuple_types
             | ident_type_variable
             | anon_type_variable
@@ -431,7 +433,9 @@ struct OCamlGrammar : qi::grammar<Iterator>
             ;
 
         tuple_types_typexpr %=
-            ident_type_variable
+            object_typexpr_row
+            | polymorphic_variant_type
+            | ident_type_variable
             | anon_type_variable
             | parenthesized_types
             | constructed_no_param
@@ -443,7 +447,6 @@ struct OCamlGrammar : qi::grammar<Iterator>
             // Both examples cause infinite recursion.
             | function_types
             | aliased_or_recursive
-            | polymorphic_variant_type
             ;
 
         constructed_no_param %=
@@ -455,7 +458,9 @@ struct OCamlGrammar : qi::grammar<Iterator>
             ;
 
         constructed_unary_param_typexpr %=
-            ident_type_variable
+            object_typexpr_row
+            | polymorphic_variant_type
+            | ident_type_variable
             | anon_type_variable
             | constructed_no_param
             | constructed_nary_param
@@ -463,7 +468,6 @@ struct OCamlGrammar : qi::grammar<Iterator>
             | function_types
             | tuple_types
             | aliased_or_recursive
-            | polymorphic_variant_type
             ;
 
         constructed_nary_param %=
@@ -475,7 +479,9 @@ struct OCamlGrammar : qi::grammar<Iterator>
             ;
 
         constructed_nary_param_typexpr %=
-            tuple_types
+            object_typexpr_row
+            | polymorphic_variant_type
+            | tuple_types
             | ident_type_variable
             | anon_type_variable
             | parenthesized_types
@@ -483,7 +489,6 @@ struct OCamlGrammar : qi::grammar<Iterator>
             | constructed_unary_param
             | function_types
             | aliased_or_recursive
-            | polymorphic_variant_type
             ;
 
         aliased_or_recursive %=
@@ -491,7 +496,9 @@ struct OCamlGrammar : qi::grammar<Iterator>
             ;
 
         aliased_or_recursive_typexpr %=
-            tuple_types
+            object_typexpr_row
+            | polymorphic_variant_type
+            | tuple_types
             | ident_type_variable
             | anon_type_variable
             | constructed_no_param
@@ -499,7 +506,32 @@ struct OCamlGrammar : qi::grammar<Iterator>
             | constructed_nary_param
             | parenthesized_types
             | function_types
-            | polymorphic_variant_type
+            ;
+
+        object_typexpr_row =
+            // infix_symbol precedes other lexer tokens
+            // so we need to dig out the right token
+            infix_symbol
+            [
+                // infix_symbol.name == "<>"
+                if_(at_c<0>(_1) == "<>")
+                [
+                    _val = construct<ocaml::ast::object_typexpr_row>(
+                            ocaml::lexer::Tokens::Blank)
+                ]
+                .else_
+                [
+                    if_(at_c<0>(_1) == "<..>")
+                    [
+                        _val = construct<ocaml::ast::object_typexpr_row>(
+                                ocaml::lexer::Tokens::DotDot)
+                    ]
+                    .else_
+                    [
+                        _pass = false
+                    ]
+                ]
+            ]
             ;
 
         poly_typexpr %=
@@ -537,6 +569,8 @@ struct OCamlGrammar : qi::grammar<Iterator>
         BOOST_SPIRIT_DEBUG_NODE(constructed_nary_param_typexpr);
         BOOST_SPIRIT_DEBUG_NODE(aliased_or_recursive);
         BOOST_SPIRIT_DEBUG_NODE(aliased_or_recursive_typexpr);
+
+        BOOST_SPIRIT_DEBUG_NODE(object_typexpr_row);
     }
 
     qi::rule<Iterator> start;
@@ -619,6 +653,9 @@ struct OCamlGrammar : qi::grammar<Iterator>
     qi::rule<Iterator, ocaml::ast::typexpr()> constructed_nary_param_typexpr;
     qi::rule<Iterator, ocaml::ast::aliased_or_recursive_typexpr()> aliased_or_recursive;
     qi::rule<Iterator, ocaml::ast::typexpr()> aliased_or_recursive_typexpr;
+
+    qi::rule<Iterator, ocaml::ast::object_typexpr_row()> object_typexpr_row;
+
 
 };
 

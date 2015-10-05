@@ -549,6 +549,7 @@ struct constructed_unary_typexpr;
 struct constructed_nary_typexpr;
 struct aliased_or_recursive_typexpr;
 struct polymorphic_variant_type;
+struct object_typexpr_row;
 struct object_typexpr;
 struct octothorpe_typexpr;
 struct octothorpe_list_typexpr;
@@ -565,6 +566,7 @@ struct typexpr
         boost::recursive_wrapper<constructed_nary_typexpr>,
         boost::recursive_wrapper<aliased_or_recursive_typexpr>,
         boost::recursive_wrapper<polymorphic_variant_type>,
+        boost::recursive_wrapper<object_typexpr_row>,
         boost::recursive_wrapper<object_typexpr>,
         boost::recursive_wrapper<octothorpe_typexpr>,
         boost::recursive_wrapper<octothorpe_list_typexpr>
@@ -598,6 +600,9 @@ struct typexpr
         : base_type(val) { }
 
     typexpr(polymorphic_variant_type const &val)
+        : base_type(val) { }
+
+    typexpr(object_typexpr_row const &val)
         : base_type(val) { }
 
     typexpr(object_typexpr const &val)
@@ -863,6 +868,16 @@ struct row_method_type
 {
     method_type first;
     method_type last;
+};
+
+// <[..]>
+struct object_typexpr_row
+    : tagged
+{
+    object_typexpr_row(ocaml::lexer::Tokens ellipsis = ocaml::lexer::Tokens::Unknown)
+        : ellipsis(ellipsis) { }
+
+    ocaml::lexer::Tokens ellipsis;
 };
 
 typedef std::vector<method_type> method_type_list;
@@ -3806,6 +3821,18 @@ BOOST_FUSION_ADAPT_STRUCT(
     ocaml::ast::explicit_poly_typexpr,
     (boost::optional<ocaml::ast::ident_list>, identList)
     (ocaml::ast::typexpr, expr)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::object_typexpr_row,
+    (ocaml::lexer::Tokens, ellipsis)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::object_typexpr,
+    (ocaml::ast::method_type, type)
+    (boost::optional<ocaml::ast::method_type_list>, other)
+    (boost::optional<ocaml::ast::row_method_type_list>, rows)
 )
 
 #endif //FLANG_OCAMLAST_H
