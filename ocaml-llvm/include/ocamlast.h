@@ -863,13 +863,6 @@ struct method_type
     poly_typexpr expr;
 };
 
-struct row_method_type
-    : tagged
-{
-    method_type first;
-    method_type last;
-};
-
 // <[..]>
 struct object_typexpr_row
     : tagged
@@ -881,7 +874,6 @@ struct object_typexpr_row
 };
 
 typedef std::vector<method_type> method_type_list;
-typedef std::vector<row_method_type> row_method_type_list;
 
 // < method-type  { ; method-type }  [; ∣  ; ..] >
 struct object_typexpr
@@ -889,7 +881,7 @@ struct object_typexpr
 {
     method_type type;
     boost::optional<method_type_list> other;
-    boost::optional<row_method_type_list> rows;
+    boost::optional<ocaml::lexer::Tokens> ellipsis;
 };
 
 //  typexpr #  class-path
@@ -3380,11 +3372,10 @@ inline std::ostream& operator<<(std::ostream& out, aliased_or_recursive_typexpr 
 
 std::ostream& operator<<(std::ostream& out, method_type const& type);
 std::ostream& operator<<(std::ostream& out, method_type_list const& list);
-std::ostream& operator<<(std::ostream& out, row_method_type_list const& list);
 
 inline std::ostream& operator<<(std::ostream& out, object_typexpr const& expr)
 {
-    out << expr.type << expr.other << expr.rows;
+    out << expr.type << expr.other << expr.ellipsis;
     return out;
 }
 
@@ -3431,20 +3422,6 @@ inline std::ostream& operator<<(std::ostream& out, poly_typexpr const& expr)
 inline std::ostream& operator<<(std::ostream& out, method_type const& type)
 {
     out << type.name << type.expr;
-    return out;
-}
-
-inline std::ostream& operator<<(std::ostream& out, row_method_type const& type)
-{
-    out << type.first << type.last;
-    return out;
-}
-
-inline std::ostream& operator<<(std::ostream& out, row_method_type_list const& list)
-{
-    for(row_method_type const& type : list)
-        out << type;
-
     return out;
 }
 
@@ -3832,7 +3809,7 @@ BOOST_FUSION_ADAPT_STRUCT(
     ocaml::ast::object_typexpr,
     (ocaml::ast::method_type, type)
     (boost::optional<ocaml::ast::method_type_list>, other)
-    (boost::optional<ocaml::ast::row_method_type_list>, rows)
+    (boost::optional<ocaml::lexer::Tokens>, ellipsis)
 )
 
 #endif //FLANG_OCAMLAST_H

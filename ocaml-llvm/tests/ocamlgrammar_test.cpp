@@ -1707,6 +1707,32 @@ BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_polymorphic_variant_type)
     BOOST_CHECK(r);
 }
 
+BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_poly_typexpr)
+{
+    ast::poly_typexpr poly_typexpr;
+    std::string content = "'ident1";
+    bool r = parse_string(content, gGrammar.poly_typexpr, poly_typexpr);
+    BOOST_CHECK(r);
+
+    poly_typexpr = ast::poly_typexpr();
+    content = "'ident1 'ident2.'ident3";
+    r = parse_string(content, gGrammar.poly_typexpr, poly_typexpr);
+    BOOST_CHECK(r);
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_method_type)
+{
+    ast::method_type method_type;
+    std::string content = "name : 'ident1";
+    bool r = parse_string(content, gGrammar.method_type, method_type);
+    BOOST_CHECK(r);
+
+    method_type = ast::method_type();
+    content = "name : 'ident1 'ident2.'ident3";
+    r = parse_string(content, gGrammar.method_type, method_type);
+    BOOST_CHECK(r);
+}
+
 BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_object_typexpr_row)
 {
     ast::object_typexpr_row object_typexpr_row;
@@ -1739,6 +1765,136 @@ BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_object_typexpr_row)
     //content = "<...>";
     //r = parse_string(content, gGrammar.typexpr, typexpr);
     //BOOST_CHECK(!r);
+}
+
+BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_object_typexpr)
+{
+    //
+    // object_typexpr
+    //
+    ast::object_typexpr object_typexpr;
+    std::string content = "<name1 : 'indent1>";
+    bool r = parse_string(content, gGrammar.object_typexpr, object_typexpr);
+    BOOST_CHECK(r);
+
+    object_typexpr = ast::object_typexpr();
+    content = "<name1 : 'indent1 'ident2 . 'ident3>";
+    r = parse_string(content, gGrammar.object_typexpr, object_typexpr);
+    BOOST_CHECK(r);
+
+    object_typexpr = ast::object_typexpr();
+    content = "<name1 : 'indent1 ;>";
+    r = parse_string(content, gGrammar.object_typexpr, object_typexpr);
+    BOOST_CHECK(r);
+
+    object_typexpr = ast::object_typexpr();
+    content = "<name1 : 'indent1 'ident2 . 'ident3 ;>";
+    r = parse_string(content, gGrammar.object_typexpr, object_typexpr);
+    BOOST_CHECK(r);
+
+    object_typexpr = ast::object_typexpr();
+    content = "<name1 : 'indent1 ; ..>";
+    r = parse_string(content, gGrammar.object_typexpr, object_typexpr);
+    BOOST_CHECK(r);
+
+    object_typexpr = ast::object_typexpr();
+    content = "<name1 : 'indent1 'ident2 . 'ident3 ; ..>";
+    r = parse_string(content, gGrammar.object_typexpr, object_typexpr);
+    BOOST_CHECK(r);
+
+    object_typexpr = ast::object_typexpr();
+    content = "<name1 : 'indent1 ; name2 : 'ident2>";
+    r = parse_string(content, gGrammar.object_typexpr, object_typexpr);
+    BOOST_CHECK(r);
+
+    object_typexpr = ast::object_typexpr();
+    content = "<name1 : 'indent1 'ident2 . 'ident3 ; name2 : 'indent4 'ident5 . 'ident6>";
+    r = parse_string(content, gGrammar.object_typexpr, object_typexpr);
+    BOOST_CHECK(r);
+
+    object_typexpr = ast::object_typexpr();
+    content = "<name1 : 'indent1 ; name2 : 'ident2 ;>";
+    r = parse_string(content, gGrammar.object_typexpr, object_typexpr);
+    BOOST_CHECK(r);
+
+    object_typexpr = ast::object_typexpr();
+    content = "<name1 : 'indent1 'ident2 . 'ident3 ; name2 : 'indent4 'ident5 . 'ident6 ;>";
+    r = parse_string(content, gGrammar.object_typexpr, object_typexpr);
+    BOOST_CHECK(r);
+
+    object_typexpr = ast::object_typexpr();
+    content = "<name1 : 'indent1 ; name2 : 'ident2 ; ..>";
+    r = parse_string(content, gGrammar.object_typexpr, object_typexpr);
+    BOOST_CHECK(r);
+
+    object_typexpr = ast::object_typexpr();
+    content = "<name1 : 'indent1 'ident2 . 'ident3 ; name2 : 'indent4 'ident5 . 'ident6 ; ..>";
+    r = parse_string(content, gGrammar.object_typexpr, object_typexpr);
+    BOOST_CHECK(r);
+
+    //
+    // typexpr
+    //
+
+    ast::typexpr typexpr;
+    content = "<name1 : 'indent1>";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "<name1 : 'indent1 'ident2 . 'ident3>";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "<name1 : 'indent1 ;>";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "<name1 : 'indent1 'ident2 . 'ident3 ;>";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "<name1 : 'indent1 ; ..>";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "<name1 : 'indent1 'ident2 . 'ident3 ; ..>";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "<name1 : 'indent1 ; name2 : 'ident2>";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "<name1 : 'indent1 'ident2 . 'ident3 ; name2 : 'indent4 'ident5 . 'ident6>";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "<name1 : 'indent1 ; name2 : 'ident2 ;>";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "<name1 : 'indent1 'ident2 . 'ident3 ; name2 : 'indent4 'ident5 . 'ident6 ;>";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "<name1 : 'indent1 ; name2 : 'ident2 ; ..>";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "<name1 : 'indent1 'ident2 . 'ident3 ; name2 : 'indent4 'ident5 . 'ident6 ; ..>";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
 }
 
 /*
