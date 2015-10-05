@@ -1,0 +1,185 @@
+
+Type expressions grammar:
+==========================
+
+typexpr	::=	
+	''' ident  
+ 	∣ '_'
+ 	∣ '(' typexpr ')'
+	| [['?'] label-name ':'] typexpr '->' typexpr  
+	| typexpr { '*' typexpr }+  
+ 	| typeconstr
+ 	| typexpr typeconstr
+ 	| '(' typexpr { ',' typexpr } ')' typeconstr  
+ 	∣ typexpr 'as' ''' ident
+ 	| polymorphic-variant-type
+ 	∣ '<' ['..'] '>'
+ 	| '<' method-type { ';' method-type } [';' ∣ ';..'] '>'  
+ 	∣ '#' class-path
+ 	∣ typexpr '#' class-path  
+ 	∣ '(' typexpr { ',' typexpr } ')' '#' class-path
+
+A = B | C | D | E | F | Z
+A - typexpr
+B - [[?]label-name:]  typexpr ->  typexpr
+C - typexpr  { * typexpr }+
+D - typexpr  typeconstr
+E - typexpr as 'ident
+F - typexpr #  class-path
+Z - the rest of the rule
+
+where:
+
+B = [G] A '->' A
+G - [?]label-name:
+
+C = A +('*' A)
+
+D = A H
+H - typeconstr
+
+E = A 'as' I
+I - ''' ident
+
+F = A '#' J
+J - class-path
+
+where:
+
+A =	['[?]label-name:'] A '->' A
+	| A +('*' A)
+	| A H
+	| A 'as' I
+	| A '#' J
+	| Z
+
+where:
+
+A =	[G] A ('->' A) | Z
+	| A (+('*' A)) | Z
+	| A (H)        | Z
+	| A ('as' I)   | Z
+	| A ('#' J)    | Z
+	| Z
+
+where:
+
+(transformation for eliminating left recursion)
+
+α and β do not start with A
+
+A -> Aα | β
+
+A -> βA'
+A'-> αA' | epsilon
+
+where:
+
+B = ['[?]label-name:'] Z B'
+B'= ('->' A) B' | epsilon
+
+C = Z C'
+C'= +('*' A) C' | epsilon
+
+D = Z D'
+D'= H D' | epsilon
+
+E = Z E'
+E'= ('as' I) E' | epsilon
+
+F = Z F'
+F'= ('#' J) F' | epsilon
+
+where:
+
+A =
+	[G] Z B'
+	| Z C'
+	| Z D'
+	| Z E'
+	| Z F'
+	| Z
+
+where:
+
+A = 
+	[G] Z B'
+	| Z A'
+
+A' = C' | D' | E' | F'
+
+where:
+
+typexpr =
+	[[?]label-name:] Z B'
+	| Z typexpr'
+	| Z
+
+typexpr'= C' | D' | E' | F'
+
+where:
+
+typexpr =
+	[[?]label-name:] Z B'
+	| Z typexpr'
+	| Z
+
+typexpr'=
+	+('*' A) C' | epsilon
+	| H D' | epsilon
+	| ('as' I) E' | epsilon
+	| ('#' J) F' | epsilon
+
+where:
+
+
+
+typexpr =
+	[[?]label-name:] Z (('->' typexpr) B' | epsilon)
+	| Z (typexpr' | epsilon)
+	| Z
+
+typexpr'=
+	+('*' typexpr) C'
+	| typeconstr D'
+	| ('as' ''' ident) E'
+	| ('#' class-path) F'
+
+B'= ('->' typexpr) B' | epsilon
+C'= +('*' typexpr) C' | epsilon
+D'= typeconstr D' | epsilon
+E'= ('as' ''' ident) E' | epsilon
+F'= ('#' class-path) F' | epsilon
+
+
+Refactored type expressions grammar:
+=======================================
+
+typexpr ::=
+	[['?']label-name ':'] typexprZ (('->' typexpr) typexprB' | epsilon)
+	| typexprZ (typexpr' | epsilon)
+
+typexpr'=
+	+('*' typexpr) typexprC'
+	| typeconstr typexprD'
+	| ('as' ''' ident) typexprE'
+	| ('#' class-path) typexprF'
+
+typexprB'= ('->' typexpr) typexprB' | epsilon
+typexprC'= +('*' typexpr) typexprC' | epsilon
+typexprD'= typeconstr typexprD' | epsilon
+typexprE'= ('as' ''' ident) typexprE' | epsilon
+typexprF'= ('#' class-path) typexprF' | epsilon
+
+typexprZ ::=
+	''' ident
+	| '_'
+	| '(' typexpr ')'
+	| typeconstr
+	| '(' typexpr { , typexpr } ')' typeconstr
+	| polymorphic-variant-type
+	| '<' ['..'] '>'
+	| '<' method-type {';' method-type} [';' ∣ ';..'] '>'
+	| '#' class-path
+	| '(' typexpr  {',' typexpr} ')' '#' class-path
+
