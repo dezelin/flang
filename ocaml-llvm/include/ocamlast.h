@@ -551,6 +551,7 @@ struct aliased_or_recursive_typexpr;
 struct polymorphic_variant_type;
 struct object_typexpr_row;
 struct object_typexpr;
+struct octothorpe_class_path_typexpr;
 struct octothorpe_typexpr;
 struct octothorpe_list_typexpr;
 
@@ -568,6 +569,7 @@ struct typexpr
         boost::recursive_wrapper<polymorphic_variant_type>,
         boost::recursive_wrapper<object_typexpr_row>,
         boost::recursive_wrapper<object_typexpr>,
+        boost::recursive_wrapper<octothorpe_class_path_typexpr>,
         boost::recursive_wrapper<octothorpe_typexpr>,
         boost::recursive_wrapper<octothorpe_list_typexpr>
     >
@@ -606,6 +608,9 @@ struct typexpr
         : base_type(val) { }
 
     typexpr(object_typexpr const &val)
+        : base_type(val) { }
+
+    typexpr(octothorpe_class_path_typexpr const &val)
         : base_type(val) { }
 
     typexpr(octothorpe_typexpr const &val)
@@ -882,6 +887,13 @@ struct object_typexpr
     method_type type;
     boost::optional<method_type_list> other;
     boost::optional<ocaml::lexer::Tokens> ellipsis;
+};
+
+//  #  class-path
+struct octothorpe_class_path_typexpr
+    : tagged
+{
+    class_path path;
 };
 
 //  typexpr #  class-path
@@ -3810,6 +3822,24 @@ BOOST_FUSION_ADAPT_STRUCT(
     (ocaml::ast::method_type, type)
     (boost::optional<ocaml::ast::method_type_list>, other)
     (boost::optional<ocaml::lexer::Tokens>, ellipsis)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::octothorpe_class_path_typexpr,
+    (ocaml::ast::class_path, path)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::octothorpe_typexpr,
+    (ocaml::ast::typexpr, expr)
+    (ocaml::ast::class_path, path)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::octothorpe_list_typexpr,
+    (ocaml::ast::typexpr, expr)
+    (boost::optional<ocaml::ast::typexpr_list>, other)
+    (ocaml::ast::class_path, path)
 )
 
 #endif //FLANG_OCAMLAST_H

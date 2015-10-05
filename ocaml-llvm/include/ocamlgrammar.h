@@ -301,7 +301,10 @@ struct OCamlGrammar : qi::grammar<Iterator>
 
         // FIXME: Remove indirect left-recursions
         typexpr %=
-            object_typexpr
+            octothorpe_class_path_typexpr
+            | octothorpe_typexpr
+            | octothorpe_list_typexpr
+            | object_typexpr
             | object_typexpr_row
             | polymorphic_variant_type
             | aliased_or_recursive
@@ -370,29 +373,7 @@ struct OCamlGrammar : qi::grammar<Iterator>
                 >> *(qi::omit[tok.ampersand] >> typexpr))
             | typexpr
             ;
-            /*
-            | typexpr >> +(qi::omit[tok.asterisk] >> typexpr)
-            | typeconstr
-            | typexpr >> typeconstr
-            | qi::omit[tok.lbrace] >> typexpr >> *(qi::omit[tok.comma] >> typexpr)
-                >> qi::omit[tok.rbrace] >> typeconstr
-            | typexpr >> qi::omit[tok.kas] >> qi::omit[tok.apostrophe] >> ident
-            | polymorphic_variant_type
-            | qi::omit[tok.lesser] >> -qi::omit[tok.dotdot] >> qi::omit[tok.greater]
-            | qi::omit[tok.lesser] >>
-                method_type
-                >> *((qi::omit[tok.semicolon] | qi::omit[tok.semicolon] >> qi::omit[tok.dotdot]) >> method_type)
-              >> qi::omit[tok.greater]
-            | qi::omit[tok.hash] >> class_path
-            | typexpr >> qi::omit[tok.hash] >> class_path
-            | qi::omit[tok.lbrace]
-                >> typexpr >> *(qi::omit[tok.comma] >> typexpr)
-              >> qi::omit[tok.rbrace]
-              >> qi::omit[tok.hash]
-              >> class_path
-            ;
 
-*/
         ident_type_variable =
             // FIXME: A bug in Boost Spirit?
             // This gives a compilation error:
@@ -417,7 +398,10 @@ struct OCamlGrammar : qi::grammar<Iterator>
             ;
 
         function_types_typexpr %=
-            object_typexpr
+            octothorpe_class_path_typexpr
+            | octothorpe_typexpr
+            | octothorpe_list_typexpr
+            | object_typexpr
             | object_typexpr_row
             | polymorphic_variant_type
             | tuple_types
@@ -435,7 +419,10 @@ struct OCamlGrammar : qi::grammar<Iterator>
             ;
 
         tuple_types_typexpr %=
-            object_typexpr
+            octothorpe_class_path_typexpr
+            | octothorpe_typexpr
+            | octothorpe_list_typexpr
+            | object_typexpr
             | object_typexpr_row
             | polymorphic_variant_type
             | ident_type_variable
@@ -461,7 +448,10 @@ struct OCamlGrammar : qi::grammar<Iterator>
             ;
 
         constructed_unary_param_typexpr %=
-            object_typexpr
+            octothorpe_class_path_typexpr
+            | octothorpe_typexpr
+            | octothorpe_list_typexpr
+            | object_typexpr
             | object_typexpr_row
             | polymorphic_variant_type
             | ident_type_variable
@@ -483,7 +473,10 @@ struct OCamlGrammar : qi::grammar<Iterator>
             ;
 
         constructed_nary_param_typexpr %=
-            object_typexpr
+            octothorpe_class_path_typexpr
+            | octothorpe_typexpr
+            | octothorpe_list_typexpr
+            | object_typexpr
             | object_typexpr_row
             | polymorphic_variant_type
             | tuple_types
@@ -501,7 +494,10 @@ struct OCamlGrammar : qi::grammar<Iterator>
             ;
 
         aliased_or_recursive_typexpr %=
-            object_typexpr
+            octothorpe_class_path_typexpr
+            | octothorpe_typexpr
+            | octothorpe_list_typexpr
+            | object_typexpr
             | object_typexpr_row
             | polymorphic_variant_type
             | tuple_types
@@ -558,6 +554,23 @@ struct OCamlGrammar : qi::grammar<Iterator>
             method_name >> qi::omit[tok.colon] >> poly_typexpr
             ;
 
+        octothorpe_class_path_typexpr %=
+            qi::omit[tok.hash] >> class_path
+            ;
+
+        octothorpe_typexpr %=
+            typexpr >> qi::omit[tok.hash] >> class_path
+            ;
+
+        octothorpe_list_typexpr %=
+            qi::omit[tok.lbrace]
+            >> typexpr
+            >> *(qi::omit[tok.comma] >> typexpr)
+            >> qi::omit[tok.rbrace]
+            >> qi::omit[tok.hash]
+            >> class_path
+            ;
+
         BOOST_SPIRIT_DEBUG_NODE(typexpr);
         BOOST_SPIRIT_DEBUG_NODE(poly_typexpr);
         BOOST_SPIRIT_DEBUG_NODE(method_type);
@@ -587,6 +600,9 @@ struct OCamlGrammar : qi::grammar<Iterator>
 
         BOOST_SPIRIT_DEBUG_NODE(object_typexpr_row);
         BOOST_SPIRIT_DEBUG_NODE(object_typexpr);
+        BOOST_SPIRIT_DEBUG_NODE(octothorpe_class_path_typexpr);
+        BOOST_SPIRIT_DEBUG_NODE(octothorpe_typexpr);
+        BOOST_SPIRIT_DEBUG_NODE(octothorpe_list_typexpr);
     }
 
     qi::rule<Iterator> start;
@@ -672,6 +688,9 @@ struct OCamlGrammar : qi::grammar<Iterator>
 
     qi::rule<Iterator, ocaml::ast::object_typexpr_row()> object_typexpr_row;
     qi::rule<Iterator, ocaml::ast::object_typexpr()> object_typexpr;
+    qi::rule<Iterator, ocaml::ast::octothorpe_class_path_typexpr()> octothorpe_class_path_typexpr;
+    qi::rule<Iterator, ocaml::ast::octothorpe_typexpr()> octothorpe_typexpr;
+    qi::rule<Iterator, ocaml::ast::octothorpe_list_typexpr()> octothorpe_list_typexpr;
 
 };
 
