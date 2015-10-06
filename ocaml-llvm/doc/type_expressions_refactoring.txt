@@ -55,11 +55,11 @@ A =	['[?]label-name:'] A '->' A
 
 where:
 
-A =	[G] A ('->' A) | Z
-	| A (+('*' A)) | Z
-	| A (H)        | Z
-	| A ('as' I)   | Z
-	| A ('#' J)    | Z
+A =	[G] A ('->' A)
+	| A (+('*' A))
+	| A (H)
+	| A ('as' I)
+	| A ('#' J)
 	| Z
 
 where:
@@ -75,101 +75,29 @@ A'-> αA' | epsilon
 
 where:
 
-B = ['[?]label-name:'] Z B'
-B'= ('->' A) B' | epsilon
-
-C = Z C'
-C'= +('*' A) C' | epsilon
-
-D = Z D'
-D'= H D' | epsilon
-
-E = Z E'
-E'= ('as' I) E' | epsilon
-
 F = Z F'
 F'= ('#' J) F' | epsilon
 
-where:
+E = F E'
+E'= ('as' I) E' | epsilon
 
-A =
-	[G] Z B'
-	| Z C'
-	| Z D'
-	| Z E'
-	| Z F'
-	| Z
+D = E D'
+D'= (H) D' | epsilon
 
-where:
+C = D C'
+C'= (+('*' A)) C' | epsilon
 
-A = 
-	[G] Z B'
-	| Z A'
-
-A' = C' | D' | E' | F'
+B = [G] C B'
+B'= ('->' A) B' | epsilon
 
 where:
 
-typexpr =
-	[[?]label-name:] Z B'
-	| Z typexpr'
-	| Z
-
-typexpr'= C' | D' | E' | F'
+A = B | C | D | E | F | Z
 
 where:
-
-typexpr =
-	[[?]label-name:] Z B'
-	| Z typexpr'
-	| Z
-
-typexpr'=
-	+('*' A) C' | epsilon
-	| H D' | epsilon
-	| ('as' I) E' | epsilon
-	| ('#' J) F' | epsilon
-
-where:
-
-
-
-typexpr =
-	[[?]label-name:] Z (('->' typexpr) B' | epsilon)
-	| Z (typexpr' | epsilon)
-	| Z
-
-typexpr'=
-	+('*' typexpr) C'
-	| typeconstr D'
-	| ('as' ''' ident) E'
-	| ('#' class-path) F'
-
-B'= ('->' typexpr) B' | epsilon
-C'= +('*' typexpr) C' | epsilon
-D'= typeconstr D' | epsilon
-E'= ('as' ''' ident) E' | epsilon
-F'= ('#' class-path) F' | epsilon
-
 
 Refactored type expressions grammar:
 =======================================
-
-typexpr ::=
-	[['?']label-name ':'] typexprZ (('->' typexpr) typexprB' | epsilon)
-	| typexprZ (typexpr' | epsilon)
-
-typexpr'=
-	+('*' typexpr) typexprC'
-	| typeconstr typexprD'
-	| ('as' ''' ident) typexprE'
-	| ('#' class-path) typexprF'
-
-typexprB'= ('->' typexpr) typexprB' | epsilon
-typexprC'= +('*' typexpr) typexprC' | epsilon
-typexprD'= typeconstr typexprD' | epsilon
-typexprE'= ('as' ''' ident) typexprE' | epsilon
-typexprF'= ('#' class-path) typexprF' | epsilon
 
 typexprZ ::=
 	''' ident
@@ -182,4 +110,27 @@ typexprZ ::=
 	| '<' method-type {';' method-type} [';' ∣ ';..'] '>'
 	| '#' class-path
 	| '(' typexpr  {',' typexpr} ')' '#' class-path
+
+typexprF ::= typexprZ typexprF'
+typexprF'::= ('#' class-path) typexprF' | epsilon
+
+typexprE ::= typexprF typexprE'
+typexprE'::= ('as' ''' ident) typexprE' | epsilon
+
+typexprD ::= typexprE typexprD'
+typexprD'::= typeconstr typexprD' | epsilon
+
+typexprC ::= typexprD typexprC'
+typexprC'::= +('*' typexpr) typexprC' | epsilon
+
+typexprB ::= typexprC typexprB'
+typexprB'::= ('->' typexpr) typexprB' | epsilon
+
+typexpr ::= 
+	typexprB
+	| typexprC
+	| typexprD
+	| typexprE
+	| typexprF
+	| typexprZ
 

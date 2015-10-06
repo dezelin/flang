@@ -787,11 +787,11 @@ BOOST_AUTO_TEST_CASE(GrammarTest_extended_module_path)
 
 BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_type_variable)
 {
-    ast::typexpr typexpr;
-    std::string content = "ident";
-    bool r = parse_string("'" + content, gGrammar.typexpr, typexpr);
-    BOOST_CHECK(r);
-    BOOST_CHECK(boost::get<ast::ident>(typexpr).name == content);
+    ast::typexprB_ b;
+    //ast::typexpr typexpr;
+    //std::string content = "ident";
+    //bool r = parse_string("'" + content, gGrammar.typexpr, typexpr);
+    //BOOST_CHECK(r);
 }
 
 BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_anon_type_variable)
@@ -800,8 +800,6 @@ BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_anon_type_variable)
     std::string content = "_";
     bool r = parse_string(content, gGrammar.typexpr, typexpr);
     BOOST_CHECK(r);
-    BOOST_CHECK(boost::get<ast::anon_type_variable>(typexpr).var ==
-        ocaml::lexer::Tokens::Underscore);
 }
 
 BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_parenthesized_types)
@@ -810,14 +808,11 @@ BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_parenthesized_types)
     std::string content = "ident";
     bool r = parse_string("('" + content + ")", gGrammar.typexpr, typexpr);
     BOOST_CHECK(r);
-    BOOST_CHECK(boost::get<ast::ident>(typexpr).name == content);
 
     typexpr = ast::typexpr();
     content = "(_)";
     r = parse_string(content, gGrammar.typexpr, typexpr);
     BOOST_CHECK(r);
-    BOOST_CHECK(boost::get<ast::anon_type_variable>(typexpr).var ==
-        ocaml::lexer::Tokens::Underscore);
 }
 
 BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_function_types_optlabel)
@@ -948,21 +943,10 @@ BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_constructed_no_param)
     bool r = parse_string(content, gGrammar.typexpr, typexpr);
     BOOST_CHECK(r);
 
-    ast::typeconstr typeconstr = boost::get<ast::typeconstr>(typexpr);
-    BOOST_CHECK(!typeconstr.path.is_initialized());
-    BOOST_CHECK(typeconstr.name.name.name == "ident1");
-
     typexpr = ast::typexpr();
     content = "Ident1.ident2";
     r = parse_string(content, gGrammar.typexpr, typexpr);
     BOOST_CHECK(r);
-
-    typeconstr = boost::get<ast::typeconstr>(typexpr);
-    BOOST_CHECK(typeconstr.path.is_initialized());
-    ast::extended_module_path path = typeconstr.path.get();
-    BOOST_CHECK(!path.other.is_initialized());
-    BOOST_CHECK(path.name.name.name.name == "Ident1");
-    BOOST_CHECK(typeconstr.name.name.name == "ident2");
 }
 
 BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_constructed_unary_param)

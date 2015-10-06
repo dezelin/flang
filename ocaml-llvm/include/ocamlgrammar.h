@@ -299,9 +299,76 @@ struct OCamlGrammar : qi::grammar<Iterator>
         // Type expressions
         //
 
-        // FIXME: Remove indirect left-recursions
         typexpr %=
-            qi::eps
+            typexprB
+            | typexprC
+            | typexprD
+            | typexprE
+            | typexprF
+            | typexprZ
+            ;
+
+        typexprZ %=
+            ident_type_variable
+            | anon_type_variable
+            | parenthesized_types
+            | constructed_no_param
+            | constructed_nary_param
+            | polymorphic_variant_type
+            | object_typexpr_row
+            | object_typexpr
+            | octothorpe_class_path_typexpr
+            | octothorpe_list_typexpr
+            ;
+
+        typexprB %=
+            typexprC >> typexprB_
+            ;
+
+        typexprB_ =
+            (qi::omit[tok.minusgreater] >> typexpr >> typexprB_)
+            [_val = construct<ocaml::ast::typexprB_>(_1, _2)]
+            | qi::eps
+            ;
+
+        typexprC %=
+            typexprD >> typexprC_
+            ;
+
+        typexprC_ =
+            (+(qi::omit[tok.asterisk] >> typexpr) >> typexprC_)
+            [_val = construct<ocaml::ast::typexprC_>(_1, _2)]
+            | qi::eps
+            ;
+
+        typexprD %=
+            typexprE >> typexprD_
+            ;
+
+        typexprD_ =
+            (typeconstr >> typexprD_)
+            [_val = construct<ocaml::ast::typexprD_>(_1, _2)]
+            | qi::eps
+            ;
+
+        typexprE %=
+            typexprF >> typexprE_
+            ;
+
+        typexprE_ =
+            ((qi::omit[tok.kas] >> ident_type_variable) >> typexprE_)
+            [_val = construct<ocaml::ast::typexprE_>(_1, _2)]
+            | qi::eps
+            ;
+
+        typexprF %=
+            typexprZ >> typexprF_
+            ;
+
+        typexprF_ =
+            ((qi::omit[tok.hash] >> class_path) >> typexprF_)
+            [_val = construct<ocaml::ast::typexprF_>(_1, _2)]
+            | qi::eps
             ;
 
         polymorphic_variant_type %=
@@ -447,6 +514,18 @@ struct OCamlGrammar : qi::grammar<Iterator>
             ;
 
         BOOST_SPIRIT_DEBUG_NODE(typexpr);
+        BOOST_SPIRIT_DEBUG_NODE(typexprB);
+        BOOST_SPIRIT_DEBUG_NODE(typexprB_);
+        BOOST_SPIRIT_DEBUG_NODE(typexprC);
+        BOOST_SPIRIT_DEBUG_NODE(typexprC_);
+        BOOST_SPIRIT_DEBUG_NODE(typexprD);
+        BOOST_SPIRIT_DEBUG_NODE(typexprD_);
+        BOOST_SPIRIT_DEBUG_NODE(typexprE);
+        BOOST_SPIRIT_DEBUG_NODE(typexprE_);
+        BOOST_SPIRIT_DEBUG_NODE(typexprF);
+        BOOST_SPIRIT_DEBUG_NODE(typexprF_);
+        BOOST_SPIRIT_DEBUG_NODE(typexprZ);
+
         BOOST_SPIRIT_DEBUG_NODE(poly_typexpr);
         BOOST_SPIRIT_DEBUG_NODE(method_type);
         BOOST_SPIRIT_DEBUG_NODE(polymorphic_variant_type);
@@ -525,6 +604,18 @@ struct OCamlGrammar : qi::grammar<Iterator>
     //
 
     qi::rule<Iterator, ocaml::ast::typexpr()> typexpr;
+    qi::rule<Iterator, ocaml::ast::typexprB()> typexprB;
+    qi::rule<Iterator, ocaml::ast::typexprB_()> typexprB_;
+    qi::rule<Iterator, ocaml::ast::typexprC()> typexprC;
+    qi::rule<Iterator, ocaml::ast::typexprC_()> typexprC_;
+    qi::rule<Iterator, ocaml::ast::typexprD()> typexprD;
+    qi::rule<Iterator, ocaml::ast::typexprD_()> typexprD_;
+    qi::rule<Iterator, ocaml::ast::typexprE()> typexprE;
+    qi::rule<Iterator, ocaml::ast::typexprE_()> typexprE_;
+    qi::rule<Iterator, ocaml::ast::typexprF()> typexprF;
+    qi::rule<Iterator, ocaml::ast::typexprF_()> typexprF_;
+    qi::rule<Iterator, ocaml::ast::typexprZ()> typexprZ;
+
     qi::rule<Iterator, ocaml::ast::poly_typexpr()> poly_typexpr;
     qi::rule<Iterator, ocaml::ast::method_type()> method_type;
     qi::rule<Iterator, ocaml::ast::polymorphic_variant_type()> polymorphic_variant_type;
@@ -538,7 +629,7 @@ struct OCamlGrammar : qi::grammar<Iterator>
 
     qi::rule<Iterator, ocaml::ast::ident()> ident_type_variable;
     qi::rule<Iterator, ocaml::ast::anon_type_variable()> anon_type_variable;
-    qi::rule<Iterator, ocaml::ast::typexpr()> parenthesized_types;
+    qi::rule<Iterator, ocaml::ast::parenthesized_typexpr()> parenthesized_types;
     qi::rule<Iterator, ocaml::ast::typeconstr()> constructed_no_param;
     qi::rule<Iterator, ocaml::ast::constructed_nary_typexpr()> constructed_nary_param;
 
