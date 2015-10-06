@@ -542,17 +542,44 @@ struct value_path
 //      	∣	 typexpr
 //
 
+//    Refactored type expressions grammar:
+//    =======================================
+//
+//    typexpr ::=
+//        [['?']label-name ':'] typexprZ (('->' typexpr) typexprB' | epsilon)
+//        | typexprZ (typexpr' | epsilon)
+//
+//    typexpr'=
+//        +('*' typexpr) typexprC'
+//        | typeconstr typexprD'
+//        | ('as' ''' ident) typexprE'
+//        | ('#' class-path) typexprF'
+//
+//    typexprB'= ('->' typexpr) typexprB' | epsilon
+//    typexprC'= +('*' typexpr) typexprC' | epsilon
+//    typexprD'= typeconstr typexprD' | epsilon
+//    typexprE'= ('as' ''' ident) typexprE' | epsilon
+//    typexprF'= ('#' class-path) typexprF' | epsilon
+//
+//    typexprZ ::=
+//        ''' ident
+//        | '_'
+//        | '(' typexpr ')'
+//        | typeconstr
+//        | '(' typexpr { , typexpr } ')' typeconstr
+//        | polymorphic-variant-type
+//        | '<' ['..'] '>'
+//        | '<' method-type {';' method-type} [';' ∣ ';..'] '>'
+//        | '#' class-path
+//        | '(' typexpr  {',' typexpr} ')' '#' class-path
+
 struct anon_type_variable;
-struct function_typexpr;
-struct tuple_typexpr;
-struct constructed_unary_typexpr;
+struct parenthesized_typexpr;
 struct constructed_nary_typexpr;
-struct aliased_or_recursive_typexpr;
 struct polymorphic_variant_type;
 struct object_typexpr_row;
 struct object_typexpr;
 struct octothorpe_class_path_typexpr;
-struct octothorpe_typexpr;
 struct octothorpe_list_typexpr;
 
 struct typexpr
@@ -560,17 +587,13 @@ struct typexpr
       , boost::spirit::extended_variant<
         ident,
         boost::recursive_wrapper<anon_type_variable>,
-        boost::recursive_wrapper<function_typexpr>,
-        boost::recursive_wrapper<tuple_typexpr>,
+        boost::recursive_wrapper<parenthesized_typexpr>,
         typeconstr,
-        boost::recursive_wrapper<constructed_unary_typexpr>,
         boost::recursive_wrapper<constructed_nary_typexpr>,
-        boost::recursive_wrapper<aliased_or_recursive_typexpr>,
         boost::recursive_wrapper<polymorphic_variant_type>,
         boost::recursive_wrapper<object_typexpr_row>,
         boost::recursive_wrapper<object_typexpr>,
         boost::recursive_wrapper<octothorpe_class_path_typexpr>,
-        boost::recursive_wrapper<octothorpe_typexpr>,
         boost::recursive_wrapper<octothorpe_list_typexpr>
     >
 {
@@ -583,22 +606,13 @@ struct typexpr
     typexpr(anon_type_variable const &val)
         : base_type(val) { }
 
-    typexpr(function_typexpr const &val)
-        : base_type(val) { }
-
-    typexpr(tuple_typexpr const &val)
+    typexpr(parenthesized_typexpr const &val)
         : base_type(val) { }
 
     typexpr(typeconstr const &val)
         : base_type(val) { }
 
-    typexpr(constructed_unary_typexpr const &val)
-        : base_type(val) { }
-
     typexpr(constructed_nary_typexpr const &val)
-        : base_type(val) { }
-
-    typexpr(aliased_or_recursive_typexpr const &val)
         : base_type(val) { }
 
     typexpr(polymorphic_variant_type const &val)
@@ -613,12 +627,11 @@ struct typexpr
     typexpr(octothorpe_class_path_typexpr const &val)
         : base_type(val) { }
 
-    typexpr(octothorpe_typexpr const &val)
-        : base_type(val) { }
-
     typexpr(octothorpe_list_typexpr const &val)
         : base_type(val) { }
 };
+
+typedef std::vector<typexpr> typexpr_list;
 
 // _
 struct anon_type_variable
@@ -633,59 +646,11 @@ struct anon_type_variable
 
 typedef std::vector<anon_type_variable> anon_type_variable_list;
 
-struct function_typexpr_label
-    : tagged
-      , boost::spirit::extended_variant<
-        label_name,
-        optlabel
-    >
-{
-    function_typexpr_label()
-        : base_type() { }
-
-    function_typexpr_label(label_name const& val)
-        : base_type(val) { }
-
-    function_typexpr_label(optlabel const& val)
-        : base_type(val) { }
-};
-
-// [[?]label-name:]  typexpr ->  typexpr
-struct function_typexpr
-    : tagged
-{
-    function_typexpr(boost::optional<function_typexpr_label> const& label =
-        boost::optional<function_typexpr_label>())
-        : label(label) { }
-
-    function_typexpr(typexpr const& expr, typexpr const& retexpr)
-        : expr(expr), retexpr(retexpr) { }
-
-    boost::optional<function_typexpr_label> label;
-    typexpr expr;
-    typexpr retexpr;
-};
-
-typedef std::vector<typexpr> typexpr_list;
-
-//  typexpr  { * typexpr }+
-struct tuple_typexpr
-    : tagged
-{
-    tuple_typexpr() { }
-    tuple_typexpr(typexpr const& expr, typexpr_list const& other)
-        : expr(expr), other(other) { }
-
-    typexpr expr;
-    typexpr_list other;
-};
-
-// typexpr  typeconstr
-struct constructed_unary_typexpr
+// '(' typexpr ')'
+struct parenthesized_typexpr
     : tagged
 {
     typexpr expr;
-    typeconstr constr;
 };
 
 // ( typexpr  { , typexpr } )  typeconstr
@@ -695,14 +660,6 @@ struct constructed_nary_typexpr
     typexpr expr;
     boost::optional<typexpr_list> other;
     typeconstr constr;
-};
-
-// typexpr as '  ident
-struct aliased_or_recursive_typexpr
-    : tagged
-{
-    typexpr expr;
-    ident alias;
 };
 
 struct exact_variant_type;
@@ -893,14 +850,6 @@ struct object_typexpr
 struct octothorpe_class_path_typexpr
     : tagged
 {
-    class_path path;
-};
-
-//  typexpr #  class-path
-struct octothorpe_typexpr
-    : tagged
-{
-    typexpr expr;
     class_path path;
 };
 
@@ -3346,39 +3295,9 @@ inline std::ostream& operator<<(std::ostream& out, anon_type_variable const& exp
 std::ostream& operator<<(std::ostream& out, typexpr const& expr);
 std::ostream& operator<<(std::ostream& out, typexpr_list const& list);
 
-inline std::ostream& operator<<(std::ostream& out, function_typexpr_label const& label)
-{
-    boost::apply_visitor(debug_output_visitor(out), label);
-    return out;
-}
-
-inline std::ostream& operator<<(std::ostream& out, function_typexpr const& expr)
-{
-    out << expr.label << expr.expr << expr.retexpr;
-    return out;
-}
-
-inline std::ostream& operator<<(std::ostream& out, tuple_typexpr const& expr)
-{
-    out << expr.expr << expr.other;
-    return out;
-}
-
-inline std::ostream& operator<<(std::ostream& out, constructed_unary_typexpr const& expr)
-{
-    out << expr.expr << expr.constr;
-    return out;
-}
-
 inline std::ostream& operator<<(std::ostream& out, constructed_nary_typexpr const& expr)
 {
     out << expr.expr << expr.other << expr.constr;
-    return out;
-}
-
-inline std::ostream& operator<<(std::ostream& out, aliased_or_recursive_typexpr const& expr)
-{
-    out << expr.expr << expr.alias;
     return out;
 }
 
@@ -3388,12 +3307,6 @@ std::ostream& operator<<(std::ostream& out, method_type_list const& list);
 inline std::ostream& operator<<(std::ostream& out, object_typexpr const& expr)
 {
     out << expr.type << expr.other << expr.ellipsis;
-    return out;
-}
-
-inline std::ostream& operator<<(std::ostream& out, octothorpe_typexpr const& expr)
-{
-    out << expr.expr << expr.path;
     return out;
 }
 
@@ -3732,35 +3645,10 @@ BOOST_FUSION_ADAPT_STRUCT(
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-    ocaml::ast::function_typexpr,
-    (boost::optional<ocaml::ast::function_typexpr_label>, label)
-    (ocaml::ast::typexpr, expr)
-    (ocaml::ast::typexpr, retexpr)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-    ocaml::ast::tuple_typexpr,
-    (ocaml::ast::typexpr, expr)
-    (ocaml::ast::typexpr_list, other)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-    ocaml::ast::constructed_unary_typexpr,
-    (ocaml::ast::typexpr, expr)
-    (ocaml::ast::typeconstr, constr)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
     ocaml::ast::constructed_nary_typexpr,
     (ocaml::ast::typexpr, expr)
     (boost::optional<ocaml::ast::typexpr_list>, other)
     (ocaml::ast::typeconstr, constr)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-    ocaml::ast::aliased_or_recursive_typexpr,
-    (ocaml::ast::typexpr, expr)
-    (ocaml::ast::ident, alias)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -3826,12 +3714,6 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
     ocaml::ast::octothorpe_class_path_typexpr,
-    (ocaml::ast::class_path, path)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-    ocaml::ast::octothorpe_typexpr,
-    (ocaml::ast::typexpr, expr)
     (ocaml::ast::class_path, path)
 )
 

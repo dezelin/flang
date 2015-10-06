@@ -301,21 +301,7 @@ struct OCamlGrammar : qi::grammar<Iterator>
 
         // FIXME: Remove indirect left-recursions
         typexpr %=
-            octothorpe_class_path_typexpr
-            | octothorpe_typexpr
-            | octothorpe_list_typexpr
-            | object_typexpr
-            | object_typexpr_row
-            | polymorphic_variant_type
-            | aliased_or_recursive
-            | function_types
-            | tuple_types
-            | constructed_unary_param
-            | constructed_nary_param
-            | ident_type_variable
-            | anon_type_variable
-            | parenthesized_types
-            | constructed_no_param
+            qi::eps
             ;
 
         polymorphic_variant_type %=
@@ -390,124 +376,17 @@ struct OCamlGrammar : qi::grammar<Iterator>
             qi::omit[tok.lbrace] >> typexpr >> qi::omit[tok.rbrace]
             ;
 
-        function_types %=
-            -((label_name | optlabel) >> qi::omit[tok.colon])
-                >> function_types_typexpr
-                >> qi::omit[tok.minusgreater]
-                >> function_types_typexpr
-            ;
-
-        function_types_typexpr %=
-            octothorpe_class_path_typexpr
-            | octothorpe_typexpr
-            | octothorpe_list_typexpr
-            | object_typexpr
-            | object_typexpr_row
-            | polymorphic_variant_type
-            | tuple_types
-            | ident_type_variable
-            | anon_type_variable
-            | constructed_no_param
-            | constructed_unary_param
-            | constructed_nary_param
-            | parenthesized_types
-            | aliased_or_recursive
-            ;
-
-        tuple_types %=
-            tuple_types_typexpr >> +(qi::omit[tok.asterisk] >> tuple_types_typexpr)
-            ;
-
-        tuple_types_typexpr %=
-            octothorpe_class_path_typexpr
-            | octothorpe_typexpr
-            | octothorpe_list_typexpr
-            | object_typexpr
-            | object_typexpr_row
-            | polymorphic_variant_type
-            | ident_type_variable
-            | anon_type_variable
-            | parenthesized_types
-            | constructed_no_param
-            | constructed_unary_param
-            | constructed_nary_param
-            // FIXME: Remove left-recursion
-            // Test typexpr rule with >>ident for example
-            // or with this: (?label _ -> _)
-            // Both examples cause infinite recursion.
-            | function_types
-            | aliased_or_recursive
-            ;
 
         constructed_no_param %=
             typeconstr
             ;
 
-        constructed_unary_param %=
-            constructed_unary_param_typexpr >> typeconstr
-            ;
-
-        constructed_unary_param_typexpr %=
-            octothorpe_class_path_typexpr
-            | octothorpe_typexpr
-            | octothorpe_list_typexpr
-            | object_typexpr
-            | object_typexpr_row
-            | polymorphic_variant_type
-            | ident_type_variable
-            | anon_type_variable
-            | constructed_no_param
-            | constructed_nary_param
-            | parenthesized_types
-            | function_types
-            | tuple_types
-            | aliased_or_recursive
-            ;
-
         constructed_nary_param %=
             qi::omit[tok.lbrace]
-            >> constructed_nary_param_typexpr
-            >> *(qi::omit[tok.comma] >> constructed_nary_param_typexpr)
+            >> typexpr
+            >> *(qi::omit[tok.comma] >> typexpr)
             >> qi::omit[tok.rbrace]
             >> typeconstr
-            ;
-
-        constructed_nary_param_typexpr %=
-            octothorpe_class_path_typexpr
-            | octothorpe_typexpr
-            | octothorpe_list_typexpr
-            | object_typexpr
-            | object_typexpr_row
-            | polymorphic_variant_type
-            | tuple_types
-            | ident_type_variable
-            | anon_type_variable
-            | parenthesized_types
-            | constructed_no_param
-            | constructed_unary_param
-            | function_types
-            | aliased_or_recursive
-            ;
-
-        aliased_or_recursive %=
-            aliased_or_recursive_typexpr >> qi::omit[tok.kas] >> ident_type_variable
-            ;
-
-        aliased_or_recursive_typexpr %=
-            octothorpe_class_path_typexpr
-            | octothorpe_typexpr
-            | octothorpe_list_typexpr
-            | object_typexpr
-            | object_typexpr_row
-            | polymorphic_variant_type
-            | tuple_types
-            | ident_type_variable
-            | anon_type_variable
-            | constructed_no_param
-            | constructed_unary_param
-            | constructed_nary_param
-            | parenthesized_types
-            | function_types
             ;
 
         object_typexpr_row =
@@ -558,10 +437,6 @@ struct OCamlGrammar : qi::grammar<Iterator>
             qi::omit[tok.hash] >> class_path
             ;
 
-        octothorpe_typexpr %=
-            typexpr >> qi::omit[tok.hash] >> class_path
-            ;
-
         octothorpe_list_typexpr %=
             qi::omit[tok.lbrace]
             >> typexpr
@@ -586,22 +461,12 @@ struct OCamlGrammar : qi::grammar<Iterator>
         BOOST_SPIRIT_DEBUG_NODE(ident_type_variable);
         BOOST_SPIRIT_DEBUG_NODE(anon_type_variable);
         BOOST_SPIRIT_DEBUG_NODE(parenthesized_types);
-        BOOST_SPIRIT_DEBUG_NODE(function_types);
-        BOOST_SPIRIT_DEBUG_NODE(function_types_typexpr);
-        BOOST_SPIRIT_DEBUG_NODE(tuple_types);
-        BOOST_SPIRIT_DEBUG_NODE(tuple_types_typexpr);
         BOOST_SPIRIT_DEBUG_NODE(constructed_no_param);
-        BOOST_SPIRIT_DEBUG_NODE(constructed_unary_param);
-        BOOST_SPIRIT_DEBUG_NODE(constructed_unary_param_typexpr);
         BOOST_SPIRIT_DEBUG_NODE(constructed_nary_param);
-        BOOST_SPIRIT_DEBUG_NODE(constructed_nary_param_typexpr);
-        BOOST_SPIRIT_DEBUG_NODE(aliased_or_recursive);
-        BOOST_SPIRIT_DEBUG_NODE(aliased_or_recursive_typexpr);
 
         BOOST_SPIRIT_DEBUG_NODE(object_typexpr_row);
         BOOST_SPIRIT_DEBUG_NODE(object_typexpr);
         BOOST_SPIRIT_DEBUG_NODE(octothorpe_class_path_typexpr);
-        BOOST_SPIRIT_DEBUG_NODE(octothorpe_typexpr);
         BOOST_SPIRIT_DEBUG_NODE(octothorpe_list_typexpr);
     }
 
@@ -674,22 +539,12 @@ struct OCamlGrammar : qi::grammar<Iterator>
     qi::rule<Iterator, ocaml::ast::ident()> ident_type_variable;
     qi::rule<Iterator, ocaml::ast::anon_type_variable()> anon_type_variable;
     qi::rule<Iterator, ocaml::ast::typexpr()> parenthesized_types;
-    qi::rule<Iterator, ocaml::ast::function_typexpr()> function_types;
-    qi::rule<Iterator, ocaml::ast::typexpr()> function_types_typexpr;
-    qi::rule<Iterator, ocaml::ast::tuple_typexpr()> tuple_types;
-    qi::rule<Iterator, ocaml::ast::typexpr()> tuple_types_typexpr;
     qi::rule<Iterator, ocaml::ast::typeconstr()> constructed_no_param;
-    qi::rule<Iterator, ocaml::ast::constructed_unary_typexpr()> constructed_unary_param;
-    qi::rule<Iterator, ocaml::ast::typexpr()> constructed_unary_param_typexpr;
     qi::rule<Iterator, ocaml::ast::constructed_nary_typexpr()> constructed_nary_param;
-    qi::rule<Iterator, ocaml::ast::typexpr()> constructed_nary_param_typexpr;
-    qi::rule<Iterator, ocaml::ast::aliased_or_recursive_typexpr()> aliased_or_recursive;
-    qi::rule<Iterator, ocaml::ast::typexpr()> aliased_or_recursive_typexpr;
 
     qi::rule<Iterator, ocaml::ast::object_typexpr_row()> object_typexpr_row;
     qi::rule<Iterator, ocaml::ast::object_typexpr()> object_typexpr;
     qi::rule<Iterator, ocaml::ast::octothorpe_class_path_typexpr()> octothorpe_class_path_typexpr;
-    qi::rule<Iterator, ocaml::ast::octothorpe_typexpr()> octothorpe_typexpr;
     qi::rule<Iterator, ocaml::ast::octothorpe_list_typexpr()> octothorpe_list_typexpr;
 
 };
