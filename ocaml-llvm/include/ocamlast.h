@@ -628,16 +628,21 @@ struct typexprB_
 {
     typexprB_() { }
 
-    typexprB_(typexpr const& expr_, typexprB_ const& exprB__)
-        : expr(expr_), exprB_(new typexprB_(exprB__)) { }
+    typexprB_(typexpr *expr_, typexprB_ *exprB__)
+        : expr(expr_), exprB_(exprB__) { }
 
-    boost::recursive_wrapper<typexpr> expr;
+    std::shared_ptr<typexpr> expr;
     std::shared_ptr<typexprB_> exprB_;
 };
 
 struct typexprB
     : tagged
 {
+    typexprB() { }
+
+    typexprB(typexprC const& exprC, typexprB_ const& exprB_)
+        : exprC(exprC), exprB_(exprB_) { }
+
     boost::recursive_wrapper<typexprC> exprC;
     boost::recursive_wrapper<typexprB_> exprB_;
 };
@@ -647,8 +652,8 @@ struct typexprC_
 {
     typexprC_() { }
 
-    typexprC_(typexpr_list const& list, typexprC_ const& exprC__)
-        : exprList(list), exprC_(new typexprC_(exprC__)) { }
+    typexprC_(typexpr_list const& list, typexprC_ *exprC__)
+        : exprList(list), exprC_(exprC__) { }
 
     typexpr_list exprList;
     std::shared_ptr<typexprC_> exprC_;
@@ -657,6 +662,11 @@ struct typexprC_
 struct typexprC
     : tagged
 {
+    typexprC() { }
+
+    typexprC(typexprD const& exprD_, typexprC_ const& exprC__)
+        : exprD(exprD_), exprC_(exprC__) { }
+
     boost::recursive_wrapper<typexprD> exprD;
     boost::recursive_wrapper<typexprC_> exprC_;
 };
@@ -666,8 +676,8 @@ struct typexprD_
 {
     typexprD_() { }
 
-    typexprD_(typeconstr const& constr_, typexprD_ const& exprD__)
-        : constr(constr_), exprD_(new typexprD_(exprD__)) { }
+    typexprD_(typeconstr const& constr_, typexprD_ *exprD__)
+        : constr(constr_), exprD_(exprD__) { }
 
     typeconstr constr;
     std::shared_ptr<typexprD_> exprD_;
@@ -676,6 +686,11 @@ struct typexprD_
 struct typexprD
     : tagged
 {
+    typexprD() { }
+
+    typexprD(typexprE const& exprE_, typexprD_ const& exprD__)
+        : exprE(exprE_), exprD_(exprD__) { }
+
     boost::recursive_wrapper<typexprE> exprE;
     boost::recursive_wrapper<typexprD_> exprD_;
 };
@@ -685,8 +700,8 @@ struct typexprE_
 {
     typexprE_() { }
 
-    typexprE_(ident const& ident__, typexprE_ const& exprE__)
-        : ident_(ident__), exprE_(new typexprE_(exprE__)) { }
+    typexprE_(ident const& ident__, typexprE_ *exprE__)
+        : ident_(ident__), exprE_(exprE__) { }
 
     ident ident_;
     std::shared_ptr<typexprE_> exprE_;
@@ -695,6 +710,11 @@ struct typexprE_
 struct typexprE
     : tagged
 {
+    typexprE() { }
+
+    typexprE(typexprF const& exprF_, typexprE_ const& exprE_)
+        : exprF(exprF_), exprE_(exprE_) { }
+
     boost::recursive_wrapper<typexprF> exprF;
     boost::recursive_wrapper<typexprE_> exprE_;
 };
@@ -704,8 +724,8 @@ struct typexprF_
 {
     typexprF_() { }
 
-    typexprF_(class_path const& path_, typexprF_ const& exprF__)
-        : path(path_), exprF_(new typexprF_(exprF__)) { }
+    typexprF_(class_path const& path_, typexprF_ *exprF__)
+        : path(path_), exprF_(exprF__) { }
 
     class_path path;
     std::shared_ptr<typexprF_> exprF_;
@@ -714,6 +734,11 @@ struct typexprF_
 struct typexprF
     : tagged
 {
+    typexprF() { }
+
+    typexprF(typexprZ const& exprZ_, typexprF_ const& exprF_)
+        : exprZ(exprZ_), exprF_(exprF_) { }
+
     boost::recursive_wrapper<typexprZ> exprZ;
     boost::recursive_wrapper<typexprF_> exprF_;
 };
@@ -3613,8 +3638,7 @@ inline std::ostream& operator<<(std::ostream& out, tag_spec_full_list const& lis
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, boost::recursive_wrapper<typexpr> const& expr);
-std::ostream& operator<<(std::ostream& out, typexpr const& expr);
+std::ostream& operator<<(std::ostream& out, std::shared_ptr<typexpr> const& expr);
 std::ostream& operator<<(std::ostream& out, typexprB_ const& expr);
 
 inline std::ostream& operator<<(std::ostream& out,
@@ -3627,9 +3651,10 @@ inline std::ostream& operator<<(std::ostream& out,
 inline std::ostream& operator<<(std::ostream& out,
     std::shared_ptr<typexprB_> const& expr)
 {
-    if (expr)
-        out << *expr;
+    if (!expr)
+        return out;
 
+    out << *expr;
     return out;
 }
 
@@ -3648,7 +3673,6 @@ inline std::ostream& operator<<(std::ostream& out,
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, typexprC const& expr);
 std::ostream& operator<<(std::ostream& out, boost::recursive_wrapper<typexprC> const& expr);
 
 inline std::ostream& operator<<(std::ostream& out, typexprB const& expr)
@@ -3666,12 +3690,12 @@ inline std::ostream& operator<<(std::ostream& out,
     return out;
 }
 
-inline std::ostream& operator<<(std::ostream& out,
-    std::shared_ptr<typexprC_> const& expr)
+inline std::ostream& operator<<(std::ostream& out, std::shared_ptr<typexprC_> const& expr)
 {
-    if (expr)
-        out << *expr;
+    if (!expr)
+        return out;
 
+    out << *expr;
     return out;
 }
 
@@ -3681,19 +3705,18 @@ inline std::ostream& operator<<(std::ostream& out, typexprC_ const& expr)
     return out;
 }
 
-inline std::ostream& operator<<(std::ostream& out,
-    boost::recursive_wrapper<typexprC> const& expr)
-{
-    out << expr.get();
-    return out;
-}
-
-std::ostream& operator<<(std::ostream& out, typexprD const& expr);
 std::ostream& operator<<(std::ostream& out, boost::recursive_wrapper<typexprD> const& expr);
 
 inline std::ostream& operator<<(std::ostream& out, typexprC const& expr)
 {
     out << expr.exprD << expr.exprC_;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out,
+    boost::recursive_wrapper<typexprC> const& expr)
+{
+    out << expr.get();
     return out;
 }
 
@@ -3706,12 +3729,12 @@ inline std::ostream& operator<<(std::ostream& out,
     return out;
 }
 
-inline std::ostream& operator<<(std::ostream& out,
-    std::shared_ptr<typexprD_> const& expr)
+inline std::ostream& operator<<(std::ostream& out, std::shared_ptr<typexprD_> const& expr)
 {
-    if (expr)
-        out << *expr;
+    if (!expr)
+        return out;
 
+    out << *expr;
     return out;
 }
 
@@ -3721,6 +3744,8 @@ inline std::ostream& operator<<(std::ostream& out, typexprD_ const& expr)
     return out;
 }
 
+std::ostream& operator<<(std::ostream& out, typexprD const& expr);
+
 inline std::ostream& operator<<(std::ostream& out,
     boost::recursive_wrapper<typexprD> const& expr)
 {
@@ -3728,7 +3753,6 @@ inline std::ostream& operator<<(std::ostream& out,
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, typexprE const& expr);
 std::ostream& operator<<(std::ostream& out, boost::recursive_wrapper<typexprE> const& expr);
 
 inline std::ostream& operator<<(std::ostream& out, typexprD const& expr)
@@ -3746,12 +3770,12 @@ inline std::ostream& operator<<(std::ostream& out,
     return out;
 }
 
-inline std::ostream& operator<<(std::ostream& out,
-    std::shared_ptr<typexprE_> const& expr)
+inline std::ostream& operator<<(std::ostream& out, std::shared_ptr<typexprE_> const& expr)
 {
-    if (expr)
-        out << *expr;
+    if (!expr)
+        return out;
 
+    out << *expr;
     return out;
 }
 
@@ -3761,6 +3785,8 @@ inline std::ostream& operator<<(std::ostream& out, typexprE_ const& expr)
     return out;
 }
 
+std::ostream& operator<<(std::ostream& out, typexprE const& expr);
+
 inline std::ostream& operator<<(std::ostream& out,
     boost::recursive_wrapper<typexprE> const& expr)
 {
@@ -3768,7 +3794,6 @@ inline std::ostream& operator<<(std::ostream& out,
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, typexprF const& expr);
 std::ostream& operator<<(std::ostream& out, boost::recursive_wrapper<typexprF> const& expr);
 
 inline std::ostream& operator<<(std::ostream& out, typexprE const& expr)
@@ -3786,12 +3811,12 @@ inline std::ostream& operator<<(std::ostream& out,
     return out;
 }
 
-inline std::ostream& operator<<(std::ostream& out,
-    std::shared_ptr<typexprF_> const& expr)
+inline std::ostream& operator<<(std::ostream& out, std::shared_ptr<typexprF_> const& expr)
 {
-    if (expr)
-        out << *expr;
+    if (!expr)
+        return out;
 
+    out << *expr;
     return out;
 }
 
@@ -3801,6 +3826,8 @@ inline std::ostream& operator<<(std::ostream& out, typexprF_ const& expr)
     return out;
 }
 
+std::ostream& operator<<(std::ostream& out, typexprF const& expr);
+
 inline std::ostream& operator<<(std::ostream& out,
     boost::recursive_wrapper<typexprF> const& expr)
 {
@@ -3808,7 +3835,6 @@ inline std::ostream& operator<<(std::ostream& out,
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, typexprZ const& expr);
 std::ostream& operator<<(std::ostream& out, boost::recursive_wrapper<typexprZ> const& expr);
 
 inline std::ostream& operator<<(std::ostream& out, typexprF const& expr)
@@ -3827,6 +3853,16 @@ inline std::ostream& operator<<(std::ostream& out,
 inline std::ostream& operator<<(std::ostream& out, typexprZ const& expr)
 {
     boost::apply_visitor(debug_output_visitor(out), expr);
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out,
+    std::shared_ptr<typexpr> const& expr)
+{
+    if (!expr)
+        return out;
+
+    boost::apply_visitor(debug_output_visitor(out), *expr);
     return out;
 }
 
@@ -4133,7 +4169,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
     ocaml::ast::typexprB_,
-    (boost::recursive_wrapper<ocaml::ast::typexpr>, expr)
+    (std::shared_ptr<ocaml::ast::typexpr>, expr)
     (std::shared_ptr<ocaml::ast::typexprB_>, exprB_)
 )
 

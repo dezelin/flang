@@ -327,7 +327,8 @@ struct OCamlGrammar : qi::grammar<Iterator>
 
         typexprB_ =
             (qi::omit[tok.minusgreater] >> typexpr >> typexprB_)
-            [_val = construct<ocaml::ast::typexprB_>(_1, _2)]
+            [_val = construct<ocaml::ast::typexprB_>(
+                new_<ocaml::ast::typexpr>(_1), new_<ocaml::ast::typexprB_>(_2))]
             | qi::eps
             ;
 
@@ -337,7 +338,7 @@ struct OCamlGrammar : qi::grammar<Iterator>
 
         typexprC_ =
             (+(qi::omit[tok.asterisk] >> typexpr) >> typexprC_)
-            [_val = construct<ocaml::ast::typexprC_>(_1, _2)]
+            [_val = construct<ocaml::ast::typexprC_>(_1, new_<ocaml::ast::typexprC_>(_2))]
             | qi::eps
             ;
 
@@ -347,7 +348,7 @@ struct OCamlGrammar : qi::grammar<Iterator>
 
         typexprD_ =
             (typeconstr >> typexprD_)
-            [_val = construct<ocaml::ast::typexprD_>(_1, _2)]
+            [_val = construct<ocaml::ast::typexprD_>(_1, new_<ocaml::ast::typexprD_>(_2))]
             | qi::eps
             ;
 
@@ -357,7 +358,7 @@ struct OCamlGrammar : qi::grammar<Iterator>
 
         typexprE_ =
             ((qi::omit[tok.kas] >> ident_type_variable) >> typexprE_)
-            [_val = construct<ocaml::ast::typexprE_>(_1, _2)]
+            [_val = construct<ocaml::ast::typexprE_>(_1, new_<ocaml::ast::typexprE_>(_2))]
             | qi::eps
             ;
 
@@ -367,7 +368,7 @@ struct OCamlGrammar : qi::grammar<Iterator>
 
         typexprF_ =
             ((qi::omit[tok.hash] >> class_path) >> typexprF_)
-            [_val = construct<ocaml::ast::typexprF_>(_1, _2)]
+            [_val = construct<ocaml::ast::typexprF_>(_1, new_<ocaml::ast::typexprF_>(_2))]
             | qi::eps
             ;
 

@@ -27,8 +27,8 @@
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
 
-#define BOOST_SPIRIT_LEXERTL_DEBUG
-#define BOOST_SPIRIT_DEBUG
+//#define BOOST_SPIRIT_LEXERTL_DEBUG
+//#define BOOST_SPIRIT_DEBUG
 
 #include "ocamlast.h"
 #include "ocamllexer.h"
@@ -787,11 +787,10 @@ BOOST_AUTO_TEST_CASE(GrammarTest_extended_module_path)
 
 BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_type_variable)
 {
-    ast::typexprB_ b;
-    //ast::typexpr typexpr;
-    //std::string content = "ident";
-    //bool r = parse_string("'" + content, gGrammar.typexpr, typexpr);
-    //BOOST_CHECK(r);
+    ast::typexpr typexpr;
+    std::string content = "ident";
+    bool r = parse_string("'" + content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
 }
 
 BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_anon_type_variable)
