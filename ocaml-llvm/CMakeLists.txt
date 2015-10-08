@@ -35,7 +35,7 @@ set(HEADER_FILES
 )
 
 set(SOURCE_FILES src/dummy.cpp)
-add_library(ocaml-llvm SHARED ${SOURCE_FILES})
+add_library(ocaml-llvm SHARED ${SOURCE_FILES} ${HEADER_FILES})
 
 enable_testing()
 add_subdirectory(tests)
