@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.3)
 project(ocaml-llvm)
 
+if(NOT WIN32)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sequence-point")
+endif()
 
 find_package(LLVM REQUIRED)
 if (NOT LLVM_FOUND)

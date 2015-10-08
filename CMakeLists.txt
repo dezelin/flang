@@ -6,7 +6,10 @@ if (CMAKE_BINARY_DIR STREQUAL ${CMAKE_SOURCE_DIR})
 endif ()
 
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake")
+
+if(NOT WIN32)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wpedantic -Wall -Wextra -Wno-deprecated-declarations")
+endif()
 
 # Set LLVM directory from environment
 set(LLVM_DIR $ENV{LLVM_DIR})

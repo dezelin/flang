@@ -4227,4 +4227,23 @@ BOOST_FUSION_ADAPT_STRUCT(
     (boost::recursive_wrapper<ocaml::ast::typexprF_>, exprF_)
 )
 
+namespace boost
+{
+namespace spirit
+{
+
+// The hold[] directive uses swap() to implement the rollback / commit semantics 
+// for the attribute. For this reason the attribute type needs to to be usable with 
+// boost::swap(needs to either define a proper overload for 
+// swap(attribute_type&, attribute_type&) or expose a member function 
+// attribute_type::swap(attribute_type&).
+void swap(ocaml::ast::extended_module_name &a, ocaml::ast::extended_module_name &b)
+{
+	boost::swap(a.name, b.name);
+	boost::swap(a.paths, b.paths);
+}
+
+} // namespace spirit
+} // namespace boost
+
 #endif //FLANG_OCAMLAST_H

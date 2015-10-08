@@ -180,13 +180,12 @@ class OCamlLexer
 
         template<typename E>
         constexpr auto to_underlying(E e)
-        -> typename std::underlying_type<E>::type
+			-> typename std::underlying_type<E>::type
         {
             return static_cast<typename std::underlying_type<E>::type>(e);
         }
 
-        explicit lexer_token_def(std::string const &def, Tokens id =
-        Tokens())
+        explicit lexer_token_def(std::string const &def, Tokens id = Tokens())
             : lex::token_def<T>(def, to_underlying(id))
         {
 
