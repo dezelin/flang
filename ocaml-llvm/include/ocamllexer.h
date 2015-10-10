@@ -174,19 +174,8 @@ class OCamlLexer
     struct lexer_token_def
         : public lex::token_def<T>
     {
-        //
-        // Template function to convert enum class to it's underlying
-        // integral type
-
-        template<typename E>
-        constexpr auto to_underlying(E e)
-			-> typename std::underlying_type<E>::type
-        {
-            return static_cast<typename std::underlying_type<E>::type>(e);
-        }
-
         explicit lexer_token_def(std::string const &def, Tokens id = Tokens())
-            : lex::token_def<T>(def, to_underlying(id))
+            : lex::token_def<T>(def, std::underlying_type<Tokens>::type(id))
         {
 
         }
