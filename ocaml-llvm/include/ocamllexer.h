@@ -176,9 +176,7 @@ class OCamlLexer
     {
         explicit lexer_token_def(std::string const &def, Tokens id = Tokens())
             : lex::token_def<T>(def, std::underlying_type<Tokens>::type(id))
-        {
-
-        }
+        { }
     };
 
 public:

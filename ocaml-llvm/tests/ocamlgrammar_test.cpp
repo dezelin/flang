@@ -929,8 +929,20 @@ BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_tuple_types)
     r = parse_string(content, gGrammar.typexpr, typexpr);
     BOOST_CHECK(r);
 
+    // FIXME: label is not extracted from expression during parsing
     typexpr = ast::typexpr();
     content = "('ident1) * _ * (?label: _ -> _) * (Ident1.ident2)";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    // FIXME: label is not extracted from expression during parsing
+    typexpr = ast::typexpr();
+    content = "('ident1) * _ * (label: _ -> _) * (Ident1.ident2)";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+
+    typexpr = ast::typexpr();
+    content = "('ident1) * _ * (_ -> _) * (Ident1.ident2)";
     r = parse_string(content, gGrammar.typexpr, typexpr);
     BOOST_CHECK(r);
 }
@@ -1031,7 +1043,6 @@ BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_aliased_or_recursive)
     r = parse_string(content, gGrammar.typexpr, typexpr);
     BOOST_CHECK(r);
 
-    //FIXME: "(((((_))))) as 'ident1" is too slow
     typexpr = ast::typexpr();
     content = "((_)) as 'ident1";
     r = parse_string(content, gGrammar.typexpr, typexpr);
@@ -1126,11 +1137,10 @@ BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_tag_spec_first)
     r = parse_string(content, gGrammar.tag_spec_first, tag_spec_first);
     BOOST_CHECK(r);
 
-    // FIXME: typexpr catches content first and ends in infinite loop
-    //tag_spec_first = ast::tag_spec_first();
-    //content = "| `Ident1 of 'ident1";
-    //r = parse_string(content, gGrammar.tag_spec_first, tag_spec_first);
-    //BOOST_CHECK(r);
+    tag_spec_first = ast::tag_spec_first();
+    content = "| `Ident1 of 'ident1";
+    r = parse_string(content, gGrammar.tag_spec_first, tag_spec_first);
+    BOOST_CHECK(r);
 }
 
 BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_exact_variant_type)
@@ -1188,22 +1198,20 @@ BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_opened_variant_type)
     bool r = parse_string(content, gGrammar.opened_variant_type, opened_variant_type);
     BOOST_CHECK(r);
 
-    // FIXME: Infinite recursion in typexpr
-    //opened_variant_type = ast::opened_variant_type();
-    //content = "[>]";
-    //r = parse_string(content, gGrammar.opened_variant_type, opened_variant_type);
-    //BOOST_CHECK(r);
+    opened_variant_type = ast::opened_variant_type();
+    content = "[>]";
+    r = parse_string(content, gGrammar.opened_variant_type, opened_variant_type);
+    BOOST_CHECK(r);
 
     opened_variant_type = ast::opened_variant_type();
     content = "[>`Ident1 | `Ident2]";
     r = parse_string(content, gGrammar.opened_variant_type, opened_variant_type);
     BOOST_CHECK(r);
 
-    // FIXME: Infinite recursion in typexpr
-    //opened_variant_type = ast::opened_variant_type();
-    //content = "[> | `Ident2]";
-    //r = parse_string(content, gGrammar.opened_variant_type, opened_variant_type);
-    //BOOST_CHECK(r);
+    opened_variant_type = ast::opened_variant_type();
+    content = "[> | `Ident2]";
+    r = parse_string(content, gGrammar.opened_variant_type, opened_variant_type);
+    BOOST_CHECK(r);
 
     opened_variant_type = ast::opened_variant_type();
     content = "[>`Ident1 | `Ident2 | `Ident3]";
@@ -1301,22 +1309,20 @@ BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_polymorphic_variant_type)
     r = parse_string(content, gGrammar.typexpr, typexpr);
     BOOST_CHECK(r);
 
-    // FIXME: Infinite recursion in typexpr
-    //typexpr = ast::typexpr();
-    //content = "[>]";
-    //r = parse_string(content, gGrammar.typexpr, typexpr);
-    //BOOST_CHECK(r);
+    typexpr = ast::typexpr();
+    content = "[>]";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
 
     typexpr = ast::typexpr();
     content = "[>`Ident1 | `Ident2]";
     r = parse_string(content, gGrammar.typexpr, typexpr);
     BOOST_CHECK(r);
 
-    // FIXME: Infinite recursion in typexpr
-    //typexpr = ast::typexpr();
-    //content = "[> | `Ident2]";
-    //r = parse_string(content, gGrammar.typexpr, typexpr);
-    //BOOST_CHECK(r);
+    typexpr = ast::typexpr();
+    content = "[> | `Ident2]";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
 
     typexpr = ast::typexpr();
     content = "[>`Ident1 | `Ident2 | `Ident3]";
@@ -1417,11 +1423,10 @@ BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_object_row_typexpr)
     r = parse_string(content, gGrammar.typexpr, typexpr);
     BOOST_CHECK(r);
 
-    // FIXME: infinite recursion in typexpr
-    //typexpr = ast::typexpr();
-    //content = "<...>";
-    //r = parse_string(content, gGrammar.typexpr, typexpr);
-    //BOOST_CHECK(!r);
+    typexpr = ast::typexpr();
+    content = "<...>";
+    r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(!r);
 }
 
 BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_object_typexpr)

@@ -301,11 +301,6 @@ struct OCamlGrammar : qi::grammar<Iterator>
 
         typexpr %=
             function_types_typexpr
-            | tuple_types_typexpr
-            | constructed_types_typexpr
-            | aliased_types_typexpr
-            | abbreviation_types_typexpr
-            | non_rr_types_typexpr
             ;
 
         non_rr_types_typexpr %=
