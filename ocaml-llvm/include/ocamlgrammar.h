@@ -322,7 +322,8 @@ struct OCamlGrammar : qi::grammar<Iterator>
             ;
 
         typexprB %=
-            typexprC >> typexprB_
+            -((optlabel | label_name) >> qi::omit[tok.colon])
+                >> typexprC >> typexprB_
             ;
 
         typexprB_ =

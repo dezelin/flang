@@ -123,7 +123,7 @@ typexprD'::= typeconstr typexprD' | epsilon
 typexprC ::= typexprD typexprC'
 typexprC'::= +('*' typexpr) typexprC' | epsilon
 
-typexprB ::= typexprC typexprB'
+typexprB ::= [[?]label-name:] typexprC typexprB'
 typexprB'::= ('->' typexpr) typexprB' | epsilon
 
 typexpr ::= 

@@ -635,14 +635,33 @@ struct typexprB_
     std::shared_ptr<typexprB_> exprB_;
 };
 
+struct typexprB_func_label
+    : tagged
+      , boost::spirit::extended_variant<
+          label_name,
+          optlabel
+      >
+{
+    typexprB_func_label()
+        : base_type() { }
+
+    typexprB_func_label(label_name const& val)
+        : base_type(val) { }
+
+    typexprB_func_label(optlabel const& val)
+        : base_type(val) { }
+};
+
 struct typexprB
     : tagged
 {
     typexprB() { }
 
-    typexprB(typexprC const& exprC, typexprB_ const& exprB_)
-        : exprC(exprC), exprB_(exprB_) { }
+    typexprB(boost::optional<typexprB_func_label> const& label, typexprC const& exprC,
+        typexprB_ const& exprB_)
+        : label(label), exprC(exprC), exprB_(exprB_) { }
 
+    boost::optional<typexprB_func_label> label;
     boost::recursive_wrapper<typexprC> exprC;
     boost::recursive_wrapper<typexprB_> exprB_;
 };
@@ -4175,6 +4194,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
     ocaml::ast::typexprB,
+    (boost::optional<ocaml::ast::typexprB_func_label>, label)
     (boost::recursive_wrapper<ocaml::ast::typexprC>, exprC)
     (boost::recursive_wrapper<ocaml::ast::typexprB_>, exprB_)
 )
