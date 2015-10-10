@@ -1,7 +1,7 @@
 find_package(Boost 1.55 COMPONENTS system filesystem unit_test_framework
         REQUIRED)
 if (NOT Boost_FOUND)
-    message(FATAL_ERROR "Couldn't find Boost unit test framework")
+    message(FATAL_ERROR "Couldn't find Boost libraries")
 endif ()
 
 include_directories(${Boost_INCLUDE_DIRS})
