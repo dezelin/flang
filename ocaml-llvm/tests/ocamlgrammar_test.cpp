@@ -1364,16 +1364,16 @@ BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_polymorphic_variant_type)
     BOOST_CHECK(r);
 }
 
-BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_poly_typexpr)
+BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_polymorphic_typexpr)
 {
-    ast::poly_typexpr poly_typexpr;
+    ast::polymorphic_typexpr polymorphic_typexpr;
     std::string content = "'ident1";
-    bool r = parse_string(content, gGrammar.poly_typexpr, poly_typexpr);
+    bool r = parse_string(content, gGrammar.polymorphic_typexpr, polymorphic_typexpr);
     BOOST_CHECK(r);
 
-    poly_typexpr = ast::poly_typexpr();
+    polymorphic_typexpr = ast::polymorphic_typexpr();
     content = "'ident1 'ident2.'ident3";
-    r = parse_string(content, gGrammar.poly_typexpr, poly_typexpr);
+    r = parse_string(content, gGrammar.polymorphic_typexpr, polymorphic_typexpr);
     BOOST_CHECK(r);
 }
 
@@ -1390,21 +1390,21 @@ BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_method_type)
     BOOST_CHECK(r);
 }
 
-BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_object_typexpr_row)
+BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_object_row_typexpr)
 {
-    ast::object_typexpr_row object_typexpr_row;
+    ast::object_row_typexpr object_row_typexpr;
     std::string content = "<>";
-    bool r = parse_string(content, gGrammar.object_typexpr_row, object_typexpr_row);
+    bool r = parse_string(content, gGrammar.object_row_typexpr, object_row_typexpr);
     BOOST_CHECK(r);
 
-    object_typexpr_row = ast::object_typexpr_row();
+    object_row_typexpr = ast::object_row_typexpr();
     content = "<..>";
-    r = parse_string(content, gGrammar.object_typexpr_row, object_typexpr_row);
+    r = parse_string(content, gGrammar.object_row_typexpr, object_row_typexpr);
     BOOST_CHECK(r);
 
-    object_typexpr_row = ast::object_typexpr_row();
+    object_row_typexpr = ast::object_row_typexpr();
     content = "<...>";
-    r = parse_string(content, gGrammar.object_typexpr_row, object_typexpr_row);
+    r = parse_string(content, gGrammar.object_row_typexpr, object_row_typexpr);
     BOOST_CHECK(!r);
 
     ast::typexpr typexpr;

@@ -546,7 +546,7 @@ struct value_path
 //    Refactored type expressions grammar:
 //    =======================================
 //
-//    typexprZ ::=
+//    non_rr_types_typexpr ::=
 //        ''' ident
 //        | '_'
 //        | '(' typexpr ')'
@@ -558,222 +558,240 @@ struct value_path
 //        | '#' class-path
 //        | '(' typexpr  {',' typexpr} ')' '#' class-path
 //
-//    typexprF ::= typexprZ typexprF'
-//    typexprF'::= ('#' class-path) typexprF' | epsilon
+//    abbreviation_types_typexpr ::= non_rr_types_typexpr abbreviation_types_typexpr'
+//    abbreviation_types_typexpr'::= ('#' class-path) abbreviation_types_typexpr' | epsilon
 //
-//    typexprE ::= typexprF typexprE'
-//    typexprE'::= ('as' ''' ident) typexprE' | epsilon
+//    aliased_types_typexpr ::= abbreviation_types_typexpr aliased_types_typexpr'
+//    aliased_types_typexpr'::= ('as' ''' ident) aliased_types_typexpr' | epsilon
 //
-//    typexprD ::= typexprE typexprD'
-//    typexprD'::= typeconstr typexprD' | epsilon
+//    constructed_types_typexpr ::= aliased_types_typexpr constructed_types_typexpr'
+//    constructed_types_typexpr'::= typeconstr constructed_types_typexpr' | epsilon
 //
-//    typexprC ::= typexprD typexprC'
-//    typexprC'::= +('*' typexpr) typexprC' | epsilon
+//    tuple_types_typexpr ::= constructed_types_typexpr tuple_types_typexpr'
+//    tuple_types_typexpr'::= +('*' typexpr) tuple_types_typexpr' | epsilon
 //
-//    typexprB ::= typexprC typexprB'
-//    typexprB'::= ('->' typexpr) typexprB' | epsilon
+//    function_types_typexpr ::= tuple_types_typexpr function_types_typexpr'
+//    function_types_typexpr'::= ('->' typexpr) function_types_typexpr' | epsilon
 //
 //    typexpr ::=
-//        typexprB
-//        | typexprC
-//        | typexprD
-//        | typexprE
-//        | typexprF
-//        | typexprZ
+//        function_types_typexpr
+//        | tuple_types_typexpr
+//        | constructed_types_typexpr
+//        | aliased_types_typexpr
+//        | abbreviation_types_typexpr
+//        | non_rr_types_typexpr
 
-struct typexprB;
-struct typexprC;
-struct typexprD;
-struct typexprE;
-struct typexprF;
-struct typexprZ;
+struct function_types_typexpr;
+struct tuple_types_typexpr;
+struct constructed_types_typexpr;
+struct aliased_types_typexpr;
+struct abbreviation_types_typexpr;
+struct non_rr_types_typexpr;
 
 struct typexpr
     : tagged
       , boost::spirit::extended_variant<
-        boost::recursive_wrapper<typexprB>,
-        boost::recursive_wrapper<typexprC>,
-        boost::recursive_wrapper<typexprD>,
-        boost::recursive_wrapper<typexprE>,
-        boost::recursive_wrapper<typexprF>,
-        boost::recursive_wrapper<typexprZ>
+        boost::recursive_wrapper<function_types_typexpr>,
+        boost::recursive_wrapper<tuple_types_typexpr>,
+        boost::recursive_wrapper<constructed_types_typexpr>,
+        boost::recursive_wrapper<aliased_types_typexpr>,
+        boost::recursive_wrapper<abbreviation_types_typexpr>,
+        boost::recursive_wrapper<non_rr_types_typexpr>
     >
 {
     typexpr()
         : base_type() { }
 
-    typexpr(typexprB const &val)
+    typexpr(function_types_typexpr const &val)
         : base_type(val) { }
 
-    typexpr(typexprC const &val)
+    typexpr(tuple_types_typexpr const &val)
         : base_type(val) { }
 
-    typexpr(typexprD const &val)
+    typexpr(constructed_types_typexpr const &val)
         : base_type(val) { }
 
-    typexpr(typexprE const &val)
+    typexpr(aliased_types_typexpr const &val)
         : base_type(val) { }
 
-    typexpr(typexprF const &val)
+    typexpr(abbreviation_types_typexpr const &val)
         : base_type(val) { }
 
-    typexpr(typexprZ const &val)
+    typexpr(non_rr_types_typexpr const &val)
         : base_type(val) { }
 };
 
 typedef std::vector<typexpr> typexpr_list;
 
-struct typexprB_
-    : tagged
-{
-    typexprB_() { }
-
-    typexprB_(typexpr *expr_, typexprB_ *exprB__)
-        : expr(expr_), exprB_(exprB__) { }
-
-    std::shared_ptr<typexpr> expr;
-    std::shared_ptr<typexprB_> exprB_;
-};
-
-struct typexprB_func_label
+struct function_types_typexpr_label
     : tagged
       , boost::spirit::extended_variant<
           label_name,
           optlabel
       >
 {
-    typexprB_func_label()
+    function_types_typexpr_label()
         : base_type() { }
 
-    typexprB_func_label(label_name const& val)
+    function_types_typexpr_label(label_name const& val)
         : base_type(val) { }
 
-    typexprB_func_label(optlabel const& val)
+    function_types_typexpr_label(optlabel const& val)
         : base_type(val) { }
 };
 
-struct typexprB
+struct function_types_typexpr_rr
     : tagged
 {
-    typexprB() { }
+    function_types_typexpr_rr() { }
 
-    typexprB(boost::optional<typexprB_func_label> const& label, typexprC const& exprC,
-        typexprB_ const& exprB_)
-        : label(label), exprC(exprC), exprB_(exprB_) { }
+    function_types_typexpr_rr(typexpr *expr,
+        function_types_typexpr_rr *function_expr_rr)
+        : expr(expr), function_expr_rr(function_expr_rr)
+    { }
 
-    boost::optional<typexprB_func_label> label;
-    boost::recursive_wrapper<typexprC> exprC;
-    boost::recursive_wrapper<typexprB_> exprB_;
+    std::shared_ptr<typexpr> expr;
+    std::shared_ptr<function_types_typexpr_rr> function_expr_rr;
 };
 
-struct typexprC_
+struct function_types_typexpr
     : tagged
 {
-    typexprC_() { }
+    function_types_typexpr() { }
 
-    typexprC_(typexpr_list const& list, typexprC_ *exprC__)
-        : exprList(list), exprC_(exprC__) { }
+    function_types_typexpr(boost::optional<function_types_typexpr_label> const& label,
+        tuple_types_typexpr const& tuple_expr,
+        function_types_typexpr_rr const& function_expr_rr)
+        : label(label), tuple_expr(tuple_expr), function_expr_rr(function_expr_rr)
+    { }
+
+    boost::optional<function_types_typexpr_label> label;
+    boost::recursive_wrapper<tuple_types_typexpr> tuple_expr;
+    boost::recursive_wrapper<function_types_typexpr_rr> function_expr_rr;
+};
+
+struct tuple_types_typexpr_rr
+    : tagged
+{
+    tuple_types_typexpr_rr() { }
+
+    tuple_types_typexpr_rr(typexpr_list const& list,
+        tuple_types_typexpr_rr *tuple_expr_rr)
+        : exprList(list), tuple_expr_rr(tuple_expr_rr) { }
 
     typexpr_list exprList;
-    std::shared_ptr<typexprC_> exprC_;
+    std::shared_ptr<tuple_types_typexpr_rr> tuple_expr_rr;
 };
 
-struct typexprC
+struct tuple_types_typexpr
     : tagged
 {
-    typexprC() { }
+    tuple_types_typexpr() { }
 
-    typexprC(typexprD const& exprD_, typexprC_ const& exprC__)
-        : exprD(exprD_), exprC_(exprC__) { }
+    tuple_types_typexpr(constructed_types_typexpr const& constructed_expr,
+        tuple_types_typexpr_rr const& tuple_expr_rr)
+        : constructed_expr(constructed_expr), tuple_expr_rr(tuple_expr_rr) { }
 
-    boost::recursive_wrapper<typexprD> exprD;
-    boost::recursive_wrapper<typexprC_> exprC_;
+    boost::recursive_wrapper<constructed_types_typexpr> constructed_expr;
+    boost::recursive_wrapper<tuple_types_typexpr_rr> tuple_expr_rr;
 };
 
-struct typexprD_
+struct constructed_types_typexpr_rr
     : tagged
 {
-    typexprD_() { }
+    constructed_types_typexpr_rr() { }
 
-    typexprD_(typeconstr const& constr_, typexprD_ *exprD__)
-        : constr(constr_), exprD_(exprD__) { }
+    constructed_types_typexpr_rr(typeconstr const& constr,
+        constructed_types_typexpr_rr *constructed_expr_rr_)
+        : constr(constr), constructed_expr_rr(constructed_expr_rr_)
+    { }
 
     typeconstr constr;
-    std::shared_ptr<typexprD_> exprD_;
+    std::shared_ptr<constructed_types_typexpr_rr> constructed_expr_rr;
 };
 
-struct typexprD
+struct constructed_types_typexpr
     : tagged
 {
-    typexprD() { }
+    constructed_types_typexpr() { }
 
-    typexprD(typexprE const& exprE_, typexprD_ const& exprD__)
-        : exprE(exprE_), exprD_(exprD__) { }
+    constructed_types_typexpr(aliased_types_typexpr const& aliased_expr,
+        constructed_types_typexpr_rr const& constructed_expr_rr_)
+        : aliased_expr(aliased_expr), constructed_expr_rr(constructed_expr_rr_)
+    { }
 
-    boost::recursive_wrapper<typexprE> exprE;
-    boost::recursive_wrapper<typexprD_> exprD_;
+    boost::recursive_wrapper<aliased_types_typexpr> aliased_expr;
+    boost::recursive_wrapper<constructed_types_typexpr_rr> constructed_expr_rr;
 };
 
-struct typexprE_
+struct aliased_types_typexpr_rr
     : tagged
 {
-    typexprE_() { }
+    aliased_types_typexpr_rr() { }
 
-    typexprE_(ident const& ident__, typexprE_ *exprE__)
-        : ident_(ident__), exprE_(exprE__) { }
+    aliased_types_typexpr_rr(ident const& ident,
+        aliased_types_typexpr_rr *aliased_expr_rr)
+        : ident(ident), aliased_expr_rr(aliased_expr_rr)
+    { }
 
-    ident ident_;
-    std::shared_ptr<typexprE_> exprE_;
+    ident ident;
+    std::shared_ptr<aliased_types_typexpr_rr> aliased_expr_rr;
 };
 
-struct typexprE
+struct aliased_types_typexpr
     : tagged
 {
-    typexprE() { }
+    aliased_types_typexpr() { }
 
-    typexprE(typexprF const& exprF_, typexprE_ const& exprE_)
-        : exprF(exprF_), exprE_(exprE_) { }
+    aliased_types_typexpr(abbreviation_types_typexpr const& abbreviation_expr,
+        aliased_types_typexpr_rr const& aliased_expr_rr)
+        : abbreviation_expr(abbreviation_expr), aliased_expr_rr(aliased_expr_rr)
+    { }
 
-    boost::recursive_wrapper<typexprF> exprF;
-    boost::recursive_wrapper<typexprE_> exprE_;
+    boost::recursive_wrapper<abbreviation_types_typexpr> abbreviation_expr;
+    boost::recursive_wrapper<aliased_types_typexpr_rr> aliased_expr_rr;
 };
 
-struct typexprF_
+struct abbreviation_types_typexpr_rr
     : tagged
 {
-    typexprF_() { }
+    abbreviation_types_typexpr_rr() { }
 
-    typexprF_(class_path const& path_, typexprF_ *exprF__)
-        : path(path_), exprF_(exprF__) { }
+    abbreviation_types_typexpr_rr(class_path const& path,
+        abbreviation_types_typexpr_rr *abbreviation_expr_rr)
+        : path(path), abbreviation_expr_rr(abbreviation_expr_rr)
+    { }
 
     class_path path;
-    std::shared_ptr<typexprF_> exprF_;
+    std::shared_ptr<abbreviation_types_typexpr_rr> abbreviation_expr_rr;
 };
 
-struct typexprF
+struct abbreviation_types_typexpr
     : tagged
 {
-    typexprF() { }
+    abbreviation_types_typexpr() { }
 
-    typexprF(typexprZ const& exprZ_, typexprF_ const& exprF_)
-        : exprZ(exprZ_), exprF_(exprF_) { }
+    abbreviation_types_typexpr(non_rr_types_typexpr const& non_rr_expr,
+        abbreviation_types_typexpr_rr const& abbreviation_expr_rr)
+        : non_rr_expr(non_rr_expr), abbreviation_expr_rr(abbreviation_expr_rr)
+    { }
 
-    boost::recursive_wrapper<typexprZ> exprZ;
-    boost::recursive_wrapper<typexprF_> exprF_;
+    boost::recursive_wrapper<non_rr_types_typexpr> non_rr_expr;
+    boost::recursive_wrapper<abbreviation_types_typexpr_rr> abbreviation_expr_rr;
 };
 
 // _
-struct anon_type_variable
+struct anon_type_variable_typexpr
     : tagged
 {
     // FIXME: tokens are not needed
-    anon_type_variable(ocaml::lexer::Tokens tokenId = ocaml::lexer::Tokens::Unknown)
+    anon_type_variable_typexpr(ocaml::lexer::Tokens tokenId = ocaml::lexer::Tokens::Unknown)
         : var(tokenId) { }
 
     ocaml::lexer::Tokens var;
 };
 
-typedef std::vector<anon_type_variable> anon_type_variable_list;
+typedef std::vector<anon_type_variable_typexpr> anon_type_variable_typexpr_list;
 
 // '(' typexpr ')'
 struct parenthesized_typexpr
@@ -927,27 +945,27 @@ struct tag_spec_or
     tag_spec tag;
 };
 
-struct explicit_poly_typexpr
+struct explicit_polymorphic_typexpr
     : tagged
 {
     boost::optional<ident_list> identList;
     typexpr expr;
 };
 
-struct poly_typexpr
+struct polymorphic_typexpr
     : tagged
       , boost::spirit::extended_variant<
         typexpr,
-        explicit_poly_typexpr
+        explicit_polymorphic_typexpr
     >
 {
-    poly_typexpr()
+    polymorphic_typexpr()
         : base_type() { }
 
-    poly_typexpr(typexpr const &val)
+    polymorphic_typexpr(typexpr const &val)
         : base_type(val) { }
 
-    poly_typexpr(explicit_poly_typexpr const &val)
+    polymorphic_typexpr(explicit_polymorphic_typexpr const &val)
         : base_type(val) { }
 };
 
@@ -955,14 +973,15 @@ struct method_type
     : tagged
 {
     method_name name;
-    poly_typexpr expr;
+    polymorphic_typexpr expr;
 };
 
 // <[..]>
-struct object_typexpr_row
+struct object_row_typexpr
     : tagged
 {
-    object_typexpr_row(ocaml::lexer::Tokens ellipsis = ocaml::lexer::Tokens::Unknown)
+    object_row_typexpr(ocaml::lexer::Tokens ellipsis =
+        ocaml::lexer::Tokens::Unknown)
         : ellipsis(ellipsis) { }
 
     ocaml::lexer::Tokens ellipsis;
@@ -994,52 +1013,52 @@ struct octothorpe_list_typexpr
     class_path path;
 };
 
-struct typexprZ
+struct non_rr_types_typexpr
     : tagged
       , boost::spirit::extended_variant<
         ident,
-        anon_type_variable,
+        anon_type_variable_typexpr,
         parenthesized_typexpr,
         typeconstr,
         constructed_nary_typexpr,
         polymorphic_variant_type,
-        object_typexpr_row,
+        object_row_typexpr,
         object_typexpr,
         octothorpe_class_path_typexpr,
         octothorpe_list_typexpr
     >
 {
-    typexprZ()
+    non_rr_types_typexpr()
         : base_type() { }
 
-    typexprZ(ident const &val)
+    non_rr_types_typexpr(ident const &val)
         : base_type(val) { }
 
-    typexprZ(anon_type_variable const &val)
+    non_rr_types_typexpr(anon_type_variable_typexpr const &val)
         : base_type(val) { }
 
-    typexprZ(parenthesized_typexpr const &val)
+    non_rr_types_typexpr(parenthesized_typexpr const &val)
         : base_type(val) { }
 
-    typexprZ(typeconstr const &val)
+    non_rr_types_typexpr(typeconstr const &val)
         : base_type(val) { }
 
-    typexprZ(constructed_nary_typexpr const &val)
+    non_rr_types_typexpr(constructed_nary_typexpr const &val)
         : base_type(val) { }
 
-    typexprZ(polymorphic_variant_type const &val)
+    non_rr_types_typexpr(polymorphic_variant_type const &val)
         : base_type(val) { }
 
-    typexprZ(object_typexpr_row const &val)
+    non_rr_types_typexpr(object_row_typexpr const &val)
         : base_type(val) { }
 
-    typexprZ(object_typexpr const &val)
+    non_rr_types_typexpr(object_typexpr const &val)
         : base_type(val) { }
 
-    typexprZ(octothorpe_class_path_typexpr const &val)
+    non_rr_types_typexpr(octothorpe_class_path_typexpr const &val)
         : base_type(val) { }
 
-    typexprZ(octothorpe_list_typexpr const &val)
+    non_rr_types_typexpr(octothorpe_list_typexpr const &val)
         : base_type(val) { }
 };
 
@@ -2179,7 +2198,7 @@ struct field_decl
     : tagged
 {
     field_name name;
-    poly_typexpr type;
+    polymorphic_typexpr type;
 };
 
 struct constr_decl
@@ -2371,7 +2390,7 @@ struct class_field_spec_method
     : tagged
 {
     method_name name;
-    poly_typexpr type;
+    polymorphic_typexpr type;
 };
 
 struct class_field_spec_constraint
@@ -2504,7 +2523,7 @@ struct class_field_method_expr
     : tagged
 {
     method_name name;
-    poly_typexpr type;
+    polymorphic_typexpr type;
     expr expr_;
 };
 
@@ -2512,7 +2531,7 @@ struct class_field_method
     : tagged
 {
     method_name name;
-    poly_typexpr type;
+    polymorphic_typexpr type;
 };
 
 struct class_field_constraint
@@ -3489,7 +3508,7 @@ inline std::ostream& operator<<(std::ostream& out, classtype_path const& path)
 // Type expressions
 //
 
-inline std::ostream& operator<<(std::ostream& out, anon_type_variable const& expr)
+inline std::ostream& operator<<(std::ostream& out, anon_type_variable_typexpr const& expr)
 {
     out << expr.var;
     return out;
@@ -3510,7 +3529,7 @@ inline std::ostream& operator<<(std::ostream& out, constructed_nary_typexpr cons
     return out;
 }
 
-inline std::ostream& operator<<(std::ostream& out, object_typexpr_row const& expr)
+inline std::ostream& operator<<(std::ostream& out, object_row_typexpr const& expr)
 {
     out << expr.ellipsis;
     return out;
@@ -3541,13 +3560,13 @@ std::ostream& operator<<(std::ostream& out, polymorphic_variant_type const& type
 std::ostream& operator<<(std::ostream& out, typexpr const& expr);
 std::ostream& operator<<(std::ostream& out, typexpr_list const& list);
 
-inline std::ostream& operator<<(std::ostream& out, explicit_poly_typexpr const& expr)
+inline std::ostream& operator<<(std::ostream& out, explicit_polymorphic_typexpr const& expr)
 {
     out << expr.identList << expr.expr;
     return out;
 }
 
-inline std::ostream& operator<<(std::ostream& out, poly_typexpr const& expr)
+inline std::ostream& operator<<(std::ostream& out, polymorphic_typexpr const& expr)
 {
     boost::apply_visitor(debug_output_visitor(out), expr);
     return out;
@@ -3658,17 +3677,17 @@ inline std::ostream& operator<<(std::ostream& out, tag_spec_full_list const& lis
 }
 
 std::ostream& operator<<(std::ostream& out, std::shared_ptr<typexpr> const& expr);
-std::ostream& operator<<(std::ostream& out, typexprB_ const& expr);
+std::ostream& operator<<(std::ostream& out, function_types_typexpr_rr const& expr);
 
 inline std::ostream& operator<<(std::ostream& out,
-    boost::recursive_wrapper<typexprB_> const& expr)
+    boost::recursive_wrapper<function_types_typexpr_rr> const& expr)
 {
     out << expr.get();
     return out;
 }
 
 inline std::ostream& operator<<(std::ostream& out,
-    std::shared_ptr<typexprB_> const& expr)
+    std::shared_ptr<function_types_typexpr_rr> const& expr)
 {
     if (!expr)
         return out;
@@ -3677,39 +3696,39 @@ inline std::ostream& operator<<(std::ostream& out,
     return out;
 }
 
-inline std::ostream& operator<<(std::ostream& out, typexprB_ const& expr)
+inline std::ostream& operator<<(std::ostream& out, function_types_typexpr_rr const& expr)
 {
-    out << expr.expr << expr.exprB_;
+    out << expr.expr << expr.function_expr_rr;
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, typexprB const& expr);
+std::ostream& operator<<(std::ostream& out, function_types_typexpr const& expr);
 
 inline std::ostream& operator<<(std::ostream& out,
-    boost::recursive_wrapper<typexprB> const& expr)
+    boost::recursive_wrapper<function_types_typexpr> const& expr)
 {
     out << expr.get();
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, boost::recursive_wrapper<typexprC> const& expr);
+std::ostream& operator<<(std::ostream& out, boost::recursive_wrapper<tuple_types_typexpr> const& expr);
 
-inline std::ostream& operator<<(std::ostream& out, typexprB const& expr)
+inline std::ostream& operator<<(std::ostream& out, function_types_typexpr const& expr)
 {
-    out << expr.exprC << expr.exprB_;
+    out << expr.tuple_expr << expr.function_expr_rr;
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, typexprC_ const& expr);
+std::ostream& operator<<(std::ostream& out, tuple_types_typexpr_rr const& expr);
 
 inline std::ostream& operator<<(std::ostream& out,
-    boost::recursive_wrapper<typexprC_> const& expr)
+    boost::recursive_wrapper<tuple_types_typexpr_rr> const& expr)
 {
     out << expr.get();
     return out;
 }
 
-inline std::ostream& operator<<(std::ostream& out, std::shared_ptr<typexprC_> const& expr)
+inline std::ostream& operator<<(std::ostream& out, std::shared_ptr<tuple_types_typexpr_rr> const& expr)
 {
     if (!expr)
         return out;
@@ -3718,37 +3737,37 @@ inline std::ostream& operator<<(std::ostream& out, std::shared_ptr<typexprC_> co
     return out;
 }
 
-inline std::ostream& operator<<(std::ostream& out, typexprC_ const& expr)
+inline std::ostream& operator<<(std::ostream& out, tuple_types_typexpr_rr const& expr)
 {
-    out << expr.exprList << expr.exprC_;
+    out << expr.exprList << expr.tuple_expr_rr;
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, boost::recursive_wrapper<typexprD> const& expr);
+std::ostream& operator<<(std::ostream& out, boost::recursive_wrapper<constructed_types_typexpr> const& expr);
 
-inline std::ostream& operator<<(std::ostream& out, typexprC const& expr)
+inline std::ostream& operator<<(std::ostream& out, tuple_types_typexpr const& expr)
 {
-    out << expr.exprD << expr.exprC_;
+    out << expr.constructed_expr << expr.tuple_expr_rr;
     return out;
 }
 
 inline std::ostream& operator<<(std::ostream& out,
-    boost::recursive_wrapper<typexprC> const& expr)
+    boost::recursive_wrapper<tuple_types_typexpr> const& expr)
 {
     out << expr.get();
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, typexprD_ const& expr);
+std::ostream& operator<<(std::ostream& out, constructed_types_typexpr_rr const& expr);
 
 inline std::ostream& operator<<(std::ostream& out,
-    boost::recursive_wrapper<typexprD_> const& expr)
+    boost::recursive_wrapper<constructed_types_typexpr_rr> const& expr)
 {
     out << expr.get();
     return out;
 }
 
-inline std::ostream& operator<<(std::ostream& out, std::shared_ptr<typexprD_> const& expr)
+inline std::ostream& operator<<(std::ostream& out, std::shared_ptr<constructed_types_typexpr_rr> const& expr)
 {
     if (!expr)
         return out;
@@ -3757,39 +3776,39 @@ inline std::ostream& operator<<(std::ostream& out, std::shared_ptr<typexprD_> co
     return out;
 }
 
-inline std::ostream& operator<<(std::ostream& out, typexprD_ const& expr)
+inline std::ostream& operator<<(std::ostream& out, constructed_types_typexpr_rr const& expr)
 {
-    out << expr.constr << expr.exprD_;
+    out << expr.constr << expr.constructed_expr_rr;
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, typexprD const& expr);
+std::ostream& operator<<(std::ostream& out, constructed_types_typexpr const& expr);
 
 inline std::ostream& operator<<(std::ostream& out,
-    boost::recursive_wrapper<typexprD> const& expr)
+    boost::recursive_wrapper<constructed_types_typexpr> const& expr)
 {
     out << expr.get();
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, boost::recursive_wrapper<typexprE> const& expr);
+std::ostream& operator<<(std::ostream& out, boost::recursive_wrapper<aliased_types_typexpr> const& expr);
 
-inline std::ostream& operator<<(std::ostream& out, typexprD const& expr)
+inline std::ostream& operator<<(std::ostream& out, constructed_types_typexpr const& expr)
 {
-    out << expr.exprE << expr.exprD_;
+    out << expr.aliased_expr << expr.constructed_expr_rr;
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, typexprE_ const& expr);
+std::ostream& operator<<(std::ostream& out, aliased_types_typexpr_rr const& expr);
 
 inline std::ostream& operator<<(std::ostream& out,
-    boost::recursive_wrapper<typexprE_> const& expr)
+    boost::recursive_wrapper<aliased_types_typexpr_rr> const& expr)
 {
     out << expr.get();
     return out;
 }
 
-inline std::ostream& operator<<(std::ostream& out, std::shared_ptr<typexprE_> const& expr)
+inline std::ostream& operator<<(std::ostream& out, std::shared_ptr<aliased_types_typexpr_rr> const& expr)
 {
     if (!expr)
         return out;
@@ -3798,39 +3817,39 @@ inline std::ostream& operator<<(std::ostream& out, std::shared_ptr<typexprE_> co
     return out;
 }
 
-inline std::ostream& operator<<(std::ostream& out, typexprE_ const& expr)
+inline std::ostream& operator<<(std::ostream& out, aliased_types_typexpr_rr const& expr)
 {
-    out << expr.ident_ << expr.exprE_;
+    out << expr.ident << expr.aliased_expr_rr;
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, typexprE const& expr);
+std::ostream& operator<<(std::ostream& out, aliased_types_typexpr const& expr);
 
 inline std::ostream& operator<<(std::ostream& out,
-    boost::recursive_wrapper<typexprE> const& expr)
+    boost::recursive_wrapper<aliased_types_typexpr> const& expr)
 {
     out << expr.get();
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, boost::recursive_wrapper<typexprF> const& expr);
+std::ostream& operator<<(std::ostream& out, boost::recursive_wrapper<abbreviation_types_typexpr> const& expr);
 
-inline std::ostream& operator<<(std::ostream& out, typexprE const& expr)
+inline std::ostream& operator<<(std::ostream& out, aliased_types_typexpr const& expr)
 {
-    out << expr.exprF << expr.exprE_;
+    out << expr.abbreviation_expr << expr.aliased_expr_rr;
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, typexprF_ const& expr);
+std::ostream& operator<<(std::ostream& out, abbreviation_types_typexpr_rr const& expr);
 
 inline std::ostream& operator<<(std::ostream& out,
-    boost::recursive_wrapper<typexprF_> const& expr)
+    boost::recursive_wrapper<abbreviation_types_typexpr_rr> const& expr)
 {
     out << expr.get();
     return out;
 }
 
-inline std::ostream& operator<<(std::ostream& out, std::shared_ptr<typexprF_> const& expr)
+inline std::ostream& operator<<(std::ostream& out, std::shared_ptr<abbreviation_types_typexpr_rr> const& expr)
 {
     if (!expr)
         return out;
@@ -3839,37 +3858,37 @@ inline std::ostream& operator<<(std::ostream& out, std::shared_ptr<typexprF_> co
     return out;
 }
 
-inline std::ostream& operator<<(std::ostream& out, typexprF_ const& expr)
+inline std::ostream& operator<<(std::ostream& out, abbreviation_types_typexpr_rr const& expr)
 {
-    out << expr.path << expr.exprF_;
+    out << expr.path << expr.abbreviation_expr_rr;
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, typexprF const& expr);
+std::ostream& operator<<(std::ostream& out, abbreviation_types_typexpr const& expr);
 
 inline std::ostream& operator<<(std::ostream& out,
-    boost::recursive_wrapper<typexprF> const& expr)
+    boost::recursive_wrapper<abbreviation_types_typexpr> const& expr)
 {
     out << expr.get();
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, boost::recursive_wrapper<typexprZ> const& expr);
+std::ostream& operator<<(std::ostream& out, boost::recursive_wrapper<non_rr_types_typexpr> const& expr);
 
-inline std::ostream& operator<<(std::ostream& out, typexprF const& expr)
+inline std::ostream& operator<<(std::ostream& out, abbreviation_types_typexpr const& expr)
 {
-    out << expr.exprZ << expr.exprF_;
+    out << expr.non_rr_expr << expr.abbreviation_expr_rr;
     return out;
 }
 
 inline std::ostream& operator<<(std::ostream& out,
-    boost::recursive_wrapper<typexprZ> const& expr)
+    boost::recursive_wrapper<non_rr_types_typexpr> const& expr)
 {
     boost::apply_visitor(debug_output_visitor(out), expr.get());
     return out;
 }
 
-inline std::ostream& operator<<(std::ostream& out, typexprZ const& expr)
+inline std::ostream& operator<<(std::ostream& out, non_rr_types_typexpr const& expr)
 {
     boost::apply_visitor(debug_output_visitor(out), expr);
     return out;
@@ -4093,11 +4112,11 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
     ocaml::ast::method_type,
     (ocaml::ast::method_name, name)
-    (ocaml::ast::poly_typexpr, expr)
+    (ocaml::ast::polymorphic_typexpr, expr)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-    ocaml::ast::anon_type_variable,
+    ocaml::ast::anon_type_variable_typexpr,
     (ocaml::lexer::Tokens, var)
 )
 
@@ -4157,13 +4176,13 @@ BOOST_FUSION_ADAPT_STRUCT(
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-    ocaml::ast::explicit_poly_typexpr,
+    ocaml::ast::explicit_polymorphic_typexpr,
     (boost::optional<ocaml::ast::ident_list>, identList)
     (ocaml::ast::typexpr, expr)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-    ocaml::ast::object_typexpr_row,
+    ocaml::ast::object_row_typexpr,
     (ocaml::lexer::Tokens, ellipsis)
 )
 
@@ -4187,64 +4206,64 @@ BOOST_FUSION_ADAPT_STRUCT(
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-    ocaml::ast::typexprB_,
+    ocaml::ast::function_types_typexpr_rr,
     (std::shared_ptr<ocaml::ast::typexpr>, expr)
-    (std::shared_ptr<ocaml::ast::typexprB_>, exprB_)
+    (std::shared_ptr<ocaml::ast::function_types_typexpr_rr>, function_expr_rr)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-    ocaml::ast::typexprB,
-    (boost::optional<ocaml::ast::typexprB_func_label>, label)
-    (boost::recursive_wrapper<ocaml::ast::typexprC>, exprC)
-    (boost::recursive_wrapper<ocaml::ast::typexprB_>, exprB_)
+    ocaml::ast::function_types_typexpr,
+    (boost::optional<ocaml::ast::function_types_typexpr_label>, label)
+    (boost::recursive_wrapper<ocaml::ast::tuple_types_typexpr>, tuple_expr)
+    (boost::recursive_wrapper<ocaml::ast::function_types_typexpr_rr>, function_expr_rr)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-    ocaml::ast::typexprC_,
+    ocaml::ast::tuple_types_typexpr_rr,
     (ocaml::ast::typexpr_list, exprList)
-    (std::shared_ptr<ocaml::ast::typexprC_>, exprC_)
+    (std::shared_ptr<ocaml::ast::tuple_types_typexpr_rr>, tuple_expr_rr)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-    ocaml::ast::typexprC,
-    (boost::recursive_wrapper<ocaml::ast::typexprD>, exprD)
-    (boost::recursive_wrapper<ocaml::ast::typexprC_>, exprC_)
+    ocaml::ast::tuple_types_typexpr,
+    (boost::recursive_wrapper<ocaml::ast::constructed_types_typexpr>, constructed_expr)
+    (boost::recursive_wrapper<ocaml::ast::tuple_types_typexpr_rr>, tuple_expr_rr)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-    ocaml::ast::typexprD_,
+    ocaml::ast::constructed_types_typexpr_rr,
     (ocaml::ast::typeconstr, constr)
-    (std::shared_ptr<ocaml::ast::typexprD_>, exprD_)
+    (std::shared_ptr<ocaml::ast::constructed_types_typexpr_rr>, constructed_expr_rr)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-    ocaml::ast::typexprD,
-    (boost::recursive_wrapper<ocaml::ast::typexprE>, exprE)
-    (boost::recursive_wrapper<ocaml::ast::typexprD_>, exprD_)
+    ocaml::ast::constructed_types_typexpr,
+    (boost::recursive_wrapper<ocaml::ast::aliased_types_typexpr>, aliased_expr)
+    (boost::recursive_wrapper<ocaml::ast::constructed_types_typexpr_rr>, constructed_expr_rr)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-    ocaml::ast::typexprE_,
-    (ocaml::ast::ident, ident_)
-    (std::shared_ptr<ocaml::ast::typexprE_>, exprE_)
+    ocaml::ast::aliased_types_typexpr_rr,
+    (ocaml::ast::ident, ident)
+    (std::shared_ptr<ocaml::ast::aliased_types_typexpr_rr>, aliased_expr_rr)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-    ocaml::ast::typexprE,
-    (boost::recursive_wrapper<ocaml::ast::typexprF>, exprF)
-    (boost::recursive_wrapper<ocaml::ast::typexprE_>, exprE_)
+    ocaml::ast::aliased_types_typexpr,
+    (boost::recursive_wrapper<ocaml::ast::abbreviation_types_typexpr>, abbreviation_expr)
+    (boost::recursive_wrapper<ocaml::ast::aliased_types_typexpr_rr>, aliased_expr_rr)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-    ocaml::ast::typexprF_,
+    ocaml::ast::abbreviation_types_typexpr_rr,
     (ocaml::ast::class_path, path)
-    (std::shared_ptr<ocaml::ast::typexprF_>, exprF_)
+    (std::shared_ptr<ocaml::ast::abbreviation_types_typexpr_rr>, abbreviation_expr_rr)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-    ocaml::ast::typexprF,
-    (boost::recursive_wrapper<ocaml::ast::typexprZ>, exprZ)
-    (boost::recursive_wrapper<ocaml::ast::typexprF_>, exprF_)
+    ocaml::ast::abbreviation_types_typexpr,
+    (boost::recursive_wrapper<ocaml::ast::non_rr_types_typexpr>, non_rr_expr)
+    (boost::recursive_wrapper<ocaml::ast::abbreviation_types_typexpr_rr>, abbreviation_expr_rr)
 )
 
 namespace boost
