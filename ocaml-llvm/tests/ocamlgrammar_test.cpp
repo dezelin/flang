@@ -27,7 +27,7 @@
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
 
-//#define BOOST_SPIRIT_LEXERTL_DEBUG
+#define BOOST_SPIRIT_LEXERTL_DEBUG
 #define BOOST_SPIRIT_DEBUG
 
 #include "ocamlast.h"
@@ -224,7 +224,7 @@ BOOST_AUTO_TEST_CASE(GrammarTest_char_literal)
     std::string content = "'t'";
     bool r = parse_string(content, gGrammar.char_literal, char_literal);
     BOOST_CHECK(r);
-    BOOST_CHECK(char_literal.val == content[0]);
+    BOOST_CHECK(char_literal.lit == content);
 }
 
 BOOST_AUTO_TEST_CASE(GrammarTest_string_literal)
@@ -1556,6 +1556,68 @@ BOOST_AUTO_TEST_CASE(GrammarTest_typexpr_object_typexpr)
     typexpr = ast::typexpr();
     content = "<name1 : 'indent1 'ident2 . 'ident3 ; name2 : 'indent4 'ident5 . 'ident6 ; ..>";
     r = parse_string(content, gGrammar.typexpr, typexpr);
+    BOOST_CHECK(r);
+}
+
+//
+// Constants
+//
+
+BOOST_AUTO_TEST_CASE(GrammarTest_constant)
+{
+    ast::constant constant;
+    std::string content = "23";
+    bool r = parse_string(content, gGrammar.constant, constant);
+    BOOST_CHECK(r);
+
+    constant = ast::constant();
+    content = "1.23";
+    r = parse_string(content, gGrammar.constant, constant);
+    BOOST_CHECK(r);
+
+    constant = ast::constant();
+    content = "'t'";
+    r = parse_string(content, gGrammar.constant, constant);
+    BOOST_CHECK(r);
+
+    constant = ast::constant();
+    content = "\"test\"";
+    r = parse_string(content, gGrammar.constant, constant);
+    BOOST_CHECK(r);
+
+    constant = ast::constant();
+    content = "false";
+    r = parse_string(content, gGrammar.constant, constant);
+    BOOST_CHECK(r);
+
+    constant = ast::constant();
+    content = "true";
+    r = parse_string(content, gGrammar.constant, constant);
+    BOOST_CHECK(r);
+
+    constant = ast::constant();
+    content = "()";
+    r = parse_string(content, gGrammar.constant, constant);
+    BOOST_CHECK(r);
+
+    constant = ast::constant();
+    content = "begin end";
+    r = parse_string(content, gGrammar.constant, constant);
+    BOOST_CHECK(r);
+
+    constant = ast::constant();
+    content = "[]";
+    r = parse_string(content, gGrammar.constant, constant);
+    BOOST_CHECK(r);
+
+    constant = ast::constant();
+    content = "[||]";
+    r = parse_string(content, gGrammar.constant, constant);
+    BOOST_CHECK(r);
+
+    constant = ast::constant();
+    content = "`Tag";
+    r = parse_string(content, gGrammar.constant, constant);
     BOOST_CHECK(r);
 }
 

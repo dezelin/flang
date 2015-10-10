@@ -309,7 +309,7 @@ public:
         , lbracket("\\[", Tokens::LBracket)
         , lbracketlesser("\\[<", Tokens::LBracketLesser)
         , lbracketgreater("\\[>", Tokens::LBracketGreater)
-        , lbracketbar("\\[\\|", Tokens::LBracket)
+        , lbracketbar("\\[\\|", Tokens::LBracketBar)
         , rbracket("\\]", Tokens::RBracket)
         , underscore("_", Tokens::Underscore)
         , graveaccent("`", Tokens::GraveAccent)

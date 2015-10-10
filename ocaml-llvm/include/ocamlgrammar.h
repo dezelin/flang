@@ -553,6 +553,71 @@ struct OCamlGrammar : qi::grammar<Iterator>
         BOOST_SPIRIT_DEBUG_NODE(object_typexpr);
         BOOST_SPIRIT_DEBUG_NODE(octothorpe_class_path_typexpr);
         BOOST_SPIRIT_DEBUG_NODE(octothorpe_list_typexpr);
+
+        //
+        // Constants
+        //
+
+        constant %=
+            integer_literal
+            | float_literal
+            | char_literal
+            | string_literal
+            | constr
+            | const_false
+            | const_true
+            | const_unit
+            | const_empty_record
+            | const_empty_list
+            | const_empty_array
+            | const_tag
+            ;
+
+        const_false %=
+            qi::tokenid(ocaml::lexer::Tokens::False) >> qi::eps
+            ;
+
+        const_true %=
+            qi::tokenid(ocaml::lexer::Tokens::True) >> qi::eps
+            ;
+
+        const_unit %=
+            qi::tokenid(ocaml::lexer::Tokens::LBrace)
+                >> qi::tokenid(ocaml::lexer::Tokens::RBrace)
+                >> qi::eps
+            ;
+
+        const_empty_record %=
+            qi::tokenid(ocaml::lexer::Tokens::Begin)
+                >> qi::tokenid(ocaml::lexer::Tokens::End)
+                >> qi::eps
+            ;
+
+        const_empty_list %=
+            qi::tokenid(ocaml::lexer::Tokens::LBracket)
+                >> qi::tokenid(ocaml::lexer::Tokens::RBracket)
+                >> qi::eps
+            ;
+
+        const_empty_array %=
+            qi::tokenid(ocaml::lexer::Tokens::LBracketBar)
+                >> qi::tokenid(ocaml::lexer::Tokens::BarRBracket)
+                >> qi::eps
+            ;
+
+        const_tag =
+            qi::omit[tok.graveaccent] >> tag_name
+            [_val = _1]
+            ;
+
+        BOOST_SPIRIT_DEBUG_NODE(constant);
+        BOOST_SPIRIT_DEBUG_NODE(const_false);
+        BOOST_SPIRIT_DEBUG_NODE(const_true);
+        BOOST_SPIRIT_DEBUG_NODE(const_unit);
+        BOOST_SPIRIT_DEBUG_NODE(const_empty_record);
+        BOOST_SPIRIT_DEBUG_NODE(const_empty_list);
+        BOOST_SPIRIT_DEBUG_NODE(const_empty_array);
+        BOOST_SPIRIT_DEBUG_NODE(const_tag);
     }
 
     qi::rule<Iterator> start;
@@ -643,6 +708,19 @@ struct OCamlGrammar : qi::grammar<Iterator>
     qi::rule<Iterator, ocaml::ast::object_typexpr()> object_typexpr;
     qi::rule<Iterator, ocaml::ast::octothorpe_class_path_typexpr()> octothorpe_class_path_typexpr;
     qi::rule<Iterator, ocaml::ast::octothorpe_list_typexpr()> octothorpe_list_typexpr;
+
+    //
+    // Constants
+    //
+
+    qi::rule<Iterator, ocaml::ast::constant()> constant;
+    qi::rule<Iterator, ocaml::ast::const_false()> const_false;
+    qi::rule<Iterator, ocaml::ast::const_true()> const_true;
+    qi::rule<Iterator, ocaml::ast::const_unit()> const_unit;
+    qi::rule<Iterator, ocaml::ast::const_empty_record()> const_empty_record;
+    qi::rule<Iterator, ocaml::ast::const_empty_list()> const_empty_list;
+    qi::rule<Iterator, ocaml::ast::const_empty_array()> const_empty_array;
+    qi::rule<Iterator, ocaml::ast::tag_name()> const_tag;
 
 };
 

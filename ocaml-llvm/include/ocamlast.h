@@ -141,10 +141,10 @@ struct float_literal
 struct char_literal
     : tagged
 {
-    char_literal(char c = '\0')
-        : val(c) { }
+    char_literal(std::string const &lit = "")
+        : lit(lit) { }
 
-    char val;
+    std::string lit;
 };
 
 struct string_literal
@@ -3925,6 +3925,52 @@ inline std::ostream& operator<<(std::ostream& out, typexpr_list const& list)
     return out;
 }
 
+//
+// Constants
+//
+
+inline std::ostream& operator<<(std::ostream& out, const_false const& constant)
+{
+    out << constant.false_;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, const_true const& constant)
+{
+    out << constant.true_;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, const_unit const& constant)
+{
+    out << constant.opened << constant.closed;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, const_empty_record const& constant)
+{
+    out << constant.begin << constant.end;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, const_empty_list const& constant)
+{
+    out << constant.opened << constant.closed;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, const_empty_array const& constant)
+{
+    out << constant.opened << constant.closed;
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, constant const& constant)
+{
+    boost::apply_visitor(debug_output_visitor(out), constant);
+    return out;
+}
+
 } // namespace ast
 } // namespace ocaml
 
@@ -3978,7 +4024,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
     ocaml::ast::char_literal,
-    (char, val)
+    (std::string, lit)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -4264,6 +4310,44 @@ BOOST_FUSION_ADAPT_STRUCT(
     ocaml::ast::abbreviation_types_typexpr,
     (boost::recursive_wrapper<ocaml::ast::non_rr_types_typexpr>, non_rr_expr)
     (boost::recursive_wrapper<ocaml::ast::abbreviation_types_typexpr_rr>, abbreviation_expr_rr)
+)
+
+//
+// Constants
+//
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::const_false,
+    (ocaml::lexer::Tokens, false_)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::const_true,
+    (ocaml::lexer::Tokens, true_)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::const_unit,
+    (ocaml::lexer::Tokens, opened)
+    (ocaml::lexer::Tokens, closed)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::const_empty_record,
+    (ocaml::lexer::Tokens, begin)
+    (ocaml::lexer::Tokens, end)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::const_empty_list,
+    (ocaml::lexer::Tokens, opened)
+    (ocaml::lexer::Tokens, closed)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::const_empty_array,
+    (ocaml::lexer::Tokens, opened)
+    (ocaml::lexer::Tokens, closed)
 )
 
 namespace boost
