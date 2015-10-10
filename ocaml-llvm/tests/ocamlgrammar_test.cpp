@@ -28,7 +28,7 @@
 #define BOOST_TEST_DYN_LINK
 
 //#define BOOST_SPIRIT_LEXERTL_DEBUG
-//#define BOOST_SPIRIT_DEBUG
+#define BOOST_SPIRIT_DEBUG
 
 #include "ocamlast.h"
 #include "ocamllexer.h"

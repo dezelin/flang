@@ -10,10 +10,15 @@ link_directories(${Boost_LIBRARY_DIRS})
 include_directories(../include)
 
 if(NOT WIN32)
-# FIXME: Boost Spirit lex::lexertl::token gives this warning
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")
-# FIXME: Boost Spirit Karma gives this warning
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-local-typedefs")
+    # FIXME: Boost Spirit lex::lexertl::token gives this warning
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        # using regular Clang or AppleClang
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter")
+    else()
+        # FIXME: Boost Spirit Karma gives this warning with GCC
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-local-typedefs")
+    endif()
 endif()
 
 # Generate main() for tests
