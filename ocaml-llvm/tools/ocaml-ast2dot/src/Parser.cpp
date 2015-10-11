@@ -1,5 +1,3 @@
-//
-//  Copyright (c) 2015, Aleksandar Dezelin
 //  All rights reserved.
 //
 //  Redistribution and use in source and binary forms, with or without
@@ -23,47 +21,83 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef OPTIONS_H_
-#define OPTIONS_H_
+#include "Parser.h"
 
-#include <boost/program_options.hpp>
+#include <ocamlast.h>
+#include <ocamllexer.h>
+#include <ocamlgrammar.h>
 
-#include <memory>
+using namespace boost::spirit;
+using namespace ocaml;
+using namespace ocaml::lexer;
+using namespace ocaml::parser;
 
 namespace OCaml
 {
 
-namespace po = boost::program_options;
-
-class OptionsPriv;
-class Options
+class ParserPriv
 {
+    typedef std::string::const_iterator base_iterator_type;
+    typedef lex::lexertl::token<base_iterator_type> token_type_;
+    typedef lex::lexertl::actor_lexer<token_type_> lexer_type;
+    typedef lexer_type::iterator_type lexer_iterator_type;
+    typedef OCamlLexer<lexer_type> OCamlLexerType;
+    typedef OCamlGrammar<lexer_iterator_type> OCamlGrammarType;
+
 public:
-    static const std::string kInputFileOption;
-    static const std::string kOutputFileOption;
-
-    Options();
-    explicit Options(po::variables_map const& vm);
-    Options(Options const& other);
-    Options(Options &&other);
-    virtual ~Options();
-
-    Options& operator=(Options other);
-
-    void swap(Options& other);
-
-    std::string const& getInputFile() const;
-    std::string const& getOutputFile() const;
-
-    bool isStdInput() const;
-    bool isStdOutput() const;
-
-    void parseOptions(po::variables_map const& vm);
+    ParserPriv(Parser *q);
+    ParserPriv(ParserPriv const& other);
 
 private:
-    std::unique_ptr<OptionsPriv> _p;
+    Parser *_q;
+    OCamlLexerType _lexer;
+    OCamlGrammarType _grammar;
 };
 
-} /* namespace OCaml */
+Parser::Parser()
+    : _p(new ParserPriv(this))
+{
+}
 
-#endif /* OPTIONS_H_ */
+Parser::~Parser()
+{
+}
+
+Parser::Parser(const Parser& other)
+{
+    _p.reset(new ParserPriv(*(other._p)));
+}
+
+Parser::Parser(Parser&& other)
+    : Parser()
+{
+    std::swap(*this, other);
+}
+
+Parser& Parser::operator =(Parser other)
+{
+    std::swap(*this, other);
+    return *this;
+}
+
+void Parser::swap(Parser& other)
+{
+    std::swap(_p, other._p);
+}
+
+//
+// Private implementation
+//
+
+ParserPriv::ParserPriv(Parser *q)
+    : _q(q), _grammar(_lexer)
+{
+}
+
+ParserPriv::ParserPriv(ParserPriv const& other)
+    : _q(other._q), _grammar(_lexer)
+{
+    // _grammar and _lexer can't be copied
+}
+
+} /* namespace OCaml */

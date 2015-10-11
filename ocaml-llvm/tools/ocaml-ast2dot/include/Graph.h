@@ -23,47 +23,30 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef OPTIONS_H_
-#define OPTIONS_H_
-
-#include <boost/program_options.hpp>
+#ifndef GRAPH_H_
+#define GRAPH_H_
 
 #include <memory>
 
 namespace OCaml
 {
 
-namespace po = boost::program_options;
-
-class OptionsPriv;
-class Options
+class GraphPriv;
+class Graph
 {
 public:
-    static const std::string kInputFileOption;
-    static const std::string kOutputFileOption;
+    Graph();
+    Graph(Graph const& other);
+    Graph(Graph&& other);
+    virtual ~Graph();
 
-    Options();
-    explicit Options(po::variables_map const& vm);
-    Options(Options const& other);
-    Options(Options &&other);
-    virtual ~Options();
-
-    Options& operator=(Options other);
-
-    void swap(Options& other);
-
-    std::string const& getInputFile() const;
-    std::string const& getOutputFile() const;
-
-    bool isStdInput() const;
-    bool isStdOutput() const;
-
-    void parseOptions(po::variables_map const& vm);
+    Graph& operator =(Graph other);
+    void swap(Graph& other);
 
 private:
-    std::unique_ptr<OptionsPriv> _p;
+    std::unique_ptr<GraphPriv> _p;
 };
 
 } /* namespace OCaml */
 
-#endif /* OPTIONS_H_ */
+#endif /* GRAPH_H_ */

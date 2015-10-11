@@ -1,5 +1,3 @@
-//
-//  Copyright (c) 2015, Aleksandar Dezelin
 //  All rights reserved.
 //
 //  Redistribution and use in source and binary forms, with or without
@@ -23,47 +21,82 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef OPTIONS_H_
-#define OPTIONS_H_
-
-#include <boost/program_options.hpp>
-
-#include <memory>
+#include "Translator.h"
 
 namespace OCaml
 {
 
-namespace po = boost::program_options;
-
-class OptionsPriv;
-class Options
+class TranslatorPriv
 {
 public:
-    static const std::string kInputFileOption;
-    static const std::string kOutputFileOption;
-
-    Options();
-    explicit Options(po::variables_map const& vm);
-    Options(Options const& other);
-    Options(Options &&other);
-    virtual ~Options();
-
-    Options& operator=(Options other);
-
-    void swap(Options& other);
-
-    std::string const& getInputFile() const;
-    std::string const& getOutputFile() const;
-
-    bool isStdInput() const;
-    bool isStdOutput() const;
-
-    void parseOptions(po::variables_map const& vm);
+    explicit TranslatorPriv(Translator *q);
+    explicit TranslatorPriv(Translator *q, const Options& options);
+    TranslatorPriv(TranslatorPriv const& other);
 
 private:
-    std::unique_ptr<OptionsPriv> _p;
+    Translator *_q;
+    Options _options;
 };
 
-} /* namespace OCaml */
+Translator::Translator()
+    : _p(new TranslatorPriv(this))
+{
+}
 
-#endif /* OPTIONS_H_ */
+Translator::Translator(const Options& options)
+    : _p(new TranslatorPriv(this, options))
+{
+}
+
+Translator::~Translator()
+{
+}
+
+Translator::Translator(const Translator& other)
+{
+    _p.reset(new TranslatorPriv(*other._p));
+}
+
+Translator::Translator(Translator&& other)
+    : Translator()
+{
+    std::swap(*this, other);
+}
+
+Translator& Translator::operator =(Translator other)
+{
+    std::swap(*this, other);
+    return *this;
+}
+
+void Translator::swap(Translator& other)
+{
+    std::swap(_p, other._p);
+}
+
+int Translator::run()
+{
+    return 0;
+}
+
+//
+// Private implementation
+//
+
+TranslatorPriv::TranslatorPriv(Translator *q)
+    : _q(q)
+{
+}
+
+TranslatorPriv::TranslatorPriv(Translator *q, const Options& options)
+    : _q(q), _options(options)
+{
+}
+
+TranslatorPriv::TranslatorPriv(TranslatorPriv const& other)
+{
+    _q = other._q;
+    _options = other._options;
+}
+
+} /* namespace OCaml */

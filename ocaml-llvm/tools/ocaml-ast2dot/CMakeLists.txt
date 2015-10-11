@@ -27,11 +27,17 @@ endif()
 include_directories(include)
 
 set(HEADER_FILES
+    include/Graph.h
     include/Options.h
+    include/Parser.h
+    include/Translator.h
 )
 
 set(SOURCE_FILES
-    src/Options.cpp 
+    src/Graph.cpp
+    src/Options.cpp
+    src/Parser.cpp
+    src/Translator.cpp
     src/main.cpp
 )
 

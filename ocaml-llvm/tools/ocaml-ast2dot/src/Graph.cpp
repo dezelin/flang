@@ -23,47 +23,64 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef OPTIONS_H_
-#define OPTIONS_H_
-
-#include <boost/program_options.hpp>
-
-#include <memory>
+#include "Graph.h"
 
 namespace OCaml
 {
 
-namespace po = boost::program_options;
-
-class OptionsPriv;
-class Options
+class GraphPriv
 {
 public:
-    static const std::string kInputFileOption;
-    static const std::string kOutputFileOption;
-
-    Options();
-    explicit Options(po::variables_map const& vm);
-    Options(Options const& other);
-    Options(Options &&other);
-    virtual ~Options();
-
-    Options& operator=(Options other);
-
-    void swap(Options& other);
-
-    std::string const& getInputFile() const;
-    std::string const& getOutputFile() const;
-
-    bool isStdInput() const;
-    bool isStdOutput() const;
-
-    void parseOptions(po::variables_map const& vm);
+    GraphPriv(Graph *q);
+    GraphPriv(GraphPriv const& other);
 
 private:
-    std::unique_ptr<OptionsPriv> _p;
+    Graph *_q;
 };
 
-} /* namespace OCaml */
+Graph::Graph()
+    : _p(new GraphPriv(this))
+{
+}
 
-#endif /* OPTIONS_H_ */
+Graph::~Graph()
+{
+}
+
+Graph::Graph(const Graph& other)
+{
+    _p.reset(new GraphPriv(*other._p));
+}
+
+Graph::Graph(Graph&& other)
+    : Graph()
+{
+    std::swap(*this, other);
+}
+
+Graph& Graph::operator =(Graph other)
+{
+    std::swap(*this, other);
+    return *this;
+}
+
+void Graph::swap(Graph& other)
+{
+    std::swap(_p, other._p);
+}
+
+//
+// Private implementation
+//
+
+GraphPriv::GraphPriv(Graph *q)
+    : _q(q)
+{
+}
+
+GraphPriv::GraphPriv(GraphPriv const& other)
+{
+    _q = other._q;
+}
+
+} /* namespace OCaml */

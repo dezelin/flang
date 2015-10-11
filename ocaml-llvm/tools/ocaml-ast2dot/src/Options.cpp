@@ -25,9 +25,11 @@
 
 #include "Options.h"
 
+namespace OCaml
+{
+
 const std::string Options::kInputFileOption = "input-file";
 const std::string Options::kOutputFileOption = "output-file";
-
 
 class OptionsPriv
 {
@@ -40,6 +42,9 @@ public:
     std::string const& getInputFile() const;
     std::string const& getOutputFile() const;
 
+    bool isStdInput() const;
+    bool isStdOutput() const;
+
     void parseOptions(po::variables_map const& vm);
 
 private:
@@ -49,7 +54,7 @@ private:
 };
 
 Options::Options()
-: _p(new OptionsPriv(this))
+    : _p(new OptionsPriv(this))
 {
 }
 
@@ -94,6 +99,16 @@ std::string const& Options::getOutputFile() const
     return _p->getOutputFile();
 }
 
+bool Options::isStdInput() const
+{
+    return _p->isStdInput();
+}
+
+bool Options::isStdOutput() const
+{
+    return _p->isStdOutput();
+}
+
 void Options::parseOptions(po::variables_map const& vm)
 {
     _p->parseOptions(vm);
@@ -131,6 +146,17 @@ std::string const& OptionsPriv::getOutputFile() const
     return _outputFile;
 }
 
+bool OptionsPriv::isStdInput() const
+{
+    return _inputFile.empty();
+}
+
+bool OptionsPriv::isStdOutput() const
+{
+    return _outputFile.empty();
+}
+
+
 void OptionsPriv::parseOptions(po::variables_map const& vm)
 {
     if (vm.count(Options::kInputFileOption))
@@ -139,3 +165,5 @@ void OptionsPriv::parseOptions(po::variables_map const& vm)
     if (vm.count(Options::kOutputFileOption))
         _outputFile = vm[Options::kOutputFileOption].as<std::string>();
 }
+
+} /* namespace OCaml */

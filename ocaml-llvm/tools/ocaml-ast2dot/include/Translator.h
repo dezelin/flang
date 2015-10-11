@@ -1,5 +1,3 @@
-//
-//  Copyright (c) 2015, Aleksandar Dezelin
 //  All rights reserved.
 //
 //  Redistribution and use in source and binary forms, with or without
@@ -23,47 +21,36 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef OPTIONS_H_
-#define OPTIONS_H_
+#ifndef TRANSLATOR_H_
+#define TRANSLATOR_H_
 
-#include <boost/program_options.hpp>
+#include "Options.h"
 
 #include <memory>
 
 namespace OCaml
 {
 
-namespace po = boost::program_options;
-
-class OptionsPriv;
-class Options
+class TranslatorPriv;
+class Translator
 {
 public:
-    static const std::string kInputFileOption;
-    static const std::string kOutputFileOption;
+    Translator();
+    explicit Translator(Options const& options);
+    virtual ~Translator();
 
-    Options();
-    explicit Options(po::variables_map const& vm);
-    Options(Options const& other);
-    Options(Options &&other);
-    virtual ~Options();
+    Translator(Translator const& other);
+    Translator(Translator&& other);
+    Translator& operator =(Translator other);
 
-    Options& operator=(Options other);
+    void swap(Translator& other);
 
-    void swap(Options& other);
-
-    std::string const& getInputFile() const;
-    std::string const& getOutputFile() const;
-
-    bool isStdInput() const;
-    bool isStdOutput() const;
-
-    void parseOptions(po::variables_map const& vm);
+    int run();
 
 private:
-    std::unique_ptr<OptionsPriv> _p;
+    std::unique_ptr<TranslatorPriv> _p;
 };
 
 } /* namespace OCaml */
 
-#endif /* OPTIONS_H_ */
+#endif /* TRANSLATOR_H_ */

@@ -1,5 +1,3 @@
-//
-//  Copyright (c) 2015, Aleksandar Dezelin
 //  All rights reserved.
 //
 //  Redistribution and use in source and binary forms, with or without
@@ -23,47 +21,31 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef OPTIONS_H_
-#define OPTIONS_H_
-
-#include <boost/program_options.hpp>
+#ifndef PARSER_H_
+#define PARSER_H_
 
 #include <memory>
 
 namespace OCaml
 {
 
-namespace po = boost::program_options;
-
-class OptionsPriv;
-class Options
+class ParserPriv;
+class Parser
 {
 public:
-    static const std::string kInputFileOption;
-    static const std::string kOutputFileOption;
+    Parser();
+    Parser(Parser const& other);
+    Parser(Parser&& other);
+    virtual ~Parser();
 
-    Options();
-    explicit Options(po::variables_map const& vm);
-    Options(Options const& other);
-    Options(Options &&other);
-    virtual ~Options();
+    Parser& operator =(Parser other);
 
-    Options& operator=(Options other);
-
-    void swap(Options& other);
-
-    std::string const& getInputFile() const;
-    std::string const& getOutputFile() const;
-
-    bool isStdInput() const;
-    bool isStdOutput() const;
-
-    void parseOptions(po::variables_map const& vm);
+    void swap(Parser& other);
 
 private:
-    std::unique_ptr<OptionsPriv> _p;
+    std::unique_ptr<ParserPriv> _p;
 };
 
 } /* namespace OCaml */
 
-#endif /* OPTIONS_H_ */
+#endif /* PARSER_H_ */
