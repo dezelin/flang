@@ -731,10 +731,10 @@ struct aliased_types_typexpr_rr
 
     aliased_types_typexpr_rr(ident const& ident,
         aliased_types_typexpr_rr *aliased_expr_rr)
-        : ident(ident), aliased_expr_rr(aliased_expr_rr)
+        : _ident(ident), aliased_expr_rr(aliased_expr_rr)
     { }
 
-    ident ident;
+    ident _ident;
     std::shared_ptr<aliased_types_typexpr_rr> aliased_expr_rr;
 };
 
@@ -3819,7 +3819,7 @@ inline std::ostream& operator<<(std::ostream& out, std::shared_ptr<aliased_types
 
 inline std::ostream& operator<<(std::ostream& out, aliased_types_typexpr_rr const& expr)
 {
-    out << expr.ident << expr.aliased_expr_rr;
+    out << expr._ident << expr.aliased_expr_rr;
     return out;
 }
 
@@ -4290,7 +4290,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
     ocaml::ast::aliased_types_typexpr_rr,
-    (ocaml::ast::ident, ident)
+    (ocaml::ast::ident, _ident)
     (std::shared_ptr<ocaml::ast::aliased_types_typexpr_rr>, aliased_expr_rr)
 )
 

@@ -23,7 +23,59 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <ocamlast.h>
+#include <ocamllexer.h>
+#include <ocamlgrammar.h>
+
+#include <boost/program_options.hpp>
+
+#include <iostream>
+
+#include "Options.h"
+
+namespace po = boost::program_options;
+
 int main(int argc, char **argv)
 {
+    try {
+        po::options_description general("General options");
+        general.add_options()
+            ("help,h", "Help")
+            ("input-file,i", po::value<std::string>(), "Input file")
+            ("output-file,o", po::value<std::string>(), "Output Graphviz file")
+            ;
+
+        po::options_description all("Allowed options");
+        all.add(general);
+
+        po::positional_options_description p;
+        p.add(Options::kInputFileOption.c_str(), -1);
+
+        po::variables_map vm;
+        po::store(po::command_line_parser(argc, argv)
+            .options(all).positional(p).run(), vm);
+        po::notify(vm);
+
+        if (vm.count("help")) {
+            std::cout << "Usage: ocaml-ast2dot [options] file" << std::endl;
+            std::cout << all << std::endl;
+            std::cout << std::endl;
+            std::cout << "If no input file is given standard input will be used." << std::endl;
+            std::cout << "If no output file is given standard output will be used." << std::endl;
+            std::cout << std::endl;
+            return 0;
+        }
+
+        Options options(vm);
+    }
+    catch(std::exception &e) {
+        std::cerr << "error: " << e.what() << std::endl;
+        return 1;
+    }
+    catch(...) {
+        std::cerr << "Exception of unknown type" << std::endl;
+        return 1;
+    }
+
     return 0;
 }
