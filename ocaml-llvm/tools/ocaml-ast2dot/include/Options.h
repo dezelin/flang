@@ -41,6 +41,30 @@ class Options
 public:
     static const std::string kInputFileOption;
     static const std::string kOutputFileOption;
+    static const std::string kCapitalizedIdent;
+    static const std::string kLowercaseIdent;
+    static const std::string kIdent;
+    static const std::string kLabelName;
+    static const std::string kLabel;
+    static const std::string kOptLabel;
+    static const std::string kIntegerLiteral;
+    static const std::string kFloatLiteral;
+    static const std::string kCharLiteral;
+    static const std::string kStringLiteral;
+
+    enum class Rules : int {
+        Unknown = 0,
+        CapitalizedIdent,
+        LowercaseIdent,
+        Ident,
+        LabelName,
+        Label,
+        OptLabel,
+        IntegerLiteral,
+        FloatLiteral,
+        CharLiteral,
+        StringLiteral
+    };
 
     Options();
     explicit Options(po::variables_map const& vm);
@@ -57,6 +81,8 @@ public:
 
     bool isStdInput() const;
     bool isStdOutput() const;
+
+    Rules getSelectedRule() const;
 
     void parseOptions(po::variables_map const& vm);
 

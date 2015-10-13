@@ -42,8 +42,22 @@ int main(int argc, char **argv)
         ("output-file,o", po::value<std::string>(), "Output Graphviz file")
             ;
 
+        po::options_description lexical("Lexical rules");
+        lexical.add_options()
+        ("capitalized_ident", "capitalized_ident rule")
+        ("lowercase_ident", "lowercase_ident rule")
+        ("ident", "ident rule")
+        ("label_name", "label_name rule")
+        ("label", "label rule")
+        ("optlabel", "optlabel rule")
+        ("integer_literal", "integer_literal rule")
+        ("float_literal", "float_literal rule")
+        ("char_literal", "char_literal rule")
+        ("string_literal", "string_literal rule")
+            ;
+
         po::options_description all("Allowed options");
-        all.add(general);
+        all.add(general).add(lexical);
 
         po::positional_options_description p;
         p.add(OCaml::Options::kInputFileOption.c_str(), -1);
@@ -58,10 +72,13 @@ int main(int argc, char **argv)
             std::cout << all << std::endl;
             std::cout << std::endl;
             std::cout
-            << "If no input file is given standard input will be used."
+                << "If no input file is given standard input will be used."
                 << std::endl;
             std::cout
-            << "If no output file is given standard output will be used."
+                << "If no output file is given standard output will be used."
+                << std::endl << std::endl;
+            std::cout
+                << "Only one rule can be specified at the time."
                 << std::endl;
             std::cout << std::endl;
             return 0;

@@ -28,6 +28,7 @@ include_directories(include)
 
 set(HEADER_FILES
     include/Graph.h
+    include/GraphGenerator.h
     include/Options.h
     include/Parser.h
     include/Translator.h
@@ -35,6 +36,7 @@ set(HEADER_FILES
 
 set(SOURCE_FILES
     src/Graph.cpp
+    src/GraphGenerator.cpp
     src/Options.cpp
     src/Parser.cpp
     src/Translator.cpp

@@ -24,6 +24,8 @@
 #ifndef PARSER_H_
 #define PARSER_H_
 
+#include <ocamlast.h>
+
 #include <memory>
 
 namespace OCaml
@@ -41,6 +43,8 @@ public:
     Parser& operator =(Parser other);
 
     void swap(Parser& other);
+
+    bool parse(std::string const& content, ocaml::ast::capitalized_ident& ident);
 
 private:
     std::unique_ptr<ParserPriv> _p;

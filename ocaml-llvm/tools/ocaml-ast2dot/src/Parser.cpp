@@ -48,6 +48,14 @@ public:
     ParserPriv(Parser *q);
     ParserPriv(ParserPriv const& other);
 
+    bool parse(const std::string& content,
+        ocaml::ast::capitalized_ident& ident);
+
+private:
+    template<typename ParserExpr, typename Attribute>
+    bool parseString(std::string const& content,
+        ParserExpr const& expr, Attribute& attr);
+
 private:
     Parser *_q;
     OCamlLexerType _lexer;
@@ -71,18 +79,24 @@ Parser::Parser(const Parser& other)
 Parser::Parser(Parser&& other)
     : Parser()
 {
-    std::swap(*this, other);
+    swap(other);
 }
 
 Parser& Parser::operator =(Parser other)
 {
-    std::swap(*this, other);
+    swap(other);
     return *this;
 }
 
 void Parser::swap(Parser& other)
 {
     std::swap(_p, other._p);
+}
+
+bool Parser::parse(const std::string& content,
+    ocaml::ast::capitalized_ident& ident)
+{
+    return _p->parse(content, ident);
 }
 
 //
@@ -98,6 +112,27 @@ ParserPriv::ParserPriv(ParserPriv const& other)
     : _q(other._q), _grammar(_lexer)
 {
     // _grammar and _lexer can't be copied
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::capitalized_ident& ident)
+{
+    return parseString(content, _grammar.capitalized_ident, ident);
+}
+
+template<typename ParserExpr, typename Attribute>
+bool ParserPriv::parseString(std::string const& content,
+    ParserExpr const& expr, Attribute& attr)
+{
+    base_iterator_type first = content.begin();
+    base_iterator_type last = content.end();
+    lexer_iterator_type lfirst = _lexer.begin(first, last);
+    lexer_iterator_type llast = _lexer.end();
+    bool r = qi::parse(lfirst, llast, expr, attr);
+    if (lfirst != llast)
+        return false;
+
+    return r;
 }
 
 } /* namespace OCaml */

@@ -21,7 +21,14 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include "Graph.h"
+#include "GraphGenerator.h"
+#include "Parser.h"
 #include "Translator.h"
+
+#include <fstream>
+#include <functional>
+#include <iostream>
 
 namespace OCaml
 {
@@ -32,6 +39,25 @@ public:
     explicit TranslatorPriv(Translator *q);
     explicit TranslatorPriv(Translator *q, const Options& options);
     TranslatorPriv(TranslatorPriv const& other);
+
+    int run();
+
+private:
+    Options const& getOptions() const;
+    std::string readContent(std::istream& input);
+    void writeContent(std::ostream& output, std::string const& content);
+    int translate(std::istream& input, std::ostream& output);
+
+    static Graph* createCapitalizedIdentGraph(std::string const& content);
+    static Graph* createLowercaseIdentGraph(std::string const& content);
+    static Graph* createIdentGraph(std::string const& content);
+    static Graph* createLabelNameGraph(std::string const& content);
+    static Graph* createLabelGraph(std::string const& content);
+    static Graph* createOptLabelGraph(std::string const& content);
+    static Graph* createIntegerLiteralGraph(std::string const& content);
+    static Graph* createFloatLiteralGraph(std::string const& content);
+    static Graph* createCharLiteralGraph(std::string const& content);
+    static Graph* createStringLiteralGraph(std::string const& content);
 
 private:
     Translator *_q;
@@ -60,12 +86,12 @@ Translator::Translator(const Translator& other)
 Translator::Translator(Translator&& other)
     : Translator()
 {
-    std::swap(*this, other);
+    swap(other);
 }
 
 Translator& Translator::operator =(Translator other)
 {
-    std::swap(*this, other);
+    swap(other);
     return *this;
 }
 
@@ -76,7 +102,7 @@ void Translator::swap(Translator& other)
 
 int Translator::run()
 {
-    return 0;
+    return _p->run();
 }
 
 //
@@ -97,6 +123,174 @@ TranslatorPriv::TranslatorPriv(TranslatorPriv const& other)
 {
     _q = other._q;
     _options = other._options;
+}
+
+int TranslatorPriv::run()
+{
+    int ret = -1;
+    std::ifstream fileInput;
+    std::ofstream fileOutput;
+
+    try {
+        if (!_options.isStdInput()) {
+            fileInput.open(_options.getInputFile());
+            if (!fileInput.good()) {
+                std::cerr << "error: failed to open input file" << std::endl;
+                return -1;
+            }
+        }
+
+        if (!_options.isStdOutput()) {
+            fileOutput.open(_options.getOutputFile());
+            if (!fileOutput.good()) {
+                std::cerr << "error: failed to open output file" << std::endl;
+                return -1;
+            }
+        }
+
+        std::istream& input = _options.isStdInput() ? std::cin : fileInput;
+        std::ostream& output = _options.isStdOutput() ? std::cout : fileOutput;
+        ret = translate(input, output);
+    }
+    catch (std::exception& e) {
+        std::cerr << "error: " << e.what() << std::endl;
+    }
+    catch (...) {
+        std::cerr << "Exception of unknown type" << std::endl;
+    }
+
+    if (!_options.isStdInput())
+        fileInput.close();
+
+    if (!_options.isStdOutput())
+        fileOutput.close();
+
+    return ret;
+}
+
+Options const& TranslatorPriv::getOptions() const
+{
+    return _options;
+}
+
+std::string TranslatorPriv::readContent(std::istream& input)
+{
+    std::string ctx, line;
+    while (std::getline(input, line))
+        ctx += line + "\n";
+
+    return ctx;
+}
+
+void TranslatorPriv::writeContent(std::ostream& output,
+    std::string const& content)
+{
+    output << content;
+}
+
+int TranslatorPriv::translate(std::istream& input, std::ostream& output)
+{
+    typedef std::function<Graph*(std::string const&)> TranslatorType;
+    std::map<Options::Rules, TranslatorType> translatorMap =
+        {
+            //
+            // Map of grammar to graph translators
+            //
+            { Options::Rules::CapitalizedIdent,
+                TranslatorPriv::createCapitalizedIdentGraph },
+            { Options::Rules::LowercaseIdent,
+                TranslatorPriv::createLowercaseIdentGraph },
+            { Options::Rules::Ident,
+                TranslatorPriv::createIdentGraph },
+            { Options::Rules::LabelName,
+                TranslatorPriv::createLabelNameGraph },
+            { Options::Rules::Label,
+                TranslatorPriv::createLabelGraph },
+            { Options::Rules::OptLabel,
+                TranslatorPriv::createOptLabelGraph },
+            { Options::Rules::IntegerLiteral,
+                TranslatorPriv::createIntegerLiteralGraph },
+            { Options::Rules::FloatLiteral,
+                TranslatorPriv::createFloatLiteralGraph },
+            { Options::Rules::CharLiteral,
+                TranslatorPriv::createCharLiteralGraph },
+            { Options::Rules::StringLiteral,
+                TranslatorPriv::createStringLiteralGraph }
+        };
+
+    Options::Rules rule = _options.getSelectedRule();
+    if (translatorMap.find(rule) == translatorMap.end()) {
+        std::cerr << "error: Unknown rule selected" << std::endl;
+        return -1;
+    }
+
+    TranslatorType translator = translatorMap[rule];
+    std::string content = readContent(input);
+    std::unique_ptr<Graph> graph(translator(content));
+    if (graph)
+        writeContent(output, graph->toString());
+
+    return 0;
+}
+
+Graph* TranslatorPriv::createCapitalizedIdentGraph(std::string const& content)
+{
+    Parser parser;
+    ocaml::ast::capitalized_ident ident;
+    if (!parser.parse(content, ident))
+        return nullptr;
+
+    std::unique_ptr<Graph> graph(new Graph);
+    GraphGenerator generator(*graph);
+    if (!generator(ident))
+        return nullptr;
+
+    return graph.release();
+}
+
+Graph* TranslatorPriv::createLowercaseIdentGraph(std::string const& content)
+{
+    return nullptr;
+}
+
+Graph* TranslatorPriv::createIdentGraph(std::string const& content)
+{
+    return nullptr;
+}
+
+Graph* TranslatorPriv::createLabelNameGraph(std::string const& content)
+{
+    return nullptr;
+}
+
+Graph* TranslatorPriv::createLabelGraph(std::string const& content)
+{
+    return nullptr;
+}
+
+Graph* TranslatorPriv::createOptLabelGraph(std::string const& content)
+{
+    return nullptr;
+}
+
+Graph* TranslatorPriv::createIntegerLiteralGraph(std::string const& content)
+{
+    return nullptr;
+}
+
+Graph* TranslatorPriv::createFloatLiteralGraph(std::string const& content)
+{
+    return nullptr;
+}
+
+Graph* TranslatorPriv::createCharLiteralGraph(std::string const& content)
+{
+    return nullptr;
+}
+
+Graph* TranslatorPriv::createStringLiteralGraph(std::string const& content)
+{
+    return nullptr;
 }
 
 } /* namespace OCaml */

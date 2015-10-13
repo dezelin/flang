@@ -30,6 +30,16 @@ namespace OCaml
 
 const std::string Options::kInputFileOption = "input-file";
 const std::string Options::kOutputFileOption = "output-file";
+const std::string Options::kCapitalizedIdent = "capitalized_ident";
+const std::string Options::kLowercaseIdent = "lowercase_ident";
+const std::string Options::kIdent = "ident";
+const std::string Options::kLabelName = "label_name";
+const std::string Options::kLabel = "label";
+const std::string Options::kOptLabel = "optlabel";
+const std::string Options::kIntegerLiteral = "integer_literal";
+const std::string Options::kFloatLiteral = "float_literal";
+const std::string Options::kCharLiteral = "char_literal";
+const std::string Options::kStringLiteral = "string_literal";
 
 class OptionsPriv
 {
@@ -45,12 +55,16 @@ public:
     bool isStdInput() const;
     bool isStdOutput() const;
 
+    Options::Rules getSelectedRule() const;
+    void setSelectedRule(Options::Rules rule);
+
     void parseOptions(po::variables_map const& vm);
 
 private:
     Options *_q;
     std::string _inputFile;
     std::string _outputFile;
+    Options::Rules _selectedRule;
 };
 
 Options::Options()
@@ -71,7 +85,7 @@ Options::Options(Options const& other)
 Options::Options(Options&& other)
     : Options()
 {
-    std::swap(*this, other);
+    swap(other);
 }
 
 Options::~Options()
@@ -80,7 +94,7 @@ Options::~Options()
 
 Options& Options::operator =(Options other)
 {
-    std::swap(*this, other);
+    swap(other);
     return *this;
 }
 
@@ -109,6 +123,11 @@ bool Options::isStdOutput() const
     return _p->isStdOutput();
 }
 
+Options::Rules Options::getSelectedRule() const
+{
+    return _p->getSelectedRule();
+}
+
 void Options::parseOptions(po::variables_map const& vm)
 {
     _p->parseOptions(vm);
@@ -134,6 +153,7 @@ OptionsPriv::OptionsPriv(OptionsPriv const& other)
     _q = other._q;
     _inputFile = other._inputFile;
     _outputFile = other._outputFile;
+    _selectedRule = other._selectedRule;
 }
 
 std::string const& OptionsPriv::getInputFile() const
@@ -156,6 +176,15 @@ bool OptionsPriv::isStdOutput() const
     return _outputFile.empty();
 }
 
+Options::Rules OptionsPriv::getSelectedRule() const
+{
+    return _selectedRule;
+}
+
+void OptionsPriv::setSelectedRule(Options::Rules rule)
+{
+    _selectedRule = rule;
+}
 
 void OptionsPriv::parseOptions(po::variables_map const& vm)
 {
@@ -164,6 +193,30 @@ void OptionsPriv::parseOptions(po::variables_map const& vm)
 
     if (vm.count(Options::kOutputFileOption))
         _outputFile = vm[Options::kOutputFileOption].as<std::string>();
+
+    typedef std::pair<std::string, Options::Rules> RulePair;
+    RulePair rulePairs[] = {
+        //
+        // Lexical rules options
+        //
+        { Options::kCapitalizedIdent, Options::Rules::CapitalizedIdent },
+        { Options::kLowercaseIdent, Options::Rules::LowercaseIdent },
+        { Options::kIdent, Options::Rules::Ident },
+        { Options::kLabelName, Options::Rules::LabelName },
+        { Options::kLabel, Options::Rules::Label },
+        { Options::kOptLabel, Options::Rules::OptLabel },
+        { Options::kIntegerLiteral, Options::Rules::IntegerLiteral },
+        { Options::kFloatLiteral, Options::Rules::FloatLiteral },
+        { Options::kCharLiteral, Options::Rules::CharLiteral },
+        { Options::kStringLiteral, Options::Rules::StringLiteral }
+    };
+
+    for(RulePair pair : rulePairs) {
+        if (vm.count(pair.first)) {
+            setSelectedRule(pair.second);
+            return;
+        }
+    }
 }
 
 } /* namespace OCaml */

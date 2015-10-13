@@ -4350,17 +4350,20 @@ BOOST_FUSION_ADAPT_STRUCT(
     (ocaml::lexer::Tokens, closed)
 )
 
+#if defined(_MSC_VER)
 namespace boost
 {
 namespace spirit
 {
+
+// Visual Studio 2015 needs this
 
 // The hold[] directive uses swap() to implement the rollback / commit semantics 
 // for the attribute. For this reason the attribute type needs to to be usable with 
 // boost::swap(needs to either define a proper overload for 
 // swap(attribute_type&, attribute_type&) or expose a member function 
 // attribute_type::swap(attribute_type&).
-void swap(ocaml::ast::extended_module_name &a, ocaml::ast::extended_module_name &b)
+static void swap(ocaml::ast::extended_module_name &a, ocaml::ast::extended_module_name &b)
 {
 	boost::swap(a.name, b.name);
 	boost::swap(a.paths, b.paths);
@@ -4368,5 +4371,6 @@ void swap(ocaml::ast::extended_module_name &a, ocaml::ast::extended_module_name 
 
 } // namespace spirit
 } // namespace boost
+#endif // _MSC_VER
 
 #endif //FLANG_OCAMLAST_H

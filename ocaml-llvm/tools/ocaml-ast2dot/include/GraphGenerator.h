@@ -1,5 +1,3 @@
-//
-//  Copyright (c) 2015, Aleksandar Dezelin
 //  All rights reserved.
 //
 //  Redistribution and use in source and binary forms, with or without
@@ -23,76 +21,37 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef GRAPH_H_
-#define GRAPH_H_
+#ifndef GRAPHGENERATOR_H_
+#define GRAPHGENERATOR_H_
 
-#include <map>
+#include "Graph.h"
+
+#include <ocamlast.h>
+
 #include <memory>
-#include <sstream>
-#include <vector>
 
 namespace OCaml
 {
 
-class GraphPriv;
-class Graph
+class GraphGeneratorPriv;
+class GraphGenerator
 {
 public:
+    GraphGenerator();
+    GraphGenerator(Graph& graph);
+    GraphGenerator(GraphGenerator const& other);
+    GraphGenerator(GraphGenerator&& other);
+    virtual ~GraphGenerator();
 
-    class VertexPriv;
-    class Vertex
-    {
-    public:
-        typedef std::size_t VertexId;
-        typedef std::map<std::string, std::string> Properties;
+    GraphGenerator& operator =(GraphGenerator other);
+    void swap(GraphGenerator& other);
 
-    public:
-        Vertex();
-        Vertex(Vertex const& other);
-        Vertex(Vertex&& other);
-        virtual ~Vertex();
-
-        Vertex& operator =(Vertex other);
-        void swap(Vertex& other);
-
-        VertexId getId() const;
-
-        template<typename T, typename U>
-        void addProperty(T& name, U& value);
-
-        Properties const& getProperties() const;
-
-    private:
-        void createProperty(std::string const& name, std::string const& value);
-
-    private:
-        std::unique_ptr<VertexPriv> _p;
-    };
-
-    typedef std::vector<Vertex> VertexList;
-
-    typedef std::pair<Vertex::VertexId, Vertex::VertexId> Edge;
-    typedef std::vector<Edge> EdgeList;
-
-public:
-    Graph();
-    Graph(Graph const& other);
-    Graph(Graph&& other);
-    virtual ~Graph();
-
-    Graph& operator =(Graph other);
-    void swap(Graph& other);
-
-    std::string toString() const;
-
-    void addVertex(Vertex const& v, EdgeList const& edges);
+    bool operator()(ocaml::ast::capitalized_ident const& ident) const;
 
 private:
-    std::unique_ptr<GraphPriv> _p;
+    std::unique_ptr<GraphGeneratorPriv> _p;
 };
-
-#include "impl/Graph.inc"
 
 } /* namespace OCaml */
 
-#endif /* GRAPH_H_ */
+#endif /* GRAPHGENERATOR_H_ */

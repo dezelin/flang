@@ -23,76 +23,16 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef GRAPH_H_
-#define GRAPH_H_
-
-#include <map>
-#include <memory>
-#include <sstream>
-#include <vector>
-
-namespace OCaml
+template<typename T, typename U>
+void Graph::Vertex::addProperty(T& name, U& value)
 {
+    std::stringstream streamT;
+    streamT << name;
+    std::string contentT = streamT.str();
 
-class GraphPriv;
-class Graph
-{
-public:
+    std::stringstream streamU;
+    streamU << value;
+    std::string contentU = streamU.str();
 
-    class VertexPriv;
-    class Vertex
-    {
-    public:
-        typedef std::size_t VertexId;
-        typedef std::map<std::string, std::string> Properties;
-
-    public:
-        Vertex();
-        Vertex(Vertex const& other);
-        Vertex(Vertex&& other);
-        virtual ~Vertex();
-
-        Vertex& operator =(Vertex other);
-        void swap(Vertex& other);
-
-        VertexId getId() const;
-
-        template<typename T, typename U>
-        void addProperty(T& name, U& value);
-
-        Properties const& getProperties() const;
-
-    private:
-        void createProperty(std::string const& name, std::string const& value);
-
-    private:
-        std::unique_ptr<VertexPriv> _p;
-    };
-
-    typedef std::vector<Vertex> VertexList;
-
-    typedef std::pair<Vertex::VertexId, Vertex::VertexId> Edge;
-    typedef std::vector<Edge> EdgeList;
-
-public:
-    Graph();
-    Graph(Graph const& other);
-    Graph(Graph&& other);
-    virtual ~Graph();
-
-    Graph& operator =(Graph other);
-    void swap(Graph& other);
-
-    std::string toString() const;
-
-    void addVertex(Vertex const& v, EdgeList const& edges);
-
-private:
-    std::unique_ptr<GraphPriv> _p;
-};
-
-#include "impl/Graph.inc"
-
-} /* namespace OCaml */
-
-#endif /* GRAPH_H_ */
+    createProperty(contentT, contentU);
+}
