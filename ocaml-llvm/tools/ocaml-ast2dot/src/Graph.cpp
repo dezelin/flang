@@ -126,12 +126,22 @@ public:
     void operator()(std::ostream& out, const VertexId& id) const
     {
         Graph::Vertex vertex = _map.at(id);
-        out << "[shape=box]";
-        out << "[label=\"";
+        out << "[shape=none,margin=0,label=<";
+        out << "<table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"4\">";
+        out << "<tr><td bgcolor=\"lightblue\">"
+            << vertex.getProperties().at("type")
+            << "</td></tr>";
         for(auto prop : vertex.getProperties()) {
-            out << prop.first << "=" << prop.second << std::endl;
+            if (prop.first == "type")
+                continue;
+
+            out << "<tr><td align=\"left\">"
+                << prop.first
+                << ": "
+                << prop.second
+                << "</td></tr>";
         }
-        out << "\"]";
+        out << "</table>>]";
     }
 private:
     VertexMap _map;
