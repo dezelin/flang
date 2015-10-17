@@ -23,6 +23,8 @@
 
 #include "GraphGenerator.h"
 
+#include <string>
+
 namespace OCaml
 {
 
@@ -38,43 +40,115 @@ public:
     //
     // Lexical
     //
-    bool generate(ocaml::ast::capitalized_ident const& ident) const;
-    bool generate(ocaml::ast::lowercase_ident const& ident) const;
-    bool generate(ocaml::ast::ident const& ident) const;
-    bool generate(ocaml::ast::label_name const& name) const;
-    bool generate(ocaml::ast::label const& label) const;
-    bool generate(ocaml::ast::optlabel const& label) const;
-    bool generate(ocaml::ast::integer_literal const& integer_lit) const;
-    bool generate(ocaml::ast::float_literal const& float_lit) const;
-    bool generate(ocaml::ast::char_literal const& char_lit) const;
-    bool generate(ocaml::ast::string_literal const& string_lit) const;
+    bool generate(ocaml::ast::capitalized_ident const& ident,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::lowercase_ident const& ident,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::ident const& ident,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::label_name const& name,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::label const& label,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::optlabel const& label,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::integer_literal const& integer_lit,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::float_literal const& float_lit,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::char_literal const& char_lit,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::string_literal const& string_lit,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
 
     //
     // Names
     //
-    bool generate(ocaml::ast::value_name const& name) const;
-    bool generate(ocaml::ast::operator_name const& name) const;
-    bool generate(ocaml::ast::infix_op const& op) const;
-    bool generate(ocaml::ast::constr_name const& name) const;
-    bool generate(ocaml::ast::tag_name const& name) const;
-    bool generate(ocaml::ast::typeconstr_name const& name) const;
-    bool generate(ocaml::ast::field_name const& name) const;
-    bool generate(ocaml::ast::module_name const& name) const;
-    bool generate(ocaml::ast::modtype_name const& name) const;
-    bool generate(ocaml::ast::class_name const& name) const;
-    bool generate(ocaml::ast::inst_var_name const& name) const;
-    bool generate(ocaml::ast::method_name const& name) const;
-    bool generate(ocaml::ast::value_path const& path) const;
-    bool generate(ocaml::ast::constr const& constr) const;
-    bool generate(ocaml::ast::typeconstr const& constr) const;
-    bool generate(ocaml::ast::field const& field) const;
-    bool generate(ocaml::ast::modtype_path const& path) const;
-    bool generate(ocaml::ast::class_path const& path) const;
-    bool generate(ocaml::ast::classtype_path const& path) const;
-    bool generate(ocaml::ast::module_path const& path) const;
-    bool generate(ocaml::ast::extended_module_path const& path) const;
-    bool generate(ocaml::ast::extended_module_name const& name) const;
-
+    bool generate(ocaml::ast::value_name const& name,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::operator_name const& name,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::infix_op const& op,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::constr_name const& name,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::tag_name const& name,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::typeconstr_name const& name,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::field_name const& name,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::module_name const& name,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::module_name_list const& list,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::modtype_name const& name,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::class_name const& name,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::inst_var_name const& name,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::method_name const& name,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::value_path const& path,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::constr const& constr,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::typeconstr const& constr,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::field const& field,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::modtype_path const& path,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::class_path const& path,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::classtype_path const& path,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::module_path const& path,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::extended_module_path const& path,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::extended_module_path_list const& list,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::extended_module_name const& name,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::extended_module_name_list const& list,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
 
 private:
     GraphGenerator *_q;
@@ -217,6 +291,11 @@ bool GraphGenerator::operator()(ocaml::ast::module_name const& name) const
     return _p->generate(name);
 }
 
+bool GraphGenerator::operator()(ocaml::ast::module_name_list const& list) const
+    {
+    return _p->generate(list);
+}
+
 bool GraphGenerator::operator()(ocaml::ast::modtype_name const& name) const
     {
     return _p->generate(name);
@@ -284,9 +363,21 @@ bool GraphGenerator::operator()(
 }
 
 bool GraphGenerator::operator()(
+    ocaml::ast::extended_module_path_list const& list) const
+    {
+    return _p->generate(list);
+}
+
+bool GraphGenerator::operator()(
     ocaml::ast::extended_module_name const& name) const
     {
     return _p->generate(name);
+}
+
+bool GraphGenerator::operator()(
+    ocaml::ast::extended_module_name_list const& list) const
+    {
+    return _p->generate(list);
 }
 
 //
@@ -315,253 +406,596 @@ Graph* GraphGeneratorPriv::getGraph() const
 }
 
 bool GraphGeneratorPriv::generate(
-    ocaml::ast::capitalized_ident const& ident) const
+    ocaml::ast::capitalized_ident const& ident,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
     {
-    Graph::Vertex v;
+    Graph::Vertex v = Graph::Vertex::create();
     v.addProperty("type", "ocaml::ast::capitalized_ident");
     v.addProperty("name", ident.name);
 
     Graph::EdgeList edges;
-    edges.push_back(Graph::Edge(v.getId(), v.getId()));
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
 
     _graph->addVertex(v, edges);
     return true;
 }
 
 bool GraphGeneratorPriv::generate(
-    ocaml::ast::lowercase_ident const& ident) const
+    ocaml::ast::lowercase_ident const& ident,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
     {
-    Graph::Vertex v;
+    Graph::Vertex v = Graph::Vertex::create();
     v.addProperty("type", "ocaml::ast::lowercase_ident");
     v.addProperty("name", ident.name);
 
     Graph::EdgeList edges;
-    edges.push_back(Graph::Edge(v.getId(), v.getId()));
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
 
     _graph->addVertex(v, edges);
     return true;
 }
 
 bool GraphGeneratorPriv::generate(
-    ocaml::ast::ident const& ident) const
+    ocaml::ast::ident const& ident, Graph::VertexId parentId,
+    std::string const& parentEdgeName) const
     {
-    Graph::Vertex v;
+    Graph::Vertex v = Graph::Vertex::create();
     v.addProperty("type", "ocaml::ast::ident");
     v.addProperty("name", ident.name);
 
     Graph::EdgeList edges;
-    edges.push_back(Graph::Edge(v.getId(), v.getId()));
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
 
     _graph->addVertex(v, edges);
     return true;
 }
 
 bool GraphGeneratorPriv::generate(
-    ocaml::ast::label_name const& name) const
+    ocaml::ast::label_name const& name, Graph::VertexId parentId,
+    std::string const& parentEdgeName) const
     {
-    Graph::Vertex v;
+    Graph::Vertex v = Graph::Vertex::create();
     v.addProperty("type", "ocaml::ast::label_name");
     v.addProperty("name", name.name);
 
     Graph::EdgeList edges;
-    edges.push_back(Graph::Edge(v.getId(), v.getId()));
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
 
     _graph->addVertex(v, edges);
     return true;
 }
 
 bool GraphGeneratorPriv::generate(
-    ocaml::ast::label const& label) const
+    ocaml::ast::label const& label, Graph::VertexId parentId,
+    std::string const& parentEdgeName) const
     {
-    Graph::Vertex v;
+    Graph::Vertex v = Graph::Vertex::create();
     v.addProperty("type", "ocaml::ast::label");
     v.addProperty("name", label.name);
 
     Graph::EdgeList edges;
-    edges.push_back(Graph::Edge(v.getId(), v.getId()));
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
 
     _graph->addVertex(v, edges);
     return true;
 }
 
 bool GraphGeneratorPriv::generate(
-    ocaml::ast::optlabel const& label) const
+    ocaml::ast::optlabel const& label, Graph::VertexId parentId,
+    std::string const& parentEdgeName) const
     {
-    Graph::Vertex v;
+    Graph::Vertex v = Graph::Vertex::create();
     v.addProperty("type", "ocaml::ast::optlabel");
     v.addProperty("name", label.name);
 
     Graph::EdgeList edges;
-    edges.push_back(Graph::Edge(v.getId(), v.getId()));
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
 
     _graph->addVertex(v, edges);
     return true;
 }
 
 bool GraphGeneratorPriv::generate(
-    ocaml::ast::integer_literal const& integer_lit) const
+    ocaml::ast::integer_literal const& integer_lit,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
     {
-    Graph::Vertex v;
+    Graph::Vertex v = Graph::Vertex::create();
     v.addProperty("type", "ocaml::ast::integer_literal");
     v.addProperty("val", integer_lit.val);
 
     Graph::EdgeList edges;
-    edges.push_back(Graph::Edge(v.getId(), v.getId()));
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
 
     _graph->addVertex(v, edges);
     return true;
 }
 
 bool GraphGeneratorPriv::generate(
-    ocaml::ast::float_literal const& float_lit) const
+    ocaml::ast::float_literal const& float_lit,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
     {
-    Graph::Vertex v;
+    Graph::Vertex v = Graph::Vertex::create();
     v.addProperty("type", "ocaml::ast::float_literal");
     v.addProperty("val", float_lit.val);
 
     Graph::EdgeList edges;
-    edges.push_back(Graph::Edge(v.getId(), v.getId()));
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
 
     _graph->addVertex(v, edges);
     return true;
 }
 
 bool GraphGeneratorPriv::generate(
-    ocaml::ast::char_literal const& char_lit) const
+    ocaml::ast::char_literal const& char_lit,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
     {
-    Graph::Vertex v;
+    Graph::Vertex v = Graph::Vertex::create();
     v.addProperty("type", "ocaml::ast::char_literal");
     v.addProperty("val", char_lit.val);
 
     Graph::EdgeList edges;
-    edges.push_back(Graph::Edge(v.getId(), v.getId()));
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
 
     _graph->addVertex(v, edges);
     return true;
 }
 
 bool GraphGeneratorPriv::generate(
-    ocaml::ast::string_literal const& string_lit) const
+    ocaml::ast::string_literal const& string_lit,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
     {
-    Graph::Vertex v;
+    Graph::Vertex v = Graph::Vertex::create();
     v.addProperty("type", "ocaml::ast::string_literal");
     v.addProperty("val", string_lit.val);
 
     Graph::EdgeList edges;
-    edges.push_back(Graph::Edge(v.getId(), v.getId()));
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
 
     _graph->addVertex(v, edges);
     return true;
 }
 
-bool GraphGeneratorPriv::generate(ocaml::ast::value_name const& name) const
+struct VariantGeneratorVisitor: public boost::static_visitor<>
 {
-    return false;
+    VariantGeneratorVisitor(GraphGeneratorPriv const *gg,
+        Graph::VertexId parentId)
+        : _gg(gg), _parentId(parentId)
+    {
+    }
+
+    template<typename T>
+    void operator()(T & field) const
+        {
+        _gg->generate(field, _parentId);
+    }
+
+    GraphGeneratorPriv const *_gg;
+    Graph::VertexId _parentId;
+};
+
+bool GraphGeneratorPriv::generate(ocaml::ast::value_name const& name,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::value_name");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+    boost::apply_visitor(
+        VariantGeneratorVisitor(this, v.getId()), name);
+    return true;
 }
 
-bool GraphGeneratorPriv::generate(ocaml::ast::operator_name const& name) const
-{
-    return false;
+bool GraphGeneratorPriv::generate(ocaml::ast::operator_name const& name,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::operator_name");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+    boost::apply_visitor(
+        VariantGeneratorVisitor(this, v.getId()), name);
+    return true;
 }
 
-bool GraphGeneratorPriv::generate(ocaml::ast::infix_op const& op) const
-{
-    return false;
+bool GraphGeneratorPriv::generate(ocaml::ast::infix_op const& op,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::infix_op");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+    boost::apply_visitor(
+        VariantGeneratorVisitor(this, v.getId()), op);
+    return true;
 }
 
-bool GraphGeneratorPriv::generate(ocaml::ast::constr_name const& name) const
-{
-    return false;
+bool GraphGeneratorPriv::generate(ocaml::ast::constr_name const& name,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::constr_name");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+    return generate(name.name, v.getId(), "name");
 }
 
-bool GraphGeneratorPriv::generate(ocaml::ast::tag_name const& name) const
-{
-    return false;
+bool GraphGeneratorPriv::generate(ocaml::ast::tag_name const& name,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::tag_name");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+    return generate(name.name, v.getId(), "name");
 }
 
-bool GraphGeneratorPriv::generate(ocaml::ast::typeconstr_name const& name) const
-{
-    return false;
+bool GraphGeneratorPriv::generate(ocaml::ast::typeconstr_name const& name,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::typeconstr_name");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+    return generate(name.name, v.getId(), "name");
 }
 
-bool GraphGeneratorPriv::generate(ocaml::ast::field_name const& name) const
-{
-    return false;
+bool GraphGeneratorPriv::generate(ocaml::ast::field_name const& name,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::field_name");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+    return generate(name.name, v.getId(), "name");
 }
 
-bool GraphGeneratorPriv::generate(ocaml::ast::module_name const& name) const
-{
-    return false;
+bool GraphGeneratorPriv::generate(ocaml::ast::module_name const& name,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::module_name");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+    return generate(name.name, v.getId(), "name");
 }
 
-bool GraphGeneratorPriv::generate(ocaml::ast::modtype_name const& name) const
-{
-    return false;
+bool GraphGeneratorPriv::generate(ocaml::ast::module_name_list const& list,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::module_name_list");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+    int i = 0;
+    for (ocaml::ast::module_name const& module_name : list)
+        generate(module_name, v.getId(), std::to_string(i++));
+
+    return true;
 }
 
-bool GraphGeneratorPriv::generate(ocaml::ast::class_name const& name) const
-{
-    return false;
+bool GraphGeneratorPriv::generate(ocaml::ast::modtype_name const& name,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::modtype_name");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+    return generate(name.name, v.getId(), "name");
 }
 
-bool GraphGeneratorPriv::generate(ocaml::ast::inst_var_name const& name) const
-{
-    return false;
+bool GraphGeneratorPriv::generate(ocaml::ast::class_name const& name,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::class_name");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+    return generate(name.name, v.getId(), "name");
 }
 
-bool GraphGeneratorPriv::generate(ocaml::ast::method_name const& name) const
-{
-    return false;
+bool GraphGeneratorPriv::generate(ocaml::ast::inst_var_name const& name,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::inst_var_name");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+    return generate(name.name, v.getId(), "name");
 }
 
-bool GraphGeneratorPriv::generate(ocaml::ast::value_path const& path) const
-{
-    return false;
+bool GraphGeneratorPriv::generate(ocaml::ast::method_name const& name,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::method_name");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+    return generate(name.name, v.getId(), "name");
 }
 
-bool GraphGeneratorPriv::generate(ocaml::ast::constr const& constr) const
-{
-    return false;
+bool GraphGeneratorPriv::generate(ocaml::ast::value_path const& path,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::value_path");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+
+    if (path.path.is_initialized())
+        generate(path.path.get(), v.getId(), "path");
+
+    return generate(path.name, v.getId(), "name");
 }
 
-bool GraphGeneratorPriv::generate(ocaml::ast::typeconstr const& constr) const
-{
-    return false;
+bool GraphGeneratorPriv::generate(ocaml::ast::constr const& constr,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::constr");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+
+    if (constr.path.is_initialized())
+        generate(constr.path.get(), v.getId(), "path");
+
+    return generate(constr.name, v.getId(), "name");
 }
 
-bool GraphGeneratorPriv::generate(ocaml::ast::field const& field) const
-{
-    return false;
+bool GraphGeneratorPriv::generate(ocaml::ast::typeconstr const& constr,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::typeconstr");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+
+    if (constr.path.is_initialized())
+        generate(constr.path.get(), v.getId(), "path");
+
+    return generate(constr.name, v.getId(), "name");
 }
 
-bool GraphGeneratorPriv::generate(ocaml::ast::modtype_path const& path) const
-{
-    return false;
+bool GraphGeneratorPriv::generate(ocaml::ast::field const& field,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::field");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+
+    if (field.path.is_initialized())
+        generate(field.path.get(), v.getId(), "path");
+
+    return generate(field.name, v.getId(), "name");
 }
 
-bool GraphGeneratorPriv::generate(ocaml::ast::class_path const& path) const
-{
-    return false;
+bool GraphGeneratorPriv::generate(ocaml::ast::modtype_path const& path,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::modtype_path");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+
+    if (path.path.is_initialized())
+        generate(path.path.get(), v.getId(), "path");
+
+    return generate(path.name, v.getId(), "name");
 }
 
-bool GraphGeneratorPriv::generate(ocaml::ast::classtype_path const& path) const
-{
-    return false;
+bool GraphGeneratorPriv::generate(ocaml::ast::class_path const& path,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::class_path");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+
+    if (path.path.is_initialized())
+        generate(path.path.get(), v.getId(), "path");
+
+    return generate(path.name, v.getId(), "name");
 }
 
-bool GraphGeneratorPriv::generate(ocaml::ast::module_path const& path) const
-{
-    return false;
+bool GraphGeneratorPriv::generate(ocaml::ast::classtype_path const& path,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::classtype_path");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+
+    if (path.path.is_initialized())
+        generate(path.path.get(), v.getId(), "path");
+
+    return generate(path.name, v.getId(), "name");
 }
 
-bool GraphGeneratorPriv::generate(ocaml::ast::extended_module_path const& path) const
-{
-    return false;
+bool GraphGeneratorPriv::generate(ocaml::ast::module_path const& path,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::module_path");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+
+    generate(path.name, v.getId(), "name");
+    if (path.other.is_initialized())
+        generate(path.other.get(), v.getId(), "other");
+
+    return true;
 }
 
-bool GraphGeneratorPriv::generate(ocaml::ast::extended_module_name const& name) const
-{
-    return false;
+bool GraphGeneratorPriv::generate(
+    ocaml::ast::extended_module_path const& path,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::extended_module_path");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+
+    generate(path.name, v.getId(), "name");
+    if (path.other.is_initialized())
+        generate(path.other.get(), v.getId(), "other");
+
+    return true;
+}
+
+bool GraphGeneratorPriv::generate(
+    ocaml::ast::extended_module_path_list const& list,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::extended_module_path_list");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+    int i = 0;
+    for (ocaml::ast::extended_module_path const& path : list)
+        generate(path, v.getId(), std::to_string(i++));
+
+    return true;
+}
+
+bool GraphGeneratorPriv::generate(
+    ocaml::ast::extended_module_name const& name,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::extended_module_name");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+
+    generate(name.name, v.getId(), "name");
+    if (name.paths.is_initialized())
+        generate(name.paths.get(), v.getId(), "paths");
+
+    return true;
+}
+
+bool GraphGeneratorPriv::generate(
+    ocaml::ast::extended_module_name_list const& list,
+    Graph::VertexId parentId, std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::extended_module_name_list");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+    int i = 0;
+    for (ocaml::ast::extended_module_name const& name : list)
+        generate(name, v.getId(), std::to_string(i++));
+
+    return true;
 }
 
 } /* namespace OCaml */

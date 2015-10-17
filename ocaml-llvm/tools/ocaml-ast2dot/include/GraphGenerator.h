@@ -71,6 +71,7 @@ public:
     bool operator()(ocaml::ast::typeconstr_name const& name) const;
     bool operator()(ocaml::ast::field_name const& name) const;
     bool operator()(ocaml::ast::module_name const& name) const;
+    bool operator()(ocaml::ast::module_name_list const& list) const;
     bool operator()(ocaml::ast::modtype_name const& name) const;
     bool operator()(ocaml::ast::class_name const& name) const;
     bool operator()(ocaml::ast::inst_var_name const& name) const;
@@ -84,7 +85,9 @@ public:
     bool operator()(ocaml::ast::classtype_path const& path) const;
     bool operator()(ocaml::ast::module_path const& path) const;
     bool operator()(ocaml::ast::extended_module_path const& path) const;
+    bool operator()(ocaml::ast::extended_module_path_list const& list) const;
     bool operator()(ocaml::ast::extended_module_name const& name) const;
+    bool operator()(ocaml::ast::extended_module_name_list const& list) const;
 
 private:
     std::unique_ptr<GraphGeneratorPriv> _p;

@@ -38,19 +38,42 @@ class GraphPriv;
 class Graph
 {
 public:
+    typedef std::size_t VertexId;
+
+    class EdgePriv;
+    class Edge
+    {
+    public:
+        Edge(VertexId first = VertexId(), VertexId second = VertexId(),
+            std::string const& edgeName = "");
+        Edge(Edge const& other);
+        Edge(Edge&& other);
+        virtual ~Edge();
+
+        Edge& operator =(Edge other);
+        void swap(Edge& other);
+
+        VertexId getFirst() const;
+        VertexId getSecond() const;
+        std::string const& getName() const;
+
+    private:
+        std::unique_ptr<EdgePriv> _p;
+    };
 
     class VertexPriv;
     class Vertex
     {
     public:
-        typedef std::size_t VertexId;
         typedef std::map<std::string, std::string> Properties;
 
     public:
-        Vertex();
+        Vertex(VertexId id = VertexId());
         Vertex(Vertex const& other);
         Vertex(Vertex&& other);
         virtual ~Vertex();
+
+        static Vertex create();
 
         Vertex& operator =(Vertex other);
         void swap(Vertex& other);
@@ -69,10 +92,8 @@ public:
         std::unique_ptr<VertexPriv> _p;
     };
 
-    typedef std::vector<Vertex> VertexList;
-
-    typedef std::pair<Vertex::VertexId, Vertex::VertexId> Edge;
     typedef std::vector<Edge> EdgeList;
+    typedef std::vector<Vertex> VertexList;
 
 public:
     Graph();

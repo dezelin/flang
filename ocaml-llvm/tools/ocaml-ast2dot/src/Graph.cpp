@@ -41,12 +41,14 @@ public:
 
     void addVertex(Graph::Vertex const& v, Graph::EdgeList const& edges);
 
+    Graph::EdgeList const& getEdges() const;
+
     std::string toString() const;
 
 private:
     Graph *_q;
 
-    typedef std::map<Graph::Vertex::VertexId, Graph::Vertex> VertexMap;
+    typedef std::map<Graph::VertexId, Graph::Vertex> VertexMap;
     VertexMap _vertices;
     Graph::EdgeList _edges;
 };
@@ -114,24 +116,60 @@ void GraphPriv::addVertex(Graph::Vertex const& v, Graph::EdgeList const& edges)
     _edges.insert(_edges.end(), edges.begin(), edges.end());
 }
 
-template<class VertexMap>
-class VertexWriter
+Graph::EdgeList const& GraphPriv::getEdges() const
+{
+    return _edges;
+}
+
+class EdgeLabelWriter
 {
 public:
-    VertexWriter(VertexMap const& map)
+    EdgeLabelWriter(GraphPriv const *g)
+        : _g(g)
+    {
+    }
+
+    template<class Edge>
+    void operator()(std::ostream& out, Edge const& edge) const
+        {
+        for (Graph::Edge const& e : _g->getEdges()) {
+            if (e.getFirst() != edge.m_source || e.getSecond() != edge.m_target)
+                continue;
+
+            std::string name = e.getName();
+            if (!name.empty())
+                out << "[label=" << name << "]";
+        }
+    }
+
+private:
+    GraphPriv const *_g;
+};
+
+template<class VertexMap>
+class VertexLabelWriter
+{
+public:
+    VertexLabelWriter(VertexMap const& map)
         : _map(map)
     {
     }
     template<class VertexId>
-    void operator()(std::ostream& out, const VertexId& id) const
-    {
+    void operator()(std::ostream& out, VertexId const& id) const
+        {
+        if (_map.find(id) == _map.end()) {
+            out << "[shape=circle,label=\"Unknown vertex\"]";
+            return;
+        }
+
         Graph::Vertex vertex = _map.at(id);
         out << "[shape=none,margin=0,label=<";
-        out << "<table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"4\">";
+        out
+            << "<table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"4\">";
         out << "<tr><td bgcolor=\"lightblue\">"
             << vertex.getProperties().at("type")
             << "</td></tr>";
-        for(auto prop : vertex.getProperties()) {
+        for (auto prop : vertex.getProperties()) {
             if (prop.first == "type")
                 continue;
 
@@ -143,6 +181,7 @@ public:
         }
         out << "</table>>]";
     }
+
 private:
     VertexMap _map;
 };
@@ -154,11 +193,80 @@ std::string GraphPriv::toString() const
     std::stringstream ss;
     GraphType g(_edges.size());
     for (Graph::Edge const& edge : _edges) {
-        boost::add_edge(edge.first, edge.second, g);
+        boost::add_edge(edge.getFirst(), edge.getSecond(), g);
     }
 
-    boost::write_graphviz(ss, g, VertexWriter<VertexMap>(_vertices));
+    boost::write_graphviz(ss, g, VertexLabelWriter<VertexMap>(_vertices),
+        EdgeLabelWriter(this));
     return ss.str();
+}
+
+//
+// Edge implementation
+//
+
+class Graph::EdgePriv
+{
+public:
+    EdgePriv(Edge *q, Graph::VertexId first, Graph::VertexId second,
+        std::string const& edgeName);
+    EdgePriv(EdgePriv const& other);
+
+    Graph::VertexId getFirst() const;
+    Graph::VertexId getSecond() const;
+    std::string const& getName() const;
+
+private:
+    Edge *_q;
+    Graph::VertexId _first;
+    Graph::VertexId _second;
+    std::string _name;
+};
+
+Graph::Edge::Edge(VertexId first, VertexId second, std::string const& edgeName)
+    : _p(new EdgePriv(this, first, second, edgeName))
+{
+}
+
+Graph::Edge::Edge(Edge const& other)
+{
+    _p.reset(new EdgePriv(*other._p));
+}
+
+Graph::Edge::Edge(Edge&& other)
+    : Edge()
+{
+    swap(other);
+}
+
+Graph::Edge::~Edge()
+{
+}
+
+Graph::Edge& Graph::Edge::operator =(Edge other)
+{
+    swap(other);
+    return *this;
+}
+
+void Graph::Edge::swap(Edge& other)
+{
+    std::swap(_p, other._p);
+}
+
+Graph::VertexId Graph::Edge::getFirst() const
+{
+    return _p->getFirst();
+}
+
+Graph::VertexId Graph::Edge::getSecond() const
+{
+    return _p->getSecond();
+}
+
+std::string const& Graph::Edge::getName() const
+{
+    return _p->getName();
 }
 
 //
@@ -168,30 +276,27 @@ std::string GraphPriv::toString() const
 class Graph::VertexPriv
 {
 public:
-    VertexPriv(Vertex *q);
+    VertexPriv(Vertex *q, Graph::VertexId id);
     VertexPriv(VertexPriv const& other);
 
-    Graph::Vertex::VertexId getId() const;
+    Graph::VertexId getId() const;
 
     void addProperty(std::string const& name, std::string const& value);
 
     Graph::Vertex::Properties const& getProperties() const;
 
 private:
-    static Graph::Vertex::VertexId nextId();
-
-private:
     Vertex *_q;
-    Graph::Vertex::VertexId _id;
+    Graph::VertexId _id;
     std::map<std::string, std::string> _properties;
 };
 
-Graph::Vertex::Vertex()
-    : _p(new VertexPriv(this))
+Graph::Vertex::Vertex(VertexId id)
+    : _p(new VertexPriv(this, id))
 {
 }
 
-Graph::Vertex::Vertex(const Vertex& other)
+Graph::Vertex::Vertex(Vertex const& other)
 {
     _p.reset(new VertexPriv(*other._p));
 }
@@ -217,7 +322,13 @@ void Graph::Vertex::swap(Vertex& other)
     std::swap(_p, other._p);
 }
 
-Graph::Vertex::VertexId Graph::Vertex::getId() const
+Graph::Vertex Graph::Vertex::create()
+{
+    static Graph::VertexId id = 0;
+    return Vertex(id++);
+}
+
+Graph::VertexId Graph::Vertex::getId() const
 {
     return _p->getId();
 }
@@ -234,11 +345,44 @@ void Graph::Vertex::createProperty(std::string const& name,
 }
 
 //
-// Private implementation
+// Private Edge implementation
 //
 
-Graph::VertexPriv::VertexPriv(Vertex *q)
-    : _q(q), _id(nextId())
+Graph::EdgePriv::EdgePriv(Edge *q, Graph::VertexId first,
+    Graph::VertexId second, std::string const& edgeName)
+    : _q(q), _first(first), _second(second), _name(edgeName)
+{
+}
+
+Graph::EdgePriv::EdgePriv(EdgePriv const& other)
+{
+    _q = other._q;
+    _first = other._first;
+    _second = other._second;
+    _name = other._name;
+}
+
+Graph::VertexId Graph::EdgePriv::getFirst() const
+{
+    return _first;
+}
+
+Graph::VertexId Graph::EdgePriv::getSecond() const
+{
+    return _second;
+}
+
+std::string const& Graph::EdgePriv::getName() const
+{
+    return _name;
+}
+
+//
+// Private Vertex implementation
+//
+
+Graph::VertexPriv::VertexPriv(Vertex *q, Graph::VertexId id)
+    : _q(q), _id(id)
 {
 }
 
@@ -249,7 +393,7 @@ Graph::VertexPriv::VertexPriv(VertexPriv const& other)
     _properties = other._properties;
 }
 
-Graph::Vertex::VertexId Graph::VertexPriv::getId() const
+Graph::VertexId Graph::VertexPriv::getId() const
 {
     return _id;
 }
@@ -263,12 +407,6 @@ void Graph::VertexPriv::addProperty(std::string const& name,
     std::string const& value)
 {
     _properties.emplace(name, value);
-}
-
-Graph::Vertex::VertexId Graph::VertexPriv::nextId()
-{
-    static Graph::Vertex::VertexId id = 0;
-    return id++;
 }
 
 } /* namespace OCaml */
