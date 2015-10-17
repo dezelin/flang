@@ -86,7 +86,7 @@ int main(int argc, char **argv)
         all.add(general).add(lexical).add(names);
 
         po::positional_options_description p;
-        p.add(OCaml::Options::kInputFileOption.c_str(), -1);
+        p.add("input-file", -1);
 
         po::variables_map vm;
         po::store(po::command_line_parser(argc, argv)
@@ -98,13 +98,13 @@ int main(int argc, char **argv)
             std::cout << all << std::endl;
             std::cout << std::endl;
             std::cout
-            << "If no input file is given standard input will be used."
+                << "If no input file is given standard input will be used."
                 << std::endl;
             std::cout
-            << "If no output file is given standard output will be used."
+                << "If no output file is given standard output will be used."
                 << std::endl << std::endl;
             std::cout
-            << "Only one rule can be specified at the time."
+                << "Only one rule can be specified at the time."
                 << std::endl;
             std::cout << std::endl;
             return 0;

@@ -28,24 +28,11 @@
 namespace OCaml
 {
 
-const std::string Options::kInputFileOption = "input-file";
-const std::string Options::kOutputFileOption = "output-file";
-const std::string Options::kCapitalizedIdent = "capitalized_ident";
-const std::string Options::kLowercaseIdent = "lowercase_ident";
-const std::string Options::kIdent = "ident";
-const std::string Options::kLabelName = "label_name";
-const std::string Options::kLabel = "label";
-const std::string Options::kOptLabel = "optlabel";
-const std::string Options::kIntegerLiteral = "integer_literal";
-const std::string Options::kFloatLiteral = "float_literal";
-const std::string Options::kCharLiteral = "char_literal";
-const std::string Options::kStringLiteral = "string_literal";
-
 class OptionsPriv
 {
 public:
-    explicit OptionsPriv(Options *q);
-    explicit OptionsPriv(Options *q, po::variables_map const& vm);
+    explicit OptionsPriv(Options* q);
+    explicit OptionsPriv(Options* q, po::variables_map const& vm);
 
     OptionsPriv(OptionsPriv const& other);
 
@@ -61,7 +48,7 @@ public:
     void parseOptions(po::variables_map const& vm);
 
 private:
-    Options *_q;
+    Options* _q;
     std::string _inputFile;
     std::string _outputFile;
     Options::Rules _selectedRule;
@@ -92,7 +79,7 @@ Options::~Options()
 {
 }
 
-Options& Options::operator =(Options other)
+Options& Options::operator=(Options other)
 {
     swap(other);
     return *this;
@@ -137,12 +124,12 @@ void Options::parseOptions(po::variables_map const& vm)
 // Private implementation
 //
 
-OptionsPriv::OptionsPriv(Options *q)
+OptionsPriv::OptionsPriv(Options* q)
     : _q(q)
 {
 }
 
-OptionsPriv::OptionsPriv(Options *q, po::variables_map const& vm)
+OptionsPriv::OptionsPriv(Options* q, po::variables_map const& vm)
     : _q(q)
 {
     parseOptions(vm);
@@ -188,11 +175,11 @@ void OptionsPriv::setSelectedRule(Options::Rules rule)
 
 void OptionsPriv::parseOptions(po::variables_map const& vm)
 {
-    if (vm.count(Options::kInputFileOption))
-        _inputFile = vm[Options::kInputFileOption].as<std::string>();
+    if (vm.count("input-file"))
+        _inputFile = vm["input-file"].as<std::string>();
 
-    if (vm.count(Options::kOutputFileOption))
-        _outputFile = vm[Options::kOutputFileOption].as<std::string>();
+    if (vm.count("output-file"))
+        _outputFile = vm["output-file"].as<std::string>();
 
     typedef std::pair<std::string, Options::Rules> RulePair;
     RulePair rulePairs[] = {
@@ -233,10 +220,9 @@ void OptionsPriv::parseOptions(po::variables_map const& vm)
         { "classtype-path", Options::Rules::ClasstypePath },
         { "module-path", Options::Rules::ModulePath },
         { "extended-module-path", Options::Rules::ExtendedModulePath },
-        { "extended-module-name", Options::Rules::ExtendedModuleName }
-    };
+        { "extended-module-name", Options::Rules::ExtendedModuleName } };
 
-    for(RulePair pair : rulePairs) {
+    for (RulePair pair : rulePairs) {
         if (vm.count(pair.first)) {
             setSelectedRule(pair.second);
             return;
