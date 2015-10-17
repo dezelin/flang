@@ -89,6 +89,11 @@ public:
     bool operator()(ocaml::ast::extended_module_name const& name) const;
     bool operator()(ocaml::ast::extended_module_name_list const& list) const;
 
+    //
+    // Type expressions
+    //
+    bool operator()(ocaml::ast::typexpr const& expr) const;
+
 private:
     std::unique_ptr<GraphGeneratorPriv> _p;
 };

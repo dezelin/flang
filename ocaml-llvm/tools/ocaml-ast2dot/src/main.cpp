@@ -82,8 +82,13 @@ int main(int argc, char **argv)
         ("extended-module-name", "extended-module-name rule")
             ;
 
+        po::options_description types("Type expression rules");
+        types.add_options()
+        ("typexpr", "typexpr rule")
+            ;
+
         po::options_description all("Allowed options");
-        all.add(general).add(lexical).add(names);
+        all.add(general).add(lexical).add(names).add(types);
 
         po::positional_options_description p;
         p.add("input-file", -1);

@@ -220,7 +220,12 @@ void OptionsPriv::parseOptions(po::variables_map const& vm)
         { "classtype-path", Options::Rules::ClasstypePath },
         { "module-path", Options::Rules::ModulePath },
         { "extended-module-path", Options::Rules::ExtendedModulePath },
-        { "extended-module-name", Options::Rules::ExtendedModuleName } };
+        { "extended-module-name", Options::Rules::ExtendedModuleName },
+        //
+        // Type expression rules
+        //
+        { "typexpr", Options::Rules::Typexpr }
+    };
 
     for (RulePair pair : rulePairs) {
         if (vm.count(pair.first)) {

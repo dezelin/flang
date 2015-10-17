@@ -120,6 +120,12 @@ public:
     bool parse(const std::string& content,
         ocaml::ast::extended_module_name& name);
 
+    //
+    // Type expressions
+    //
+    bool parse(const std::string& content,
+        ocaml::ast::typexpr& expr);
+
 private:
     template<typename ParserExpr, typename Attribute>
     bool parseString(std::string const& content,
@@ -335,6 +341,11 @@ bool Parser::parse(std::string const& content,
     return _p->parse(content, name);
 }
 
+bool Parser::parse(std::string const& content, ocaml::ast::typexpr& expr)
+{
+    return _p->parse(content, expr);
+}
+
 //
 // Private implementation
 //
@@ -540,6 +551,12 @@ bool ParserPriv::parse(const std::string& content,
     ocaml::ast::extended_module_name& name)
 {
     return parseString(content, _grammar.extended_module_name, name);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::typexpr& expr)
+{
+    return parseString(content, _grammar.typexpr, expr);
 }
 
 template<typename ParserExpr, typename Attribute>

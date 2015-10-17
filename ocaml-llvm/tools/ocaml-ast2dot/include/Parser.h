@@ -90,6 +90,11 @@ public:
     bool parse(std::string const& content,
         ocaml::ast::extended_module_name& name);
 
+    //
+    // Type expressions
+    //
+    bool parse(std::string const& content, ocaml::ast::typexpr& expr);
+
 private:
     std::unique_ptr<ParserPriv> _p;
 };

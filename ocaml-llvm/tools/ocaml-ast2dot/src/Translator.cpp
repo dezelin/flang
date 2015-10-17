@@ -183,79 +183,84 @@ void TranslatorPriv::writeContent(std::ostream& output,
 int TranslatorPriv::translate(std::istream& input, std::ostream& output)
 {
     typedef std::function<Graph*(std::string const&)> TranslatorType;
-    std::map<Options::Rules, TranslatorType> translatorMap =
-        {
-            //
-            // Lexical rules translators
-            //
-            { Options::Rules::CapitalizedIdent,
-                TranslatorPriv::createGraph<ocaml::ast::capitalized_ident> },
-            { Options::Rules::LowercaseIdent,
-                TranslatorPriv::createGraph<ocaml::ast::lowercase_ident> },
-            { Options::Rules::Ident,
-                TranslatorPriv::createGraph<ocaml::ast::ident> },
-            { Options::Rules::LabelName,
-                TranslatorPriv::createGraph<ocaml::ast::label_name> },
-            { Options::Rules::Label,
-                TranslatorPriv::createGraph<ocaml::ast::label> },
-            { Options::Rules::OptLabel,
-                TranslatorPriv::createGraph<ocaml::ast::optlabel> },
-            { Options::Rules::IntegerLiteral,
-                TranslatorPriv::createGraph<ocaml::ast::integer_literal> },
-            { Options::Rules::FloatLiteral,
-                TranslatorPriv::createGraph<ocaml::ast::float_literal> },
-            { Options::Rules::CharLiteral,
-                TranslatorPriv::createGraph<ocaml::ast::char_literal> },
-            { Options::Rules::StringLiteral,
-                TranslatorPriv::createGraph<ocaml::ast::string_literal> },
-            //
-            // Names rule translators
-            //
-            { Options::Rules::ValueName,
-                TranslatorPriv::createGraph<ocaml::ast::value_name> },
-            { Options::Rules::OperatorName,
-                TranslatorPriv::createGraph<ocaml::ast::operator_name> },
-            { Options::Rules::InfixOp,
-                TranslatorPriv::createGraph<ocaml::ast::infix_op> },
-            { Options::Rules::ConstrName,
-                TranslatorPriv::createGraph<ocaml::ast::constr_name> },
-            { Options::Rules::TagName,
-                TranslatorPriv::createGraph<ocaml::ast::tag_name> },
-            { Options::Rules::TypeconstrName,
-                TranslatorPriv::createGraph<ocaml::ast::typeconstr_name> },
-            { Options::Rules::FieldName,
-                TranslatorPriv::createGraph<ocaml::ast::field_name> },
-            { Options::Rules::ModuleName,
-                TranslatorPriv::createGraph<ocaml::ast::module_name> },
-            { Options::Rules::ModtypeName,
-                TranslatorPriv::createGraph<ocaml::ast::modtype_name> },
-            { Options::Rules::ClassName,
-                TranslatorPriv::createGraph<ocaml::ast::class_name> },
-            { Options::Rules::InstVarName,
-                TranslatorPriv::createGraph<ocaml::ast::inst_var_name> },
-            { Options::Rules::MethodName,
-                TranslatorPriv::createGraph<ocaml::ast::method_name> },
-            { Options::Rules::ValuePath,
-                TranslatorPriv::createGraph<ocaml::ast::value_path> },
-            { Options::Rules::Constr,
-                TranslatorPriv::createGraph<ocaml::ast::constr> },
-            { Options::Rules::Typeconstr,
-                TranslatorPriv::createGraph<ocaml::ast::typeconstr> },
-            { Options::Rules::Field,
-                TranslatorPriv::createGraph<ocaml::ast::field> },
-            { Options::Rules::ModtypePath,
-                TranslatorPriv::createGraph<ocaml::ast::modtype_path> },
-            { Options::Rules::ClassPath,
-                TranslatorPriv::createGraph<ocaml::ast::class_path> },
-            { Options::Rules::ClasstypePath,
-                TranslatorPriv::createGraph<ocaml::ast::classtype_path> },
-            { Options::Rules::ModulePath,
-                TranslatorPriv::createGraph<ocaml::ast::module_path> },
-            { Options::Rules::ExtendedModulePath,
-                TranslatorPriv::createGraph<ocaml::ast::extended_module_path> },
-            { Options::Rules::ExtendedModuleName,
-                TranslatorPriv::createGraph<ocaml::ast::extended_module_name> }
-        }
+    std::map < Options::Rules, TranslatorType> translatorMap =
+    {
+        //
+        // Lexical rules translators
+        //
+        {   Options::Rules::CapitalizedIdent,
+            TranslatorPriv::createGraph<ocaml::ast::capitalized_ident>},
+        {   Options::Rules::LowercaseIdent,
+            TranslatorPriv::createGraph<ocaml::ast::lowercase_ident>},
+        {   Options::Rules::Ident,
+            TranslatorPriv::createGraph<ocaml::ast::ident>},
+        {   Options::Rules::LabelName,
+            TranslatorPriv::createGraph<ocaml::ast::label_name>},
+        {   Options::Rules::Label,
+            TranslatorPriv::createGraph<ocaml::ast::label>},
+        {   Options::Rules::OptLabel,
+            TranslatorPriv::createGraph<ocaml::ast::optlabel>},
+        {   Options::Rules::IntegerLiteral,
+            TranslatorPriv::createGraph<ocaml::ast::integer_literal>},
+        {   Options::Rules::FloatLiteral,
+            TranslatorPriv::createGraph<ocaml::ast::float_literal>},
+        {   Options::Rules::CharLiteral,
+            TranslatorPriv::createGraph<ocaml::ast::char_literal>},
+        {   Options::Rules::StringLiteral,
+            TranslatorPriv::createGraph<ocaml::ast::string_literal>},
+        //
+        // Names rule translators
+        //
+        {   Options::Rules::ValueName,
+            TranslatorPriv::createGraph<ocaml::ast::value_name>},
+        {   Options::Rules::OperatorName,
+            TranslatorPriv::createGraph<ocaml::ast::operator_name>},
+        {   Options::Rules::InfixOp,
+            TranslatorPriv::createGraph<ocaml::ast::infix_op>},
+        {   Options::Rules::ConstrName,
+            TranslatorPriv::createGraph<ocaml::ast::constr_name>},
+        {   Options::Rules::TagName,
+            TranslatorPriv::createGraph<ocaml::ast::tag_name>},
+        {   Options::Rules::TypeconstrName,
+            TranslatorPriv::createGraph<ocaml::ast::typeconstr_name>},
+        {   Options::Rules::FieldName,
+            TranslatorPriv::createGraph<ocaml::ast::field_name>},
+        {   Options::Rules::ModuleName,
+            TranslatorPriv::createGraph<ocaml::ast::module_name>},
+        {   Options::Rules::ModtypeName,
+            TranslatorPriv::createGraph<ocaml::ast::modtype_name>},
+        {   Options::Rules::ClassName,
+            TranslatorPriv::createGraph<ocaml::ast::class_name>},
+        {   Options::Rules::InstVarName,
+            TranslatorPriv::createGraph<ocaml::ast::inst_var_name>},
+        {   Options::Rules::MethodName,
+            TranslatorPriv::createGraph<ocaml::ast::method_name>},
+        {   Options::Rules::ValuePath,
+            TranslatorPriv::createGraph<ocaml::ast::value_path>},
+        {   Options::Rules::Constr,
+            TranslatorPriv::createGraph<ocaml::ast::constr>},
+        {   Options::Rules::Typeconstr,
+            TranslatorPriv::createGraph<ocaml::ast::typeconstr>},
+        {   Options::Rules::Field,
+            TranslatorPriv::createGraph<ocaml::ast::field>},
+        {   Options::Rules::ModtypePath,
+            TranslatorPriv::createGraph<ocaml::ast::modtype_path>},
+        {   Options::Rules::ClassPath,
+            TranslatorPriv::createGraph<ocaml::ast::class_path>},
+        {   Options::Rules::ClasstypePath,
+            TranslatorPriv::createGraph<ocaml::ast::classtype_path>},
+        {   Options::Rules::ModulePath,
+            TranslatorPriv::createGraph<ocaml::ast::module_path>},
+        {   Options::Rules::ExtendedModulePath,
+            TranslatorPriv::createGraph<ocaml::ast::extended_module_path>},
+        {   Options::Rules::ExtendedModuleName,
+            TranslatorPriv::createGraph<ocaml::ast::extended_module_name>},
+        //
+        // Type expression rules translators
+        //
+        {   Options::Rules::Typexpr,
+            TranslatorPriv::createGraph<ocaml::ast::typexpr>}
+    }
     ;
 
     Options::Rules rule = _options.getSelectedRule();
@@ -266,7 +271,7 @@ int TranslatorPriv::translate(std::istream& input, std::ostream& output)
 
     TranslatorType translator = translatorMap[rule];
     std::string content = readContent(input);
-    std::unique_ptr<Graph> graph(translator(content));
+    std::unique_ptr < Graph > graph(translator(content));
     if (graph)
         writeContent(output, graph->toString());
 
@@ -281,7 +286,7 @@ Graph* TranslatorPriv::createGraph(std::string const& content)
     if (!parser.parse(content, t))
         return nullptr;
 
-    std::unique_ptr<Graph> graph(new Graph);
+    std::unique_ptr < Graph > graph(new Graph);
     GraphGenerator generator(*graph);
     if (!generator(t))
         return nullptr;

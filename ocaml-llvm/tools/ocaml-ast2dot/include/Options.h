@@ -52,12 +52,13 @@ public:
     static const std::string kCharLiteral;
     static const std::string kStringLiteral;
 
-    enum class Rules : int {
-        Unknown = 0,
+    enum class Rules
+            : int {
+            Unknown = 0,
 
-        //
-        // Lexical
-        //
+            //
+            // Lexical
+            //
         CapitalizedIdent,
         LowercaseIdent,
         Ident,
@@ -93,7 +94,12 @@ public:
         ClasstypePath,
         ModulePath,
         ExtendedModulePath,
-        ExtendedModuleName
+        ExtendedModuleName,
+
+        //
+        // Type expressions
+        //
+        Typexpr
     };
 
     Options();
