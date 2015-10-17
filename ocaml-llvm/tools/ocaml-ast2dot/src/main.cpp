@@ -44,20 +44,46 @@ int main(int argc, char **argv)
 
         po::options_description lexical("Lexical rules");
         lexical.add_options()
-        ("capitalized_ident", "capitalized_ident rule")
-        ("lowercase_ident", "lowercase_ident rule")
+        ("capitalized-ident", "capitalized-ident rule")
+        ("lowercase-ident", "lowercase-ident rule")
         ("ident", "ident rule")
-        ("label_name", "label_name rule")
+        ("label-name", "label-name rule")
         ("label", "label rule")
         ("optlabel", "optlabel rule")
-        ("integer_literal", "integer_literal rule")
-        ("float_literal", "float_literal rule")
-        ("char_literal", "char_literal rule")
-        ("string_literal", "string_literal rule")
+        ("integer-literal", "integer-literal rule")
+        ("float-literal", "float-literal rule")
+        ("char-literal", "char-literal rule")
+        ("string-literal", "string-literal rule")
+            ;
+
+        po::options_description names("Names rules");
+        names.add_options()
+        ("value-name", "value-name rule")
+        ("operator-name", "operator-name rule")
+        ("infix-op", "infix-op rule")
+        ("constr-name", "constr-name rule")
+        ("tag-name", "tag-name rule")
+        ("typeconstr-name", "typeconstr-name rule")
+        ("field-name", "field-name rule")
+        ("module-name", "module-name rule")
+        ("modtype-name", "modtype-name rule")
+        ("class-name", "class-name rule")
+        ("inst-var-name", "inst-var-name rule")
+        ("method-name", "method-name rule")
+        ("value-path", "value-path rule")
+        ("constr", "constr rule")
+        ("typeconstr", "typeconstr rule")
+        ("field", "field rule")
+        ("modtype-path", "modtype-path rule")
+        ("class-path", "class-path rule")
+        ("classtype-path", "classtype-path rule")
+        ("module-path", "module-path rule")
+        ("extended-module-path", "extended-module-path rule")
+        ("extended-module-name", "extended-module-name rule")
             ;
 
         po::options_description all("Allowed options");
-        all.add(general).add(lexical);
+        all.add(general).add(lexical).add(names);
 
         po::positional_options_description p;
         p.add(OCaml::Options::kInputFileOption.c_str(), -1);
@@ -72,13 +98,13 @@ int main(int argc, char **argv)
             std::cout << all << std::endl;
             std::cout << std::endl;
             std::cout
-                << "If no input file is given standard input will be used."
+            << "If no input file is given standard input will be used."
                 << std::endl;
             std::cout
-                << "If no output file is given standard output will be used."
+            << "If no output file is given standard output will be used."
                 << std::endl << std::endl;
             std::cout
-                << "Only one rule can be specified at the time."
+            << "Only one rule can be specified at the time."
                 << std::endl;
             std::cout << std::endl;
             return 0;

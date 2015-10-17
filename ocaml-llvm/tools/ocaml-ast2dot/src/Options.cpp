@@ -199,16 +199,41 @@ void OptionsPriv::parseOptions(po::variables_map const& vm)
         //
         // Lexical rules options
         //
-        { Options::kCapitalizedIdent, Options::Rules::CapitalizedIdent },
-        { Options::kLowercaseIdent, Options::Rules::LowercaseIdent },
-        { Options::kIdent, Options::Rules::Ident },
-        { Options::kLabelName, Options::Rules::LabelName },
-        { Options::kLabel, Options::Rules::Label },
-        { Options::kOptLabel, Options::Rules::OptLabel },
-        { Options::kIntegerLiteral, Options::Rules::IntegerLiteral },
-        { Options::kFloatLiteral, Options::Rules::FloatLiteral },
-        { Options::kCharLiteral, Options::Rules::CharLiteral },
-        { Options::kStringLiteral, Options::Rules::StringLiteral }
+        { "capitalized-ident", Options::Rules::CapitalizedIdent },
+        { "lowercase-ident", Options::Rules::LowercaseIdent },
+        { "ident", Options::Rules::Ident },
+        { "label-name", Options::Rules::LabelName },
+        { "label", Options::Rules::Label },
+        { "optlabel", Options::Rules::OptLabel },
+        { "integer-literal", Options::Rules::IntegerLiteral },
+        { "float-literal", Options::Rules::FloatLiteral },
+        { "char-literal", Options::Rules::CharLiteral },
+        { "string-literal", Options::Rules::StringLiteral },
+        //
+        // Names rules options
+        //
+        { "value-name", Options::Rules::ValueName },
+        { "operator-name", Options::Rules::OperatorName },
+        { "infix-op", Options::Rules::InfixOp },
+        { "constr-name", Options::Rules::ConstrName },
+        { "tag-name", Options::Rules::TagName },
+        { "typeconstr-name", Options::Rules::TypeconstrName },
+        { "field-name", Options::Rules::FieldName },
+        { "module-name", Options::Rules::ModuleName },
+        { "modtype-name", Options::Rules::ModtypeName },
+        { "class-name", Options::Rules::ClassName },
+        { "inst-var-name", Options::Rules::InstVarName },
+        { "method-name", Options::Rules::MethodName },
+        { "value-path", Options::Rules::ValuePath },
+        { "constr", Options::Rules::Constr },
+        { "typeconstr", Options::Rules::Typeconstr },
+        { "field", Options::Rules::Field },
+        { "modtype-path", Options::Rules::ModtypePath },
+        { "class-path", Options::Rules::ClassPath },
+        { "classtype-path", Options::Rules::ClasstypePath },
+        { "module-path", Options::Rules::ModulePath },
+        { "extended-module-path", Options::Rules::ExtendedModulePath },
+        { "extended-module-name", Options::Rules::ExtendedModuleName }
     };
 
     for(RulePair pair : rulePairs) {

@@ -48,6 +48,9 @@ public:
     ParserPriv(Parser *q);
     ParserPriv(ParserPriv const& other);
 
+    //
+    // Lexical rules
+    //
     bool parse(const std::string& content,
         ocaml::ast::capitalized_ident& ident);
     bool parse(const std::string& content,
@@ -68,6 +71,54 @@ public:
         ocaml::ast::char_literal& char_lit);
     bool parse(const std::string& content,
         ocaml::ast::string_literal& string_lit);
+
+    //
+    // Names rules
+    //
+    bool parse(const std::string& content,
+        ocaml::ast::value_name& name);
+    bool parse(const std::string& content,
+        ocaml::ast::operator_name& name);
+    bool parse(const std::string& content,
+        ocaml::ast::infix_op& op);
+    bool parse(const std::string& content,
+        ocaml::ast::constr_name& name);
+    bool parse(const std::string& content,
+        ocaml::ast::tag_name& name);
+    bool parse(const std::string& content,
+        ocaml::ast::typeconstr_name& name);
+    bool parse(const std::string& content,
+        ocaml::ast::field_name& name);
+    bool parse(const std::string& content,
+        ocaml::ast::module_name& name);
+    bool parse(const std::string& content,
+        ocaml::ast::modtype_name& name);
+    bool parse(const std::string& content,
+        ocaml::ast::class_name& name);
+    bool parse(const std::string& content,
+        ocaml::ast::inst_var_name& name);
+    bool parse(const std::string& content,
+        ocaml::ast::method_name& name);
+    bool parse(const std::string& content,
+        ocaml::ast::value_path& path);
+    bool parse(const std::string& content,
+        ocaml::ast::constr& constr);
+    bool parse(const std::string& content,
+        ocaml::ast::typeconstr& constr);
+    bool parse(const std::string& content,
+        ocaml::ast::field& field);
+    bool parse(const std::string& content,
+        ocaml::ast::modtype_path& path);
+    bool parse(const std::string& content,
+        ocaml::ast::class_path& path);
+    bool parse(const std::string& content,
+        ocaml::ast::classtype_path& path);
+    bool parse(const std::string& content,
+        ocaml::ast::module_path& path);
+    bool parse(const std::string& content,
+        ocaml::ast::extended_module_path& path);
+    bool parse(const std::string& content,
+        ocaml::ast::extended_module_name& name);
 
 private:
     template<typename ParserExpr, typename Attribute>
@@ -171,6 +222,119 @@ bool Parser::parse(const std::string& content,
     return _p->parse(content, string_lit);
 }
 
+bool Parser::parse(std::string const& content, ocaml::ast::value_name& name)
+{
+    return _p->parse(content, name);
+}
+
+bool Parser::parse(std::string const& content, ocaml::ast::operator_name& name)
+{
+    return _p->parse(content, name);
+}
+
+bool Parser::parse(std::string const& content, ocaml::ast::infix_op& op)
+{
+    return _p->parse(content, op);
+}
+
+bool Parser::parse(std::string const& content, ocaml::ast::constr_name& name)
+{
+    return _p->parse(content, name);
+}
+
+bool Parser::parse(std::string const& content, ocaml::ast::tag_name& name)
+{
+    return _p->parse(content, name);
+}
+
+bool Parser::parse(std::string const& content,
+    ocaml::ast::typeconstr_name& name)
+{
+    return _p->parse(content, name);
+}
+
+bool Parser::parse(std::string const& content, ocaml::ast::field_name& name)
+{
+    return _p->parse(content, name);
+}
+
+bool Parser::parse(std::string const& content, ocaml::ast::module_name& name)
+{
+    return _p->parse(content, name);
+}
+
+bool Parser::parse(std::string const& content, ocaml::ast::modtype_name& name)
+{
+    return _p->parse(content, name);
+}
+
+bool Parser::parse(std::string const& content, ocaml::ast::class_name& name)
+{
+    return _p->parse(content, name);
+}
+
+bool Parser::parse(std::string const& content, ocaml::ast::inst_var_name& name)
+{
+    return _p->parse(content, name);
+}
+
+bool Parser::parse(std::string const& content, ocaml::ast::method_name& name)
+{
+    return _p->parse(content, name);
+}
+
+bool Parser::parse(std::string const& content, ocaml::ast::value_path& path)
+{
+    return _p->parse(content, path);
+}
+
+bool Parser::parse(std::string const& content, ocaml::ast::constr& constr)
+{
+    return _p->parse(content, constr);
+}
+
+bool Parser::parse(std::string const& content, ocaml::ast::typeconstr& constr)
+{
+    return _p->parse(content, constr);
+}
+
+bool Parser::parse(std::string const& content, ocaml::ast::field& field)
+{
+    return _p->parse(content, field);
+}
+
+bool Parser::parse(std::string const& content, ocaml::ast::modtype_path& path)
+{
+    return _p->parse(content, path);
+}
+
+bool Parser::parse(std::string const& content, ocaml::ast::class_path& path)
+{
+    return _p->parse(content, path);
+}
+
+bool Parser::parse(std::string const& content, ocaml::ast::classtype_path& path)
+{
+    return _p->parse(content, path);
+}
+
+bool Parser::parse(std::string const& content, ocaml::ast::module_path& path)
+{
+    return _p->parse(content, path);
+}
+
+bool Parser::parse(std::string const& content,
+    ocaml::ast::extended_module_path& path)
+{
+    return _p->parse(content, path);
+}
+
+bool Parser::parse(std::string const& content,
+    ocaml::ast::extended_module_name& name)
+{
+    return _p->parse(content, name);
+}
+
 //
 // Private implementation
 //
@@ -244,6 +408,138 @@ bool ParserPriv::parse(const std::string& content,
     ocaml::ast::string_literal& string_lit)
 {
     return parseString(content, _grammar.string_literal, string_lit);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::value_name& name)
+{
+    return parseString(content, _grammar.value_name, name);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::operator_name& name)
+{
+    return parseString(content, _grammar.operator_name, name);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::infix_op& op)
+{
+    return parseString(content, _grammar.infix_op, op);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::constr_name& name)
+{
+    return parseString(content, _grammar.constr_name, name);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::tag_name& name)
+{
+    return parseString(content, _grammar.tag_name, name);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::typeconstr_name& name)
+{
+    return parseString(content, _grammar.typeconstr_name, name);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::field_name& name)
+{
+    return parseString(content, _grammar.field_name, name);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::module_name& name)
+{
+    return parseString(content, _grammar.module_name, name);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::modtype_name& name)
+{
+    return parseString(content, _grammar.modtype_name, name);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::class_name& name)
+{
+    return parseString(content, _grammar.class_name, name);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::inst_var_name& name)
+{
+    return parseString(content, _grammar.inst_var_name, name);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::method_name& name)
+{
+    return parseString(content, _grammar.method_name, name);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::value_path& path)
+{
+    return parseString(content, _grammar.value_path, path);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::constr& constr)
+{
+    return parseString(content, _grammar.constr, constr);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::typeconstr& constr)
+{
+    return parseString(content, _grammar.typeconstr, constr);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::field& field)
+{
+    return parseString(content, _grammar.field, field);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::modtype_path& path)
+{
+    return parseString(content, _grammar.modtype_path, path);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::class_path& path)
+{
+    return parseString(content, _grammar.class_path, path);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::classtype_path& path)
+{
+    return parseString(content, _grammar.classtype_path, path);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::module_path& path)
+{
+    return parseString(content, _grammar.module_path, path);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::extended_module_path& path)
+{
+    return parseString(content, _grammar.extended_module_path, path);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::extended_module_name& name)
+{
+    return parseString(content, _grammar.extended_module_name, name);
 }
 
 template<typename ParserExpr, typename Attribute>

@@ -54,6 +54,10 @@ public:
 
     enum class Rules : int {
         Unknown = 0,
+
+        //
+        // Lexical
+        //
         CapitalizedIdent,
         LowercaseIdent,
         Ident,
@@ -63,7 +67,33 @@ public:
         IntegerLiteral,
         FloatLiteral,
         CharLiteral,
-        StringLiteral
+        StringLiteral,
+
+        //
+        // Names
+        //
+        ValueName,
+        OperatorName,
+        InfixOp,
+        ConstrName,
+        TagName,
+        TypeconstrName,
+        FieldName,
+        ModuleName,
+        ModtypeName,
+        ClassName,
+        InstVarName,
+        MethodName,
+        ValuePath,
+        Constr,
+        Typeconstr,
+        Field,
+        ModtypePath,
+        ClassPath,
+        ClasstypePath,
+        ModulePath,
+        ExtendedModulePath,
+        ExtendedModuleName
     };
 
     Options();

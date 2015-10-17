@@ -44,16 +44,51 @@ public:
 
     void swap(Parser& other);
 
-    bool parse(std::string const& content, ocaml::ast::capitalized_ident& ident);
+    //
+    // Lexical
+    //
+    bool parse(std::string const& content,
+        ocaml::ast::capitalized_ident& ident);
     bool parse(std::string const& content, ocaml::ast::lowercase_ident& ident);
     bool parse(std::string const& content, ocaml::ast::ident& ident);
     bool parse(std::string const& content, ocaml::ast::label_name& name);
     bool parse(std::string const& content, ocaml::ast::label& label);
     bool parse(std::string const& content, ocaml::ast::optlabel& label);
-    bool parse(std::string const& content, ocaml::ast::integer_literal& integer_lit);
-    bool parse(std::string const& content, ocaml::ast::float_literal& float_lit);
+    bool parse(std::string const& content,
+        ocaml::ast::integer_literal& integer_lit);
+    bool parse(std::string const& content,
+        ocaml::ast::float_literal& float_lit);
     bool parse(std::string const& content, ocaml::ast::char_literal& char_lit);
-    bool parse(std::string const& content, ocaml::ast::string_literal& string_lit);
+    bool parse(std::string const& content,
+        ocaml::ast::string_literal& string_lit);
+
+    //
+    // Names
+    //
+    bool parse(std::string const& content, ocaml::ast::value_name& name);
+    bool parse(std::string const& content, ocaml::ast::operator_name& name);
+    bool parse(std::string const& content, ocaml::ast::infix_op& op);
+    bool parse(std::string const& content, ocaml::ast::constr_name& name);
+    bool parse(std::string const& content, ocaml::ast::tag_name& name);
+    bool parse(std::string const& content, ocaml::ast::typeconstr_name& name);
+    bool parse(std::string const& content, ocaml::ast::field_name& name);
+    bool parse(std::string const& content, ocaml::ast::module_name& name);
+    bool parse(std::string const& content, ocaml::ast::modtype_name& name);
+    bool parse(std::string const& content, ocaml::ast::class_name& name);
+    bool parse(std::string const& content, ocaml::ast::inst_var_name& name);
+    bool parse(std::string const& content, ocaml::ast::method_name& name);
+    bool parse(std::string const& content, ocaml::ast::value_path& path);
+    bool parse(std::string const& content, ocaml::ast::constr& constr);
+    bool parse(std::string const& content, ocaml::ast::typeconstr& constr);
+    bool parse(std::string const& content, ocaml::ast::field& field);
+    bool parse(std::string const& content, ocaml::ast::modtype_path& path);
+    bool parse(std::string const& content, ocaml::ast::class_path& path);
+    bool parse(std::string const& content, ocaml::ast::classtype_path& path);
+    bool parse(std::string const& content, ocaml::ast::module_path& path);
+    bool parse(std::string const& content,
+        ocaml::ast::extended_module_path& path);
+    bool parse(std::string const& content,
+        ocaml::ast::extended_module_name& name);
 
 private:
     std::unique_ptr<ParserPriv> _p;

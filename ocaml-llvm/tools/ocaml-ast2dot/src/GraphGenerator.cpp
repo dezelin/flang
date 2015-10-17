@@ -35,6 +35,9 @@ public:
 
     Graph* getGraph() const;
 
+    //
+    // Lexical
+    //
     bool generate(ocaml::ast::capitalized_ident const& ident) const;
     bool generate(ocaml::ast::lowercase_ident const& ident) const;
     bool generate(ocaml::ast::ident const& ident) const;
@@ -45,6 +48,33 @@ public:
     bool generate(ocaml::ast::float_literal const& float_lit) const;
     bool generate(ocaml::ast::char_literal const& char_lit) const;
     bool generate(ocaml::ast::string_literal const& string_lit) const;
+
+    //
+    // Names
+    //
+    bool generate(ocaml::ast::value_name const& name) const;
+    bool generate(ocaml::ast::operator_name const& name) const;
+    bool generate(ocaml::ast::infix_op const& op) const;
+    bool generate(ocaml::ast::constr_name const& name) const;
+    bool generate(ocaml::ast::tag_name const& name) const;
+    bool generate(ocaml::ast::typeconstr_name const& name) const;
+    bool generate(ocaml::ast::field_name const& name) const;
+    bool generate(ocaml::ast::module_name const& name) const;
+    bool generate(ocaml::ast::modtype_name const& name) const;
+    bool generate(ocaml::ast::class_name const& name) const;
+    bool generate(ocaml::ast::inst_var_name const& name) const;
+    bool generate(ocaml::ast::method_name const& name) const;
+    bool generate(ocaml::ast::value_path const& path) const;
+    bool generate(ocaml::ast::constr const& constr) const;
+    bool generate(ocaml::ast::typeconstr const& constr) const;
+    bool generate(ocaml::ast::field const& field) const;
+    bool generate(ocaml::ast::modtype_path const& path) const;
+    bool generate(ocaml::ast::class_path const& path) const;
+    bool generate(ocaml::ast::classtype_path const& path) const;
+    bool generate(ocaml::ast::module_path const& path) const;
+    bool generate(ocaml::ast::extended_module_path const& path) const;
+    bool generate(ocaml::ast::extended_module_name const& name) const;
+
 
 private:
     GraphGenerator *_q;
@@ -145,6 +175,118 @@ bool GraphGenerator::operator()(
     ocaml::ast::string_literal const& string_lit) const
     {
     return _p->generate(string_lit);
+}
+
+bool GraphGenerator::operator()(ocaml::ast::value_name const& name) const
+    {
+    return _p->generate(name);
+}
+
+bool GraphGenerator::operator()(ocaml::ast::operator_name const& name) const
+    {
+    return _p->generate(name);
+}
+
+bool GraphGenerator::operator()(ocaml::ast::infix_op const& op) const
+    {
+    return _p->generate(op);
+}
+
+bool GraphGenerator::operator()(ocaml::ast::constr_name const& name) const
+    {
+    return _p->generate(name);
+}
+
+bool GraphGenerator::operator()(ocaml::ast::tag_name const& name) const
+    {
+    return _p->generate(name);
+}
+
+bool GraphGenerator::operator()(ocaml::ast::typeconstr_name const& name) const
+    {
+    return _p->generate(name);
+}
+
+bool GraphGenerator::operator()(ocaml::ast::field_name const& name) const
+    {
+    return _p->generate(name);
+}
+
+bool GraphGenerator::operator()(ocaml::ast::module_name const& name) const
+    {
+    return _p->generate(name);
+}
+
+bool GraphGenerator::operator()(ocaml::ast::modtype_name const& name) const
+    {
+    return _p->generate(name);
+}
+
+bool GraphGenerator::operator()(ocaml::ast::class_name const& name) const
+    {
+    return _p->generate(name);
+}
+
+bool GraphGenerator::operator()(ocaml::ast::inst_var_name const& name) const
+    {
+    return _p->generate(name);
+}
+
+bool GraphGenerator::operator()(ocaml::ast::method_name const& name) const
+    {
+    return _p->generate(name);
+}
+
+bool GraphGenerator::operator()(ocaml::ast::value_path const& path) const
+    {
+    return _p->generate(path);
+}
+
+bool GraphGenerator::operator()(ocaml::ast::constr const& constr) const
+    {
+    return _p->generate(constr);
+}
+
+bool GraphGenerator::operator()(ocaml::ast::typeconstr const& constr) const
+    {
+    return _p->generate(constr);
+}
+
+bool GraphGenerator::operator()(ocaml::ast::field const& field) const
+    {
+    return _p->generate(field);
+}
+
+bool GraphGenerator::operator()(ocaml::ast::modtype_path const& path) const
+    {
+    return _p->generate(path);
+}
+
+bool GraphGenerator::operator()(ocaml::ast::class_path const& path) const
+    {
+    return _p->generate(path);
+}
+
+bool GraphGenerator::operator()(ocaml::ast::classtype_path const& path) const
+    {
+    return _p->generate(path);
+}
+
+bool GraphGenerator::operator()(ocaml::ast::module_path const& path) const
+    {
+    return _p->generate(path);
+}
+
+bool GraphGenerator::operator()(
+    ocaml::ast::extended_module_path const& path) const
+    {
+    return _p->generate(path);
+}
+
+bool GraphGenerator::operator()(
+    ocaml::ast::extended_module_name const& name) const
+    {
+    return _p->generate(name);
 }
 
 //
@@ -310,6 +452,116 @@ bool GraphGeneratorPriv::generate(
 
     _graph->addVertex(v, edges);
     return true;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::value_name const& name) const
+{
+    return false;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::operator_name const& name) const
+{
+    return false;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::infix_op const& op) const
+{
+    return false;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::constr_name const& name) const
+{
+    return false;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::tag_name const& name) const
+{
+    return false;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::typeconstr_name const& name) const
+{
+    return false;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::field_name const& name) const
+{
+    return false;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::module_name const& name) const
+{
+    return false;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::modtype_name const& name) const
+{
+    return false;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::class_name const& name) const
+{
+    return false;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::inst_var_name const& name) const
+{
+    return false;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::method_name const& name) const
+{
+    return false;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::value_path const& path) const
+{
+    return false;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::constr const& constr) const
+{
+    return false;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::typeconstr const& constr) const
+{
+    return false;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::field const& field) const
+{
+    return false;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::modtype_path const& path) const
+{
+    return false;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::class_path const& path) const
+{
+    return false;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::classtype_path const& path) const
+{
+    return false;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::module_path const& path) const
+{
+    return false;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::extended_module_path const& path) const
+{
+    return false;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::extended_module_name const& name) const
+{
+    return false;
 }
 
 } /* namespace OCaml */

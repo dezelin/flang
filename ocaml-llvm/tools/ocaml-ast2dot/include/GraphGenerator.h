@@ -46,6 +46,9 @@ public:
     GraphGenerator& operator =(GraphGenerator other);
     void swap(GraphGenerator& other);
 
+    //
+    // Lexical
+    //
     bool operator()(ocaml::ast::capitalized_ident const& ident) const;
     bool operator()(ocaml::ast::lowercase_ident const& ident) const;
     bool operator()(ocaml::ast::ident const& ident) const;
@@ -56,6 +59,32 @@ public:
     bool operator()(ocaml::ast::float_literal const& float_lit) const;
     bool operator()(ocaml::ast::char_literal const& char_lit) const;
     bool operator()(ocaml::ast::string_literal const& string_lit) const;
+
+    //
+    // Names
+    //
+    bool operator()(ocaml::ast::value_name const& name) const;
+    bool operator()(ocaml::ast::operator_name const& name) const;
+    bool operator()(ocaml::ast::infix_op const& op) const;
+    bool operator()(ocaml::ast::constr_name const& name) const;
+    bool operator()(ocaml::ast::tag_name const& name) const;
+    bool operator()(ocaml::ast::typeconstr_name const& name) const;
+    bool operator()(ocaml::ast::field_name const& name) const;
+    bool operator()(ocaml::ast::module_name const& name) const;
+    bool operator()(ocaml::ast::modtype_name const& name) const;
+    bool operator()(ocaml::ast::class_name const& name) const;
+    bool operator()(ocaml::ast::inst_var_name const& name) const;
+    bool operator()(ocaml::ast::method_name const& name) const;
+    bool operator()(ocaml::ast::value_path const& path) const;
+    bool operator()(ocaml::ast::constr const& constr) const;
+    bool operator()(ocaml::ast::typeconstr const& constr) const;
+    bool operator()(ocaml::ast::field const& field) const;
+    bool operator()(ocaml::ast::modtype_path const& path) const;
+    bool operator()(ocaml::ast::class_path const& path) const;
+    bool operator()(ocaml::ast::classtype_path const& path) const;
+    bool operator()(ocaml::ast::module_path const& path) const;
+    bool operator()(ocaml::ast::extended_module_path const& path) const;
+    bool operator()(ocaml::ast::extended_module_name const& name) const;
 
 private:
     std::unique_ptr<GraphGeneratorPriv> _p;
