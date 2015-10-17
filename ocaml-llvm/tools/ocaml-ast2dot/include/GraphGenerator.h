@@ -47,6 +47,15 @@ public:
     void swap(GraphGenerator& other);
 
     bool operator()(ocaml::ast::capitalized_ident const& ident) const;
+    bool operator()(ocaml::ast::lowercase_ident const& ident) const;
+    bool operator()(ocaml::ast::ident const& ident) const;
+    bool operator()(ocaml::ast::label_name const& name) const;
+    bool operator()(ocaml::ast::label const& label) const;
+    bool operator()(ocaml::ast::optlabel const& label) const;
+    bool operator()(ocaml::ast::integer_literal const& integer_lit) const;
+    bool operator()(ocaml::ast::float_literal const& float_lit) const;
+    bool operator()(ocaml::ast::char_literal const& char_lit) const;
+    bool operator()(ocaml::ast::string_literal const& string_lit) const;
 
 private:
     std::unique_ptr<GraphGeneratorPriv> _p;

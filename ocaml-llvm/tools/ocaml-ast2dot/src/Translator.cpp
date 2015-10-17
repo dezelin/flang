@@ -250,47 +250,137 @@ Graph* TranslatorPriv::createCapitalizedIdentGraph(std::string const& content)
 
 Graph* TranslatorPriv::createLowercaseIdentGraph(std::string const& content)
 {
-    return nullptr;
+    Parser parser;
+    ocaml::ast::lowercase_ident ident;
+    if (!parser.parse(content, ident))
+        return nullptr;
+
+    std::unique_ptr<Graph> graph(new Graph);
+    GraphGenerator generator(*graph);
+    if (!generator(ident))
+        return nullptr;
+
+    return graph.release();
 }
 
 Graph* TranslatorPriv::createIdentGraph(std::string const& content)
 {
-    return nullptr;
+    Parser parser;
+    ocaml::ast::ident ident;
+    if (!parser.parse(content, ident))
+        return nullptr;
+
+    std::unique_ptr<Graph> graph(new Graph);
+    GraphGenerator generator(*graph);
+    if (!generator(ident))
+        return nullptr;
+
+    return graph.release();
 }
 
 Graph* TranslatorPriv::createLabelNameGraph(std::string const& content)
 {
-    return nullptr;
+    Parser parser;
+    ocaml::ast::label_name label_name;
+    if (!parser.parse(content, label_name))
+        return nullptr;
+
+    std::unique_ptr<Graph> graph(new Graph);
+    GraphGenerator generator(*graph);
+    if (!generator(label_name))
+        return nullptr;
+
+    return graph.release();
 }
 
 Graph* TranslatorPriv::createLabelGraph(std::string const& content)
 {
-    return nullptr;
+    Parser parser;
+    ocaml::ast::label label;
+    if (!parser.parse(content, label))
+        return nullptr;
+
+    std::unique_ptr<Graph> graph(new Graph);
+    GraphGenerator generator(*graph);
+    if (!generator(label))
+        return nullptr;
+
+    return graph.release();
 }
 
 Graph* TranslatorPriv::createOptLabelGraph(std::string const& content)
 {
-    return nullptr;
+    Parser parser;
+    ocaml::ast::optlabel label;
+    if (!parser.parse(content, label))
+        return nullptr;
+
+    std::unique_ptr<Graph> graph(new Graph);
+    GraphGenerator generator(*graph);
+    if (!generator(label))
+        return nullptr;
+
+    return graph.release();
 }
 
 Graph* TranslatorPriv::createIntegerLiteralGraph(std::string const& content)
 {
-    return nullptr;
+    Parser parser;
+    ocaml::ast::integer_literal integer_lit;
+    if (!parser.parse(content, integer_lit))
+        return nullptr;
+
+    std::unique_ptr<Graph> graph(new Graph);
+    GraphGenerator generator(*graph);
+    if (!generator(integer_lit))
+        return nullptr;
+
+    return graph.release();
 }
 
 Graph* TranslatorPriv::createFloatLiteralGraph(std::string const& content)
 {
-    return nullptr;
+    Parser parser;
+    ocaml::ast::float_literal float_lit;
+    if (!parser.parse(content, float_lit))
+        return nullptr;
+
+    std::unique_ptr<Graph> graph(new Graph);
+    GraphGenerator generator(*graph);
+    if (!generator(float_lit))
+        return nullptr;
+
+    return graph.release();
 }
 
 Graph* TranslatorPriv::createCharLiteralGraph(std::string const& content)
 {
-    return nullptr;
+    Parser parser;
+    ocaml::ast::char_literal char_lit;
+    if (!parser.parse(content, char_lit))
+        return nullptr;
+
+    std::unique_ptr<Graph> graph(new Graph);
+    GraphGenerator generator(*graph);
+    if (!generator(char_lit))
+        return nullptr;
+
+    return graph.release();
 }
 
 Graph* TranslatorPriv::createStringLiteralGraph(std::string const& content)
 {
-    return nullptr;
+    Parser parser;
+    ocaml::ast::string_literal string_lit;
+    if (!parser.parse(content, string_lit))
+        return nullptr;
+
+    std::unique_ptr<Graph> graph(new Graph);
+    GraphGenerator generator(*graph);
+    if (!generator(string_lit))
+        return nullptr;
+
+    return graph.release();
 }
 
 } /* namespace OCaml */

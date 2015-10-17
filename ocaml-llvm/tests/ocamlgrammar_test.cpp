@@ -224,7 +224,7 @@ BOOST_AUTO_TEST_CASE(GrammarTest_char_literal)
     std::string content = "'t'";
     bool r = parse_string(content, gGrammar.char_literal, char_literal);
     BOOST_CHECK(r);
-    BOOST_CHECK(char_literal.lit == content);
+    BOOST_CHECK(char_literal.val == content);
 }
 
 BOOST_AUTO_TEST_CASE(GrammarTest_string_literal)

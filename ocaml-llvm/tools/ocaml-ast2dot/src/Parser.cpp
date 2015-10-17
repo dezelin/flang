@@ -50,6 +50,24 @@ public:
 
     bool parse(const std::string& content,
         ocaml::ast::capitalized_ident& ident);
+    bool parse(const std::string& content,
+        ocaml::ast::lowercase_ident& ident);
+    bool parse(const std::string& content,
+        ocaml::ast::ident& ident);
+    bool parse(const std::string& content,
+        ocaml::ast::label_name& name);
+    bool parse(const std::string& content,
+        ocaml::ast::label& label);
+    bool parse(const std::string& content,
+        ocaml::ast::optlabel& label);
+    bool parse(const std::string& content,
+        ocaml::ast::integer_literal& integer_lit);
+    bool parse(const std::string& content,
+        ocaml::ast::float_literal& float_lit);
+    bool parse(const std::string& content,
+        ocaml::ast::char_literal& char_lit);
+    bool parse(const std::string& content,
+        ocaml::ast::string_literal& string_lit);
 
 private:
     template<typename ParserExpr, typename Attribute>
@@ -99,6 +117,60 @@ bool Parser::parse(const std::string& content,
     return _p->parse(content, ident);
 }
 
+bool Parser::parse(const std::string& content,
+    ocaml::ast::lowercase_ident& ident)
+{
+    return _p->parse(content, ident);
+}
+
+bool Parser::parse(const std::string& content,
+    ocaml::ast::ident& ident)
+{
+    return _p->parse(content, ident);
+}
+
+bool Parser::parse(const std::string& content,
+    ocaml::ast::label_name& name)
+{
+    return _p->parse(content, name);
+}
+
+bool Parser::parse(const std::string& content,
+    ocaml::ast::label& label)
+{
+    return _p->parse(content, label);
+}
+
+bool Parser::parse(const std::string& content,
+    ocaml::ast::optlabel& label)
+{
+    return _p->parse(content, label);
+}
+
+bool Parser::parse(const std::string& content,
+    ocaml::ast::integer_literal& integer_lit)
+{
+    return _p->parse(content, integer_lit);
+}
+
+bool Parser::parse(const std::string& content,
+    ocaml::ast::float_literal& float_lit)
+{
+    return _p->parse(content, float_lit);
+}
+
+bool Parser::parse(const std::string& content,
+    ocaml::ast::char_literal& char_lit)
+{
+    return _p->parse(content, char_lit);
+}
+
+bool Parser::parse(const std::string& content,
+    ocaml::ast::string_literal& string_lit)
+{
+    return _p->parse(content, string_lit);
+}
+
 //
 // Private implementation
 //
@@ -118,6 +190,60 @@ bool ParserPriv::parse(const std::string& content,
     ocaml::ast::capitalized_ident& ident)
 {
     return parseString(content, _grammar.capitalized_ident, ident);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::lowercase_ident& ident)
+{
+    return parseString(content, _grammar.lowercase_ident, ident);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::ident& ident)
+{
+    return parseString(content, _grammar.ident, ident);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::label_name& name)
+{
+    return parseString(content, _grammar.label_name, name);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::label& label)
+{
+    return parseString(content, _grammar.label, label);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::optlabel& label)
+{
+    return parseString(content, _grammar.optlabel, label);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::integer_literal& integer_lit)
+{
+    return parseString(content, _grammar.integer_literal, integer_lit);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::float_literal& float_lit)
+{
+    return parseString(content, _grammar.float_literal, float_lit);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::char_literal& char_lit)
+{
+    return parseString(content, _grammar.char_literal, char_lit);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::string_literal& string_lit)
+{
+    return parseString(content, _grammar.string_literal, string_lit);
 }
 
 template<typename ParserExpr, typename Attribute>

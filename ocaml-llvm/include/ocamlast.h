@@ -141,10 +141,10 @@ struct float_literal
 struct char_literal
     : tagged
 {
-    char_literal(std::string const &lit = "")
-        : lit(lit) { }
+    char_literal(std::string const &c = "")
+        : val(c) { }
 
-    std::string lit;
+    std::string val;
 };
 
 struct string_literal
@@ -4024,7 +4024,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
     ocaml::ast::char_literal,
-    (std::string, lit)
+    (std::string, val)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(

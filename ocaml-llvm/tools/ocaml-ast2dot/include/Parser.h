@@ -45,6 +45,15 @@ public:
     void swap(Parser& other);
 
     bool parse(std::string const& content, ocaml::ast::capitalized_ident& ident);
+    bool parse(std::string const& content, ocaml::ast::lowercase_ident& ident);
+    bool parse(std::string const& content, ocaml::ast::ident& ident);
+    bool parse(std::string const& content, ocaml::ast::label_name& name);
+    bool parse(std::string const& content, ocaml::ast::label& label);
+    bool parse(std::string const& content, ocaml::ast::optlabel& label);
+    bool parse(std::string const& content, ocaml::ast::integer_literal& integer_lit);
+    bool parse(std::string const& content, ocaml::ast::float_literal& float_lit);
+    bool parse(std::string const& content, ocaml::ast::char_literal& char_lit);
+    bool parse(std::string const& content, ocaml::ast::string_literal& string_lit);
 
 private:
     std::unique_ptr<ParserPriv> _p;

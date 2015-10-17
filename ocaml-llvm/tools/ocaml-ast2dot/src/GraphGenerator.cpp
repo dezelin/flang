@@ -36,6 +36,15 @@ public:
     Graph* getGraph() const;
 
     bool generate(ocaml::ast::capitalized_ident const& ident) const;
+    bool generate(ocaml::ast::lowercase_ident const& ident) const;
+    bool generate(ocaml::ast::ident const& ident) const;
+    bool generate(ocaml::ast::label_name const& name) const;
+    bool generate(ocaml::ast::label const& label) const;
+    bool generate(ocaml::ast::optlabel const& label) const;
+    bool generate(ocaml::ast::integer_literal const& integer_lit) const;
+    bool generate(ocaml::ast::float_literal const& float_lit) const;
+    bool generate(ocaml::ast::char_literal const& char_lit) const;
+    bool generate(ocaml::ast::string_literal const& string_lit) const;
 
 private:
     GraphGenerator *_q;
@@ -84,6 +93,60 @@ bool GraphGenerator::operator()(
     return _p->generate(ident);
 }
 
+bool GraphGenerator::operator()(
+    ocaml::ast::lowercase_ident const& ident) const
+{
+    return _p->generate(ident);
+}
+
+bool GraphGenerator::operator()(
+    ocaml::ast::ident const& ident) const
+{
+    return _p->generate(ident);
+}
+
+bool GraphGenerator::operator()(
+    ocaml::ast::label_name const& name) const
+{
+    return _p->generate(name);
+}
+
+bool GraphGenerator::operator()(
+    ocaml::ast::label const& label) const
+{
+    return _p->generate(label);
+}
+
+bool GraphGenerator::operator()(
+    ocaml::ast::optlabel const& label) const
+{
+    return _p->generate(label);
+}
+
+bool GraphGenerator::operator()(
+    ocaml::ast::integer_literal const& integer_lit) const
+{
+    return _p->generate(integer_lit);
+}
+
+bool GraphGenerator::operator()(
+    ocaml::ast::float_literal const& float_lit) const
+{
+    return _p->generate(float_lit);
+}
+
+bool GraphGenerator::operator()(
+    ocaml::ast::char_literal const& char_lit) const
+{
+    return _p->generate(char_lit);
+}
+
+bool GraphGenerator::operator()(
+    ocaml::ast::string_literal const& string_lit) const
+{
+    return _p->generate(string_lit);
+}
+
 //
 // Private implementation
 //
@@ -115,6 +178,132 @@ bool GraphGeneratorPriv::generate(
     Graph::Vertex v;
     v.addProperty("type", "ocaml::ast::capitalized_ident");
     v.addProperty("name", ident.name);
+
+    Graph::EdgeList edges;
+    edges.push_back(Graph::Edge(v.getId(), v.getId()));
+
+    _graph->addVertex(v, edges);
+    return true;
+}
+
+bool GraphGeneratorPriv::generate(
+    ocaml::ast::lowercase_ident const& ident) const
+{
+    Graph::Vertex v;
+    v.addProperty("type", "ocaml::ast::lowercase_ident");
+    v.addProperty("name", ident.name);
+
+    Graph::EdgeList edges;
+    edges.push_back(Graph::Edge(v.getId(), v.getId()));
+
+    _graph->addVertex(v, edges);
+    return true;
+}
+
+bool GraphGeneratorPriv::generate(
+    ocaml::ast::ident const& ident) const
+{
+    Graph::Vertex v;
+    v.addProperty("type", "ocaml::ast::ident");
+    v.addProperty("name", ident.name);
+
+    Graph::EdgeList edges;
+    edges.push_back(Graph::Edge(v.getId(), v.getId()));
+
+    _graph->addVertex(v, edges);
+    return true;
+}
+
+bool GraphGeneratorPriv::generate(
+    ocaml::ast::label_name const& name) const
+{
+    Graph::Vertex v;
+    v.addProperty("type", "ocaml::ast::label_name");
+    v.addProperty("name", name.name);
+
+    Graph::EdgeList edges;
+    edges.push_back(Graph::Edge(v.getId(), v.getId()));
+
+    _graph->addVertex(v, edges);
+    return true;
+}
+
+bool GraphGeneratorPriv::generate(
+    ocaml::ast::label const& label) const
+{
+    Graph::Vertex v;
+    v.addProperty("type", "ocaml::ast::label");
+    v.addProperty("name", label.name);
+
+    Graph::EdgeList edges;
+    edges.push_back(Graph::Edge(v.getId(), v.getId()));
+
+    _graph->addVertex(v, edges);
+    return true;
+}
+
+bool GraphGeneratorPriv::generate(
+    ocaml::ast::optlabel const& label) const
+{
+    Graph::Vertex v;
+    v.addProperty("type", "ocaml::ast::optlabel");
+    v.addProperty("name", label.name);
+
+    Graph::EdgeList edges;
+    edges.push_back(Graph::Edge(v.getId(), v.getId()));
+
+    _graph->addVertex(v, edges);
+    return true;
+}
+
+bool GraphGeneratorPriv::generate(
+    ocaml::ast::integer_literal const& integer_lit) const
+{
+    Graph::Vertex v;
+    v.addProperty("type", "ocaml::ast::integer_literal");
+    v.addProperty("val", integer_lit.val);
+
+    Graph::EdgeList edges;
+    edges.push_back(Graph::Edge(v.getId(), v.getId()));
+
+    _graph->addVertex(v, edges);
+    return true;
+}
+
+bool GraphGeneratorPriv::generate(
+    ocaml::ast::float_literal const& float_lit) const
+{
+    Graph::Vertex v;
+    v.addProperty("type", "ocaml::ast::float_literal");
+    v.addProperty("val", float_lit.val);
+
+    Graph::EdgeList edges;
+    edges.push_back(Graph::Edge(v.getId(), v.getId()));
+
+    _graph->addVertex(v, edges);
+    return true;
+}
+
+bool GraphGeneratorPriv::generate(
+    ocaml::ast::char_literal const& char_lit) const
+{
+    Graph::Vertex v;
+    v.addProperty("type", "ocaml::ast::char_literal");
+    v.addProperty("val", char_lit.val);
+
+    Graph::EdgeList edges;
+    edges.push_back(Graph::Edge(v.getId(), v.getId()));
+
+    _graph->addVertex(v, edges);
+    return true;
+}
+
+bool GraphGeneratorPriv::generate(
+    ocaml::ast::string_literal const& string_lit) const
+{
+    Graph::Vertex v;
+    v.addProperty("type", "ocaml::ast::string_literal");
+    v.addProperty("val", string_lit.val);
 
     Graph::EdgeList edges;
     edges.push_back(Graph::Edge(v.getId(), v.getId()));
