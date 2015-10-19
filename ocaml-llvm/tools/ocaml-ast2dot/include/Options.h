@@ -99,7 +99,12 @@ public:
         //
         // Type expressions
         //
-        Typexpr
+        Typexpr,
+
+        //
+        // Constants
+        //
+        Constant
     };
 
     Options();

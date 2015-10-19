@@ -278,6 +278,31 @@ public:
         Graph::VertexId parentId = -1,
         std::string const& parentEdgeName = "") const;
 
+    //
+    // Constants
+    //
+    bool generate(ocaml::ast::const_false const& constant,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::const_true const& constant,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::const_unit const& constant,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::const_empty_record const& constant,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::const_empty_list const& constant,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::const_empty_array const& constant,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+    bool generate(ocaml::ast::constant const& constant,
+        Graph::VertexId parentId = -1,
+        std::string const& parentEdgeName = "") const;
+
 private:
     GraphGenerator *_q;
     Graph *_graph;
@@ -512,6 +537,12 @@ bool GraphGenerator::operator()(
     ocaml::ast::typexpr const& expr) const
     {
     return _p->generate(expr);
+}
+
+bool GraphGenerator::operator()(
+    ocaml::ast::constant const& constant) const
+    {
+    return _p->generate(constant);
 }
 
 //
@@ -1790,7 +1821,6 @@ bool GraphGeneratorPriv::generate(
 
     generate(expr.expr, v.getId(), "expr");
     return true;
-
 }
 
 bool GraphGeneratorPriv::generate(ocaml::ast::polymorphic_typexpr const& expr,
@@ -1805,8 +1835,9 @@ bool GraphGeneratorPriv::generate(ocaml::ast::polymorphic_typexpr const& expr,
         edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
 
     _graph->addVertex(v, edges);
+    boost::apply_visitor(
+        VariantGeneratorVisitor(this, v.getId()), expr);
     return true;
-
 }
 
 bool GraphGeneratorPriv::generate(ocaml::ast::method_type const& type,
@@ -1861,8 +1892,12 @@ bool GraphGeneratorPriv::generate(ocaml::ast::object_typexpr const& expr,
     if (expr.other.is_initialized())
         generate(expr.other.get(), v.getId(), "other");
 
-    if (expr.ellipsis.is_initialized())
-        generate(expr.ellipsis.get(), v.getId(), "ellipsis");
+    if (expr.ellipsis.is_initialized()) {
+        typedef std::underlying_type<ocaml::lexer::Tokens>::type utype;
+        std::string ellipsis = std::to_string(
+            static_cast<utype>(expr.ellipsis.get()));
+        v.addProperty("ellipsis", ellipsis);
+    }
 
     return true;
 }
@@ -1902,6 +1937,155 @@ bool GraphGeneratorPriv::generate(
         generate(expr.other.get(), v.getId(), "other");
 
     generate(expr.path, v.getId(), "path");
+    return true;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::const_false const& constant,
+    Graph::VertexId parentId,
+    std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::const_false");
+
+    typedef std::underlying_type<ocaml::lexer::Tokens>::type utype;
+
+    std::string false_ = std::to_string(static_cast<utype>(constant.false_));
+    v.addProperty("false_", false_);
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+    return true;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::const_true const& constant,
+    Graph::VertexId parentId,
+    std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::const_true");
+
+    typedef std::underlying_type<ocaml::lexer::Tokens>::type utype;
+
+    std::string true_ = std::to_string(static_cast<utype>(constant.true_));
+    v.addProperty("true_", true_);
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+    return true;
+}
+
+bool GraphGeneratorPriv::generate(ocaml::ast::const_unit const& constant,
+    Graph::VertexId parentId,
+    std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::const_unit");
+
+    typedef std::underlying_type<ocaml::lexer::Tokens>::type utype;
+
+    std::string opened = std::to_string(static_cast<utype>(constant.opened));
+    v.addProperty("opened", opened);
+    std::string closed = std::to_string(static_cast<utype>(constant.closed));
+    v.addProperty("closed", closed);
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+    return true;
+}
+
+bool GraphGeneratorPriv::generate(
+    ocaml::ast::const_empty_record const& constant,
+    Graph::VertexId parentId,
+    std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::const_empty_record");
+
+    typedef std::underlying_type<ocaml::lexer::Tokens>::type utype;
+
+    std::string begin = std::to_string(static_cast<utype>(constant.begin));
+    v.addProperty("begin", begin);
+    std::string end = std::to_string(static_cast<utype>(constant.end));
+    v.addProperty("end", end);
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+    return true;
+}
+
+bool GraphGeneratorPriv::generate(
+    ocaml::ast::const_empty_list const& constant,
+    Graph::VertexId parentId,
+    std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::const_empty_list");
+
+    typedef std::underlying_type<ocaml::lexer::Tokens>::type utype;
+
+    std::string opened = std::to_string(static_cast<utype>(constant.opened));
+    v.addProperty("opened", opened);
+    std::string closed = std::to_string(static_cast<utype>(constant.closed));
+    v.addProperty("closed", closed);
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+    return true;
+}
+
+bool GraphGeneratorPriv::generate(
+    ocaml::ast::const_empty_array const& constant,
+    Graph::VertexId parentId,
+    std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::const_empty_array");
+
+    typedef std::underlying_type<ocaml::lexer::Tokens>::type utype;
+
+    std::string opened = std::to_string(static_cast<utype>(constant.opened));
+    v.addProperty("opened", opened);
+    std::string closed = std::to_string(static_cast<utype>(constant.closed));
+    v.addProperty("closed", closed);
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+    return true;
+}
+
+bool GraphGeneratorPriv::generate(
+    ocaml::ast::constant const& constant,
+    Graph::VertexId parentId,
+    std::string const& parentEdgeName) const
+    {
+    Graph::Vertex v = Graph::Vertex::create();
+    v.addProperty("type", "ocaml::ast::constant");
+
+    Graph::EdgeList edges;
+    if (parentId != -1)
+        edges.push_back(Graph::Edge(parentId, v.getId(), parentEdgeName));
+
+    _graph->addVertex(v, edges);
+    boost::apply_visitor(
+        VariantGeneratorVisitor(this, v.getId()), constant);
     return true;
 }
 

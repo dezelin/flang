@@ -259,7 +259,14 @@ int TranslatorPriv::translate(std::istream& input, std::ostream& output)
         // Type expression rules translators
         //
         {   Options::Rules::Typexpr,
-            TranslatorPriv::createGraph<ocaml::ast::typexpr>}
+            TranslatorPriv::createGraph<ocaml::ast::typexpr>},
+
+        //
+        // Constants rules translators
+        //
+        {   Options::Rules::Constant,
+            TranslatorPriv::createGraph<ocaml::ast::constant>}
+
     }
     ;
 

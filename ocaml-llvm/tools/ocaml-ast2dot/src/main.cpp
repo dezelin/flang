@@ -87,8 +87,13 @@ int main(int argc, char **argv)
         ("typexpr", "typexpr rule")
             ;
 
+        po::options_description constants("Constants rules");
+        types.add_options()
+        ("constant", "constant rule")
+            ;
+
         po::options_description all("Allowed options");
-        all.add(general).add(lexical).add(names).add(types);
+        all.add(general).add(lexical).add(names).add(types).add(constants);
 
         po::positional_options_description p;
         p.add("input-file", -1);

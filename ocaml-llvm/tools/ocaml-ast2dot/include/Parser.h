@@ -95,6 +95,11 @@ public:
     //
     bool parse(std::string const& content, ocaml::ast::typexpr& expr);
 
+    //
+    // Constants
+    //
+    bool parse(std::string const& content, ocaml::ast::constant& constant);
+
 private:
     std::unique_ptr<ParserPriv> _p;
 };

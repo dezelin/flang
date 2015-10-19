@@ -126,6 +126,12 @@ public:
     bool parse(const std::string& content,
         ocaml::ast::typexpr& expr);
 
+    //
+    // Constants
+    //
+    bool parse(const std::string& content,
+        ocaml::ast::constant& expr);
+
 private:
     template<typename ParserExpr, typename Attribute>
     bool parseString(std::string const& content,
@@ -346,6 +352,11 @@ bool Parser::parse(std::string const& content, ocaml::ast::typexpr& expr)
     return _p->parse(content, expr);
 }
 
+bool Parser::parse(std::string const& content, ocaml::ast::constant& constant)
+{
+    return _p->parse(content, constant);
+}
+
 //
 // Private implementation
 //
@@ -557,6 +568,12 @@ bool ParserPriv::parse(const std::string& content,
     ocaml::ast::typexpr& expr)
 {
     return parseString(content, _grammar.typexpr, expr);
+}
+
+bool ParserPriv::parse(const std::string& content,
+    ocaml::ast::constant& constant)
+{
+    return parseString(content, _grammar.constant, constant);
 }
 
 template<typename ParserExpr, typename Attribute>

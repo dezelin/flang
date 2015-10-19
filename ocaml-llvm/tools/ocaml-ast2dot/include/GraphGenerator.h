@@ -94,6 +94,11 @@ public:
     //
     bool operator()(ocaml::ast::typexpr const& expr) const;
 
+    //
+    // Constants
+    //
+    bool operator()(ocaml::ast::constant const& expr) const;
+
 private:
     std::unique_ptr<GraphGeneratorPriv> _p;
 };
