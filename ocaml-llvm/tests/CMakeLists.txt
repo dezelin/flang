@@ -19,6 +19,11 @@ if(NOT WIN32)
         # FIXME: Boost Spirit Karma gives this warning with GCC
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-local-typedefs")
     endif()
+else()
+	# - Number of sections exceeded object file format limit
+	# - C4244: 'argument' : conversion from 'type1' to 'type2', possible loss of data
+	# - C4018: '>': signed/unsigned mismatch
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /wd4244 /wd4018")
 endif()
 
 # Generate main() for tests

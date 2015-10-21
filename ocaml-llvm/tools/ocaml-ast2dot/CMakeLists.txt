@@ -22,6 +22,11 @@ if(NOT WIN32)
         # FIXME: Boost Spirit Karma gives this warning with GCC
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-local-typedefs")
     endif()
+else()
+	# Function call with parameters that may be unsafe 
+	# - this call relies on the caller to check that the passed values are correct.
+	add_definitions(-D_SCL_SECURE_NO_WARNINGS)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244 /wd4018")
 endif()
 
 include_directories(include)
@@ -44,4 +49,3 @@ set(SOURCE_FILES
 )
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
-target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
