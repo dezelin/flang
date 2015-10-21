@@ -49,3 +49,7 @@ set(SOURCE_FILES
 )
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
+if(NOT WIN32)
+    target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
+endif()
+
