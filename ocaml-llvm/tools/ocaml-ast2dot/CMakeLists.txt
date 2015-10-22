@@ -26,7 +26,7 @@ else()
 	# Function call with parameters that may be unsafe 
 	# - this call relies on the caller to check that the passed values are correct.
 	add_definitions(-D_SCL_SECURE_NO_WARNINGS)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244 /wd4018")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244 /wd4018 /bigobj /Zm2000")
 endif()
 
 include_directories(include)
