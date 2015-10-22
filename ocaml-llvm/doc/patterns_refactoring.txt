@@ -1,0 +1,105 @@
+Patterns grammar:
+==================
+
+pattern	::=	value-name
+ 	∣	 '_'
+ 	∣	 constant
+ 	∣	 pattern 'as' value-name
+ 	∣	 '(' pattern ')'
+ 	∣	 '(' pattern ':' typexpr ')'
+ 	∣	 pattern '|' pattern
+ 	∣	 constr pattern
+ 	∣	 '`'tag-name pattern
+ 	∣	 '#'typeconstr
+ 	∣	 pattern { ',' pattern }+
+ 	∣	 '{' field '=' pattern { ';' field '=' pattern } [ ';' ] '}'
+ 	∣	 '[' pattern  { ';' pattern } [ ';' ] ']'
+ 	∣	 pattern '::' pattern
+ 	∣	 '[|' pattern  { ';' pattern }  [ ';' ] '|]'
+
+A = B | C | D | E | Z
+A - pattern
+B - pattern 'as' value-name
+C - pattern '|' pattern
+D - pattern { ',' pattern }+
+E - pattern '::' pattern
+Z  - the rest of the rule
+
+where:
+
+B = A 'as' A
+C = A '|' A
+D = A +(',' A)
+E = A '::' A
+
+where:
+
+A = A 'as' A
+	| A '|' A
+	| A +(',' A)
+	| A '::' A
+	| Z
+
+where:
+
+(transformation for eliminating left recursion)
+
+α and β do not start with A
+
+A -> Aα | β
+
+A -> βA'
+A'-> αA' | epsilon
+
+where:
+
+E = Z E'
+E'= ('::' A) E' | epsilon
+
+D = E D'
+D'= +(',' A) D' | epsilon
+
+C = D C'
+C'= ('|' A) C' | epsilon
+
+B = C B'
+B'= ('as' A) B' | epsilon
+
+where: 
+
+A = B | C | D | E | Z
+
+where:
+
+Refactored patterns grammar:
+=============================
+
+patternZ ::= value-name
+ 	∣	 '_'
+ 	∣	 constant
+ 	∣	 '(' pattern ')'
+ 	∣	 '(' pattern ':' typexpr ')'
+ 	∣	 constr pattern
+ 	∣	 '`'tag-name pattern
+ 	∣	 '#'typeconstr
+ 	∣	 '{' field '=' pattern { ';' field '=' pattern } [ ';' ] '}'
+ 	∣	 '[' pattern  { ';' pattern } [ ';' ] ']'
+ 	∣	 '[|' pattern  { ';' pattern }  [ ';' ] '|]'
+
+patternE :=	patternZ patternE'
+patternE':= ('::' pattern) patternE' | epsilon
+
+patternD := patternE patternD'
+patternD':= +(',' pattern) patternD' | epsilon
+
+patternC := patternD patternC'
+patternC':= ('|' pattern) patternC' | epsilon
+
+patternB := patternC patternB'
+patternB':= ('as' pattern) patternB' | epsilon
+
+pattern	 := patternB 
+	| patternC 
+	| patternD 
+	| patternE 
+	| patternZ

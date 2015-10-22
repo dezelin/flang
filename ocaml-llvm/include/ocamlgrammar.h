@@ -618,6 +618,41 @@ struct OCamlGrammar : qi::grammar<Iterator>
         BOOST_SPIRIT_DEBUG_NODE(const_empty_list);
         BOOST_SPIRIT_DEBUG_NODE(const_empty_array);
         BOOST_SPIRIT_DEBUG_NODE(const_tag);
+
+        //
+        // Patterns
+        //
+
+        any_value_pattern %=
+            qi::tokenid(lexer::Tokens::Underscore) >> qi::eps;
+
+        parenthized_pattern %=
+            qi::omit[tok.lbrace] 
+                >> pattern 
+                >> -(qi::omit[tok.colon] >> typexpr) 
+                >> qi::omit[tok.rbrace]
+            ;
+        
+        variant_pattern %=
+            constr >> pattern
+            ;
+
+
+        BOOST_SPIRIT_DEBUG_NODE(pattern);
+        BOOST_SPIRIT_DEBUG_NODE(alias_pattern);
+        BOOST_SPIRIT_DEBUG_NODE(alias_pattern_rr);
+        BOOST_SPIRIT_DEBUG_NODE(or_pattern);
+        BOOST_SPIRIT_DEBUG_NODE(or_pattern_rr);
+        BOOST_SPIRIT_DEBUG_NODE(tuple_pattern);
+        BOOST_SPIRIT_DEBUG_NODE(tuple_pattern_rr);
+        BOOST_SPIRIT_DEBUG_NODE(any_value_pattern);
+        BOOST_SPIRIT_DEBUG_NODE(parenthized_pattern);
+        BOOST_SPIRIT_DEBUG_NODE(variant_pattern);
+        BOOST_SPIRIT_DEBUG_NODE(variant_non_empty_list_pattern);
+        BOOST_SPIRIT_DEBUG_NODE(polymorphic_variant_pattern);
+        BOOST_SPIRIT_DEBUG_NODE(polymorphic_variant_abbrev_pattern);
+        BOOST_SPIRIT_DEBUG_NODE(record_pattern);
+        BOOST_SPIRIT_DEBUG_NODE(array_pattern);
     }
 
     qi::rule<Iterator> start;
@@ -722,10 +757,29 @@ struct OCamlGrammar : qi::grammar<Iterator>
     qi::rule<Iterator, ocaml::ast::const_empty_array()> const_empty_array;
     qi::rule<Iterator, ocaml::ast::tag_name()> const_tag;
 
+    //
+    // Patterns
+    //
+
+    qi::rule<Iterator, ocaml::ast::pattern()> pattern;
+    qi::rule<Iterator, ocaml::ast::alias_pattern()> alias_pattern;
+    qi::rule<Iterator, ocaml::ast::alias_pattern_rr()> alias_pattern_rr;
+    qi::rule<Iterator, ocaml::ast::or_pattern()> or_pattern;
+    qi::rule<Iterator, ocaml::ast::or_pattern_rr()> or_pattern_rr;
+    qi::rule<Iterator, ocaml::ast::tuple_pattern()> tuple_pattern;
+    qi::rule<Iterator, ocaml::ast::tuple_pattern_rr()> tuple_pattern_rr;
+
+    qi::rule<Iterator, ocaml::ast::any_value_pattern()> any_value_pattern;
+    qi::rule<Iterator, ocaml::ast::parenthized_pattern()> parenthized_pattern;
+    qi::rule<Iterator, ocaml::ast::variant_pattern()> variant_pattern;
+    qi::rule<Iterator, ocaml::ast::variant_non_empty_list_pattern()> variant_non_empty_list_pattern;
+    qi::rule<Iterator, ocaml::ast::polymorphic_variant_pattern()> polymorphic_variant_pattern;
+    qi::rule<Iterator, ocaml::ast::polymorphic_variant_abbrev_pattern()> polymorphic_variant_abbrev_pattern;
+    qi::rule<Iterator, ocaml::ast::record_pattern()> record_pattern;
+    qi::rule<Iterator, ocaml::ast::array_pattern()> array_pattern;
 };
 
 } // namespace grammar
 } // namespace ocaml
 
 #endif //FLANG_OCAMLGRAMMAR_H
-

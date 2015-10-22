@@ -1430,36 +1430,139 @@ struct constant
 // 	        ∣	 [| pattern  { ; pattern }  [ ; ] |]
 //
 
+//  Refactored patterns grammar:
+//  ========================================================================
+//  
+//  non_rr_types_pattern ::=
+//      value-name
+//      | '_'
+//      | constant
+//      | '(' pattern ')'
+//      | '(' pattern ':'  typexpr ')'
+//      | constr pattern
+//      | '`'tag-name pattern
+//      | '#'typeconstr
+//      | '{' field '='  pattern  { ';' field '='  pattern }  [ ';' ] '}'
+//      | '[' pattern  { ';' pattern }  [ ';' ] ']'
+//      | '[|' pattern  { ';' pattern }  [ ';' ] '|]'
+//      
+//  variant_list_pattern ::=
+//      non_rr_types_pattern variant_list_pattern_rr
+//
+//  variant_list_pattern_rr ::=
+//      ('as' pattern) variant_list_pattern_rr | epsilon
+//
+//  tuple_pattern ::=
+//      variant_list_pattern tuple_pattern_rr
+//
+//  tuple_pattern_rr ::=
+//      +(',' pattern) tuple_pattern_rr | epsilon
+//
+//  or_pattern ::=
+//      tuple_patern or_pattern_rr
+//
+//  or_pattern_rr ::=
+//      ('|' pattern) or_pattern_rr | epsilon
+//
+//  alias_pattern ::=
+//      or_pattern alias_pattern_rr
+//
+//  alias_pattern_rr ::=
+//      ('as' pattern) alias_pattern_rr | epsilon
+//
+
 struct any_value_pattern;
-struct alias_pattern;
 struct parenthized_pattern;
-struct or_pattern;
 struct variant_pattern;
 struct variant_non_empty_list_pattern;
-struct variant_list_pattern;
 struct polymorphic_variant_pattern;
 struct polymorphic_variant_abbrev_pattern;
-struct tuple_pattern;
 struct record_pattern;
 struct array_pattern;
 
-struct pattern
-: tagged
+struct non_rr_types_pattern
+    : tagged
     , boost::spirit::extended_variant<
         value_name,
         boost::recursive_wrapper<any_value_pattern>,
         constant,
-        boost::recursive_wrapper<alias_pattern>,
         boost::recursive_wrapper<parenthized_pattern>,
-        boost::recursive_wrapper<or_pattern>,
         boost::recursive_wrapper<variant_pattern>,
+        boost::recursive_wrapper<variant_non_empty_list_pattern>,
         boost::recursive_wrapper<polymorphic_variant_pattern>,
         boost::recursive_wrapper<polymorphic_variant_abbrev_pattern>,
-        boost::recursive_wrapper<tuple_pattern>,
         boost::recursive_wrapper<record_pattern>,
-        boost::recursive_wrapper<variant_list_pattern>,
-        boost::recursive_wrapper<variant_non_empty_list_pattern>,
         boost::recursive_wrapper<array_pattern>
+    >
+{
+    non_rr_types_pattern()
+        : base_type()
+    {
+    }
+
+    non_rr_types_pattern(value_name const &val)
+        : base_type(val)
+    {
+    }
+
+    non_rr_types_pattern(any_value_pattern const &val)
+        : base_type(val)
+    {
+    }
+
+    non_rr_types_pattern(constant const &val)
+        : base_type(val)
+    {
+    }
+
+    non_rr_types_pattern(parenthized_pattern const &val)
+        : base_type(val)
+    {
+    }
+
+    non_rr_types_pattern(variant_pattern const &val)
+        : base_type(val)
+    {
+    }
+
+    non_rr_types_pattern(variant_non_empty_list_pattern const &val)
+        : base_type(val)
+    {
+    }
+
+    non_rr_types_pattern(polymorphic_variant_pattern const &val)
+        : base_type(val)
+    {
+    }
+
+    non_rr_types_pattern(polymorphic_variant_abbrev_pattern const &val)
+        : base_type(val)
+    {
+    }
+
+    non_rr_types_pattern(record_pattern const &val)
+        : base_type(val)
+    {
+    }
+
+    non_rr_types_pattern(array_pattern const &val)
+        : base_type(val)
+    {
+    }
+};
+
+struct variant_list_pattern;
+struct tuple_pattern;
+struct or_pattern;
+struct alias_pattern;
+
+struct pattern
+: tagged
+    , boost::spirit::extended_variant<
+        boost::recursive_wrapper<alias_pattern>,
+        boost::recursive_wrapper<or_pattern>,
+        boost::recursive_wrapper<tuple_pattern>,
+        boost::recursive_wrapper<variant_list_pattern>
     >
 {
     pattern()
@@ -1467,27 +1570,7 @@ struct pattern
     {
     }
 
-    pattern(value_name const &val)
-        : base_type(val)
-    {
-    }
-
-    pattern(any_value_pattern const &val)
-        : base_type(val)
-    {
-    }
-
-    pattern(constant const &val)
-        : base_type(val)
-    {
-    }
-
     pattern(alias_pattern const &val)
-        : base_type(val)
-    {
-    }
-
-    pattern(parenthized_pattern const &val)
         : base_type(val)
     {
     }
@@ -1497,27 +1580,7 @@ struct pattern
     {
     }
 
-    pattern(variant_pattern const &val)
-        : base_type(val)
-    {
-    }
-
-    pattern(polymorphic_variant_pattern const &val)
-        : base_type(val)
-    {
-    }
-
-    pattern(polymorphic_variant_abbrev_pattern const &val)
-        : base_type(val)
-    {
-    }
-
     pattern(tuple_pattern const &val)
-        : base_type(val)
-    {
-    }
-
-    pattern(record_pattern const &val)
         : base_type(val)
     {
     }
@@ -1526,21 +1589,63 @@ struct pattern
         : base_type(val)
     {
     }
+};
 
-    pattern(variant_non_empty_list_pattern const &val)
-        : base_type(val)
+typedef std::vector<pattern> pattern_list;
+
+// pattern  { , pattern }+
+
+struct tuple_pattern_rr
+{
+    tuple_pattern_rr()
     {
     }
 
-    pattern(array_pattern const &val)
-        : base_type(val)
-    {
-    }
+    non_rr_types_pattern non_rr_types_pattern;
+    std::shared_ptr<tuple_pattern_rr> pattern_rr;
+};
+
+struct tuple_pattern
+    : tagged
+{
+    boost::recursive_wrapper<variant_list_pattern> variant_list_pattern;
+    boost::recursive_wrapper<tuple_pattern_rr> tuple_pattern_rr;
+};
+
+//  pattern |  pattern
+
+struct or_pattern_rr
+{
+    pattern pattern;
+    std::shared_ptr<or_pattern_rr> pattern_rr;
+};
+
+struct or_pattern
+    : tagged
+{
+    tuple_pattern tuple_pattern;
+    boost::recursive_wrapper<or_pattern_rr> or_pattern_rr;
+};
+
+// pattern as  value-name
+
+struct alias_pattern_rr
+    : tagged
+{
+    pattern pattern;
+    std::shared_ptr<alias_pattern_rr> pattern_rr;
+};
+
+struct alias_pattern
+    : tagged
+{
+    or_pattern or_pattern;
+    boost::recursive_wrapper<alias_pattern_rr> alias_pattern_rr;
 };
 
 // _
 struct any_value_pattern
-: tagged
+    : tagged
 {
     // FIXME: tokens are not needed
 
@@ -1548,33 +1653,17 @@ struct any_value_pattern
 
 };
 
-// pattern as  value-name
-struct alias_pattern
-: tagged
-{
-    pattern pattrn;
-    value_name name;
-};
-
 // ( pattern :  typexpr )
 struct parenthized_pattern
-: tagged
+    : tagged
 {
     pattern pattrn;
     boost::optional<typexpr> type;
 };
 
-//  pattern |  pattern
-struct or_pattern
-: tagged
-{
-    pattern left;
-    pattern right;
-};
-
 // constr  pattern
 struct variant_pattern
-: tagged
+    : tagged
 {
     constr constr_;
     pattern pattrn;
@@ -1582,7 +1671,7 @@ struct variant_pattern
 
 // `tag-name  pattern
 struct polymorphic_variant_pattern
-: tagged
+    : tagged
 {
     tag_name tag;
     pattern pattrn;
@@ -1590,23 +1679,13 @@ struct polymorphic_variant_pattern
 
 // #typeconstr
 struct polymorphic_variant_abbrev_pattern
-: tagged
+    : tagged
 {
     typeconstr constr;
 };
 
-typedef std::vector<pattern> pattern_list;
-
-// pattern  { , pattern }+
-struct tuple_pattern
-: tagged
-{
-    pattern pattrn;
-    pattern_list other;
-};
-
 struct record_field
-: tagged
+    : tagged
 {
     field name;
     pattern pattrn;
@@ -1616,7 +1695,7 @@ typedef std::vector<record_field> record_field_list;
 
 // { field =  pattern  { ; field =  pattern }  [ ; ] }
 struct record_pattern
-: tagged
+    : tagged
 {
     record_field first;
     boost::optional<record_field_list> other;
@@ -1624,7 +1703,7 @@ struct record_pattern
 
 // [ pattern  { ; pattern }  [ ; ] ]
 struct variant_list_pattern
-: tagged
+    : tagged
 {
     pattern first;
     boost::optional<pattern_list> other;
@@ -1632,7 +1711,7 @@ struct variant_list_pattern
 
 //  pattern :: pattern
 struct variant_non_empty_list_pattern
-: tagged
+    : tagged
 {
     pattern head;
     pattern tail;
@@ -1640,7 +1719,7 @@ struct variant_non_empty_list_pattern
 
 // [| pattern  { ; pattern }  [ ; ] |]
 struct array_pattern
-: tagged
+    : tagged
 {
     pattern first;
     boost::optional<pattern_list> other;
@@ -4910,6 +4989,104 @@ BOOST_FUSION_ADAPT_STRUCT(
     ocaml::ast::const_empty_array,
     (ocaml::lexer::Tokens, opened)
     (ocaml::lexer::Tokens, closed)
+)
+
+//
+// Patterns
+//
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::tuple_pattern_rr,
+    (ocaml::ast::non_rr_types_pattern, non_rr_types_pattern)
+    (boost::shared_ptr<ocaml::ast::tuple_pattern_rr>, pattern_rr)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::tuple_pattern,
+    (boost::recursive_wrapper<ocaml::ast::variant_list_pattern>, variant_list_pattern)
+    (boost::recursive_wrapper<ocaml::ast::tuple_pattern_rr>, tuple_pattern_rr)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::or_pattern_rr,
+    (ocaml::ast::pattern, pattern)
+    (boost::shared_ptr<ocaml::ast::or_pattern_rr>, pattern_rr)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::or_pattern,
+    (ocaml::ast::tuple_pattern, tuple_pattern)
+    (boost::recursive_wrapper<ocaml::ast::or_pattern_rr>, or_pattern_rr)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::alias_pattern_rr,
+    (ocaml::ast::pattern, pattern)
+    (boost::shared_ptr<ocaml::ast::alias_pattern_rr>, pattern_rr)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::alias_pattern,
+    (ocaml::ast::or_pattern, or_pattern)
+    (boost::recursive_wrapper<ocaml::ast::alias_pattern_rr>, alias_pattern_rr)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::any_value_pattern,
+    (ocaml::lexer::Tokens, anyValue)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::parenthized_pattern,
+    (ocaml::ast::pattern, pattrn)
+    (boost::optional<ocaml::ast::typexpr>, type)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::variant_pattern,
+    (ocaml::ast::constr, constr_)
+    (ocaml::ast::pattern, pattrn)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::polymorphic_variant_pattern,
+    (ocaml::ast::tag_name, tag)
+    (ocaml::ast::pattern, pattrn)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::polymorphic_variant_abbrev_pattern,
+    (ocaml::ast::typeconstr, constr)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::record_field,
+    (ocaml::ast::field, name)
+    (ocaml::ast::pattern, pattrn)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::record_pattern,
+    (ocaml::ast::record_field, first)
+    (boost::optional<ocaml::ast::record_field_list>, other)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::variant_list_pattern,
+    (ocaml::ast::pattern, first)
+    (boost::optional<ocaml::ast::pattern_list>, other)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::variant_non_empty_list_pattern,
+    (ocaml::ast::pattern, head)
+    (ocaml::ast::pattern, tail)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ocaml::ast::array_pattern,
+    (ocaml::ast::pattern, first)
+    (boost::optional<ocaml::ast::pattern_list>, other)
 )
 
 #if defined(_MSC_VER)
